@@ -2,6 +2,12 @@ import 'dotenv/config'; // ✅ Load env vars at the top
 import express from "express";
 import cors from "cors";
 import signupRoute from "./routes/signup.js";
+import buyerPrefRoute from './routes/buyerPreferences.js';
+import sellerStoreRoute from './routes/sellerStore.js';
+import loginRoute from './routes/login.js';
+
+
+
 import { poolPromise, connectToDatabase } from "./db/sql.js"; // ✅ Import both
 
 const app = express();
@@ -23,6 +29,9 @@ app.post("/api/test", async (req, res) => {
 });
 
 app.use("/api/signup", signupRoute);
+app.use('/api/buyer/preferences', buyerPrefRoute);
+app.use('/api/seller/create-store', sellerStoreRoute);
+app.use('/api/login', loginRoute);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, async () => {
