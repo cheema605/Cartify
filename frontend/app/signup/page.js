@@ -8,6 +8,7 @@ export default function SignupPage() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -69,60 +70,54 @@ export default function SignupPage() {
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-gray-700">Username</label>
-            <div className="relative">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 text-gray-500 absolute top-2 left-2"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12l5-5m0 0l5 5m-5-5v12" />
-              </svg>
-              <input
-                type="text"
-                placeholder="Enter your username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full pl-8 px-3 py-2 border rounded focus:ring focus:ring-blue-200 text-black"
-                required
-              />
-            </div>
+            <input
+              type="text"
+              placeholder="Enter your username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full px-3 py-2 border rounded focus:ring focus:ring-blue-200 text-black"
+              required
+            />
           </div>
 
           <div className="mb-4">
             <label className="block text-gray-700">Email</label>
-            <div className="relative">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 text-gray-500 absolute top-2 left-2"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 12H6" />
-              </svg>
-              <input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-8 px-3 py-2 border rounded focus:ring focus:ring-blue-200 text-black"
-                required
-              />
-            </div>
+            <input
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-3 py-2 border rounded focus:ring focus:ring-blue-200 text-black"
+              required
+            />
           </div>
 
           <div className="mb-4">
             <label className="block text-gray-700">Password</label>
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="Create a password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-3 py-2 border rounded focus:ring focus:ring-blue-200 text-black"
               required
             />
+          </div>
+
+          <div className="mb-6 flex justify-between items-center">
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="showPassword"
+                checked={showPassword}
+                onChange={() => setShowPassword(!showPassword)}
+                className="mr-2"
+              />
+              <label htmlFor="showPassword" className="text-gray-700 text-sm">Show Password</label>
+            </div>
+            <Link href="/login" className="text-blue-500 underline text-sm hover:text-blue-700">
+              Login here
+            </Link>
           </div>
 
           <button
@@ -133,12 +128,6 @@ export default function SignupPage() {
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-gray-600">
-          Already have an account?{" "}
-          <Link href="/login" className="text-blue-500 underline hover:text-blue-700">
-            Login here
-          </Link>
-        </p>
         <p className="mt-6 text-gray-400 text-center text-xs">
           © 2025 Cartify Pvt Ltd. All rights reserved.
         </p>
