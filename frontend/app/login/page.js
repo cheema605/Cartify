@@ -45,7 +45,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 via-green-500 to-blue-400">
+    <div className="min-h-screen flex items-center justify-center bg-[#7F8C94]">
       <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-200 w-full sm:w-96">
         <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Login to Cartify</h1>
 

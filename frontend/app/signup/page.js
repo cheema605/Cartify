@@ -1,5 +1,4 @@
 "use client"; // Enables client-side rendering
-
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -60,7 +59,7 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 via-green-500 to-blue-400">
+    <div className="min-h-screen flex items-center justify-center bg-[#7F8C94]"> {/* Background Color Applied Here */}
       <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-200 w-full sm:w-96">
         <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Sign Up</h1>
 
