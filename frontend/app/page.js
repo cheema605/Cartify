@@ -5,12 +5,42 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 const sections = [
   {
     id: 1,
-    className: "bg-[#7f8c94] flex items-center justify-center",
+    className: "relative flex items-center justify-center text-center h-screen bg-[repeating-linear-gradient(90deg, black 0%, black 10%, white 10%, white 20%)]",
     content: (
-      <>
-        {/* LOGO SECTION - Customize this section */}
-        <img src="/images/Cartifylogo.png" className="w-full h-full object-cover" alt="Cartify Logo" />
-      </>
+      <div className="w-full h-full flex flex-col">
+        {/* Top-right buttons */}
+        <div className="absolute top-5 right-5 flex gap-4">
+          <button className="px-6 py-2 bg-white text-black font-bold rounded-full shadow-md hover:bg-gray-200 transition">
+            Login
+          </button>
+          <button className="px-6 py-2 bg-white text-black font-bold rounded-full shadow-md hover:bg-gray-200 transition">
+            Signup
+          </button>
+        </div>
+  
+        {/* Centered Content */}
+        <div className="flex flex-1 items-center justify-center flex-col">
+          {/* CSS Shopping Bag Logo */}
+          <div className="relative flex items-center justify-center mb-4">
+            {/* Bag Body */}
+            <div className="w-16 h-16 bg-white rounded-b-lg shadow-lg relative"></div>
+  
+            {/* Bag Handles */}
+            <div className="absolute -top-4 flex gap-6">
+              <div className="w-4 h-6 border-4 border-white rounded-full"></div>
+              <div className="w-4 h-6 border-4 border-white rounded-full"></div>
+            </div>
+          </div>
+  
+          {/* Welcome Text */}
+          <h1 className="text-6xl font-extrabold text-white drop-shadow-md">
+            WELCOME TO CARTIFY
+          </h1>
+          <p className="text-2xl font-bold italic text-white drop-shadow-md mt-4">
+            Your one-stop shop
+          </p>
+        </div>
+      </div>
     ),
   },
   {
