@@ -1,29 +1,119 @@
 "use client";
 
-import React, { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 
-export default function LogoPage() {
-  const router = useRouter();
+const sections = [
+  {
+    id: 1,
+    className: "bg-[#7f8c94] flex items-center justify-center",
+    content: (
+      <>
+        {/* LOGO SECTION - Customize this section */}
+        <img src="/images/Cartifylogo.png" className="w-full h-full object-cover" alt="Cartify Logo" />
+      </>
+    ),
+  },
+  {
+    id: 2,
+    className: "bg-white flex flex-col items-center justify-center text-center p-10",
+    content: (
+      <>
+        {/* WELCOME SECTION - Customize this section */}
+        <h1 className="text-4xl font-bold">Welcome to Cartify!</h1>
+        <p className="text-lg mt-4">Your go-to platform for buying and selling with ease.</p>
+      </>
+    ),
+  },
+  {
+    id: 3,
+    className: "bg-gray-100 flex flex-col items-center justify-center text-center p-10",
+    content: (
+      <>
+        {/* ABOUT SECTION - Customize this section */}
+        <h1 className="text-3xl font-semibold">About Us</h1>
+        <p className="text-lg mt-4 max-w-2xl">
+          Cartify is a marketplace designed to bring buyers and sellers together effortlessly.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 4,
+    className: "bg-blue-100 flex flex-col items-center justify-center text-center p-10",
+    content: (
+      <>
+        {/* FEATURES SECTION - Customize this section */}
+        <h1 className="text-3xl font-semibold">Why Choose Cartify?</h1>
+        <ul className="mt-4 text-lg">
+          <li>✔ Seamless transactions</li>
+          <li>✔ Secure and reliable platform</li>
+          <li>✔ User-friendly interface</li>
+        </ul>
+      </>
+    ),
+  },
+  {
+    id: 5,
+    className: "bg-green-100 flex flex-col items-center justify-center text-center p-10",
+    content: (
+      <>
+        {/* GET STARTED SECTION - Customize this section */}
+        <h1 className="text-3xl font-semibold">Get Started Today!</h1>
+        <p className="text-lg mt-4">Join thousands of users already benefiting from Cartify.</p>
+        <button className="mt-6 px-6 py-3 bg-blue-500 text-white rounded-lg shadow-md">Sign Up Now</button>
+      </>
+    ),
+  },
+];
 
-  // Redirect to the signup page after 3 seconds
+export default function LandingPage() {
+  const [currentSection, setCurrentSection] = useState(0);
+  const isScrolling = useRef(false);
+
+  const scrollToSection = (index) => {
+    if (index >= 0 && index < sections.length) {
+      document.getElementById(`section-${index}`).scrollIntoView({ behavior: "smooth" });
+      setCurrentSection(index);
+    }
+  };
+
+  const handleScroll = useCallback(
+    (event) => {
+      if (isScrolling.current) return;
+      isScrolling.current = true;
+
+      if (event.deltaY > 0) {
+        scrollToSection(currentSection + 1);
+      } else if (event.deltaY < 0) {
+        scrollToSection(currentSection - 1);
+      }
+
+      setTimeout(() => (isScrolling.current = false), 800);
+    },
+    [currentSection]
+  );
+
   useEffect(() => {
-    const timer = setTimeout(() => {
-      router.push("/signup");
-    }, 3000);
+    const handleKeyDown = (event) => {
+      if (event.key === "ArrowDown") scrollToSection(currentSection + 1);
+      else if (event.key === "ArrowUp") scrollToSection(currentSection - 1);
+    };
 
-    return () => clearTimeout(timer); // Clear timeout if component unmounts
-  }, [router]);
+    window.addEventListener("wheel", handleScroll);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("wheel", handleScroll);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [handleScroll]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-green-500">
-      <div className="absolute inset-0 flex items-center justify-center">
-        <img
-          src="/images/Cartifylogo.png" // Path to your logo image
-          alt="Cartify Logo"
-          className="w-full h-full object-cover" // Covers the entire viewport
-        />
-      </div>
+    <div className="w-full h-screen overflow-hidden">
+      {sections.map((section, index) => (
+        <div key={section.id} id={`section-${index}`} className={`w-full min-h-screen ${section.className}`}>
+          {section.content}
+        </div>
+      ))}
     </div>
   );
 }
