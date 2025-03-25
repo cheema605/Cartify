@@ -67,28 +67,67 @@ const sections = [
   },
   {
     id: 2,
-    className: "bg-teal-500 text-white flex flex-col items-center justify-center text-center p-10",
+    className: "min-h-screen bg-white flex flex-col items-center py-12 font-serif",
     content: (
-      <>
-        <h1 className="text-4xl font-bold">Welcome to Cartify!</h1>
-        <p className="text-lg mt-4">
-          Your go-to platform for buying and selling with ease.
-        </p>
-      </>
+      <div className="w-11/12 max-w-6xl mt-35"> {/* Added mt-12 for spacing */}
+        <h2 className="text-4xl font-extrabold text-gray-900 mb-8 tracking-wide">
+          🔥 Trending Deals
+        </h2>
+  
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            { id: 1, title: "Wireless Headphones", price: "$59.99", image: "/images/deal1.jpg" },
+            { id: 2, title: "Smartwatch Series 7", price: "$199.99", image: "/images/deal2.jpg" },
+            { id: 3, title: "Gaming Laptop", price: "$999.99", image: "/images/deal3.jpg" },
+            { id: 4, title: "Bluetooth Speaker", price: "$39.99", image: "/images/deal4.jpg" },
+          ].map((deal) => (
+            <div
+              key={deal.id}
+              className="bg-gray-100 rounded-lg p-4 shadow-lg hover:shadow-2xl transition transform hover:-translate-y-2"
+            >
+              <img
+                src={deal.image}
+                alt={deal.title}
+                className="w-full h-40 object-cover rounded-lg mb-4"
+              />
+              <h3 className="text-xl font-bold text-gray-800 tracking-wide">{deal.title}</h3>
+              <p className="text-lg text-gray-600 italic">{deal.price}</p>
+              <button className="mt-4 px-5 py-2 bg-[#157a94] text-white font-bold rounded-lg hover:bg-[#106b82] transition shadow-md">
+                Buy Now
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
     ),
-  },
+  }  ,
   {
     id: 3,
-    className: "bg-purple-400 text-white flex flex-col items-center justify-center text-center p-10",
+    className: "min-h-screen flex flex-col items-center font-serif",
     content: (
-      <>
-        <h1 className="text-3xl font-semibold">About Us</h1>
-        <p className="text-lg mt-4 max-w-2xl">
-          Cartify is a marketplace designed to bring buyers and sellers together effortlessly.
-        </p>
-      </>
+      <div className="w-full flex flex-col items-center">
+        
+        {/* Upper Half - White Background */}
+        <div className="w-full min-h-[50vh] bg-white"></div>
+
+  
+        {/* Lower Half - Teal Background */}
+        <div className="w-full bg-[#0e5a6d] text-white py-12 text-center shadow-md">
+          <h2 className="text-3xl font-extrabold tracking-wide">📞 Contact Us</h2>
+          <p className="text-lg mt-2">Have any questions? Reach out to us via email or phone.</p>
+  
+          {/* Contact Details */}
+          <p className="text-xl font-semibold mt-4">✉️ Email: support@example.com</p>
+          <p className="text-xl font-semibold mt-2">📞 Phone: +123 456 7890</p>
+          <p className="text-lg mt-4 italic">Available: Mon - Fri, 9 AM - 6 PM</p>
+  
+          {/* Footer */}
+          <p className="mt-8 text-sm opacity-80">© 2025 YourCompany. All Rights Reserved.</p>
+        </div>
+      </div>
     ),
-  },
+  }
+,
   {
     id: 4,
     className: "bg-[#FF7F50]  text-white flex flex-col items-center justify-center text-center p-10",
