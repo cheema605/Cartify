@@ -6,48 +6,62 @@ import { useRouter } from "next/navigation";
 const sections = [
   {
     id: 1,
-    className:
-      "relative flex items-center justify-center text-center h-screen bg-[repeating-linear-gradient(90deg, black 0%, black 10%, white 10%, white 20%)]",
-    content: (router) => (
-      <div className="w-full h-full flex flex-col">
-        {/* Top-right buttons */}
-        <div className="absolute top-5 right-5 flex gap-4">
-          <button
-            className="px-6 py-2 bg-white text-black font-bold rounded-full shadow-md hover:bg-gray-200 transition"
-            onClick={() => router.push("login")}
-          >
-            Login
-          </button>
-          <button
-            className="px-6 py-2 bg-white text-black font-bold rounded-full shadow-md hover:bg-gray-200 transition"
-            onClick={() => router.push("signup")}
-          >
-            Signup
-          </button>
+    className: "relative flex flex-col lg:flex-row items-center justify-center text-white h-screen px-8 md:px-16 bg-[#157a94] font-[Inter]", // Updated font
+    content: () => (
+      <div className="w-full flex flex-col">
+        
+        {/* Fixed Top Task Bar */}
+        <div className="fixed top-0 left-0 w-full flex items-center justify-between px-8 md:px-16 py-4 bg-[#106b82] shadow-md z-50">
+          <span className="text-2xl font-bold italic tracking-wide">Cartify</span>
+          <nav className="hidden md:flex gap-6 text-lg font-medium">
+            <a href="#" className="hover:text-gray-300 transition">Home</a>
+            <a href="#" className="hover:text-gray-300 transition">Shop</a>
+            <a href="#" className="hover:text-gray-300 transition">Rent</a>
+            <a href="#" className="hover:text-gray-300 transition">More</a>
+          </nav>
+          <div className="flex gap-4">
+            <button className="px-4 py-2 text-white border border-white rounded-lg hover:bg-white hover:text-black transition font-medium">
+              Help
+            </button>
+            <button className="px-5 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition font-medium">
+              Start
+            </button>
+          </div>
         </div>
-
-        {/* Centered Content */}
-        <div className="flex flex-1 items-center justify-center flex-col">
-          {/* CSS Shopping Bag Logo */}
-          <div className="relative flex items-center justify-center mb-4">
-            {/* Bag Body */}
-            <div className="w-16 h-16 bg-white rounded-b-lg shadow-lg relative"></div>
-
-            {/* Bag Handles */}
-            <div className="absolute -top-4 flex gap-6">
-              <div className="w-4 h-6 border-4 border-white rounded-full"></div>
-              <div className="w-4 h-6 border-4 border-white rounded-full"></div>
+  
+        {/* Main Hero Section */}
+        <div className="flex flex-col lg:flex-row items-center justify-between max-w-7xl mx-auto flex-1 pt-24"> {/* Adjusted padding for navbar */}
+          
+          {/* Left Content */}
+          <div className="lg:w-1/2 text-center lg:text-left">
+            <h1 className="text-5xl md:text-6xl font-extrabold drop-shadow-md leading-tight">
+              Discover a New Way to Buy and Sell
+            </h1>
+            <p className="text-lg md:text-xl mt-4 drop-shadow-md leading-relaxed">
+              At Cartify, we empower you to easily buy, sell, and rent a variety of items. Join our community and experience seamless transactions that fit your lifestyle.
+            </p>
+            <div className="mt-6 flex gap-4 justify-center lg:justify-start">
+              <button className="px-6 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-800 transition">
+                Get Started
+              </button>
+              <button className="px-6 py-3 bg-transparent border border-white text-white font-semibold rounded-lg hover:bg-white hover:text-black transition">
+                Learn More
+              </button>
             </div>
           </div>
+  
+          {/* Right Image Grid */}
+          <div className="lg:w-1/2 grid grid-cols-2 gap-4 mt-8 lg:mt-0">
 
-          {/* Welcome Text */}
-          <h1 className="text-6xl font-extrabold text-white drop-shadow-md">
-            WELCOME TO CARTIFY
-          </h1>
-          <p className="text-2xl font-bold italic text-white drop-shadow-md mt-4">
-            Your one-stop shop
-          </p>
+          <img src="C:\Work\Cartify\frontend\app\images\image2.jpg" alt="Shopping" className="w-64 h-64 object-cover" />
+
+            <img src="C:\Work\Cartify\frontend\app\images\image2.jpg" alt="Women discussing" className="rounded-lg shadow-lg w-full h-auto" />
+            <img src="C:\Work\Cartify\frontend\app\images\image3.jpg" alt="Businesswoman" className="rounded-lg shadow-lg w-full h-auto" />
+            <img src="C:\Work\Cartify\frontend\app\images\image4.png" alt="Group discussion" className="rounded-lg shadow-lg w-full h-auto" />
+          </div>
+  
         </div>
+  
       </div>
     ),
   },
