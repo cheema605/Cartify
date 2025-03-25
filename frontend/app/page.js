@@ -1,20 +1,27 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 
 const sections = [
   {
     id: 1,
     className:
       "relative flex items-center justify-center text-center h-screen bg-[repeating-linear-gradient(90deg, black 0%, black 10%, white 10%, white 20%)]",
-    content: (
+    content: (router) => (
       <div className="w-full h-full flex flex-col">
         {/* Top-right buttons */}
         <div className="absolute top-5 right-5 flex gap-4">
-          <button className="px-6 py-2 bg-white text-black font-bold rounded-full shadow-md hover:bg-gray-200 transition">
+          <button
+            className="px-6 py-2 bg-white text-black font-bold rounded-full shadow-md hover:bg-gray-200 transition"
+            onClick={() => router.push("login")}
+          >
             Login
           </button>
-          <button className="px-6 py-2 bg-white text-black font-bold rounded-full shadow-md hover:bg-gray-200 transition">
+          <button
+            className="px-6 py-2 bg-white text-black font-bold rounded-full shadow-md hover:bg-gray-200 transition"
+            onClick={() => router.push("signup")}
+          >
             Signup
           </button>
         </div>
@@ -46,7 +53,7 @@ const sections = [
   },
   {
     id: 2,
-    className: "bg-white flex flex-col items-center justify-center text-center p-10",
+    className: "bg-teal-500 text-white flex flex-col items-center justify-center text-center p-10",
     content: (
       <>
         <h1 className="text-4xl font-bold">Welcome to Cartify!</h1>
@@ -58,20 +65,19 @@ const sections = [
   },
   {
     id: 3,
-    className: "bg-gray-100 flex flex-col items-center justify-center text-center p-10",
+    className: "bg-purple-400 text-white flex flex-col items-center justify-center text-center p-10",
     content: (
       <>
         <h1 className="text-3xl font-semibold">About Us</h1>
         <p className="text-lg mt-4 max-w-2xl">
-          Cartify is a marketplace designed to bring buyers and sellers together
-          effortlessly.
+          Cartify is a marketplace designed to bring buyers and sellers together effortlessly.
         </p>
       </>
     ),
   },
   {
     id: 4,
-    className: "bg-blue-100 flex flex-col items-center justify-center text-center p-10",
+    className: "bg-[#FF7F50]  text-white flex flex-col items-center justify-center text-center p-10",
     content: (
       <>
         <h1 className="text-3xl font-semibold">Why Choose Cartify?</h1>
@@ -85,7 +91,7 @@ const sections = [
   },
   {
     id: 5,
-    className: "bg-green-100 flex flex-col items-center justify-center text-center p-10",
+    className: "bg-[#00CED1]   text-white flex flex-col items-center justify-center text-center p-10",
     content: (
       <>
         <h1 className="text-3xl font-semibold">Get Started Today!</h1>
@@ -101,6 +107,7 @@ const sections = [
 ];
 
 export default function LandingPage() {
+  const router = useRouter();
   const [currentSection, setCurrentSection] = useState(0);
   const isScrolling = useRef(false);
   const touchStartY = useRef(0);
@@ -172,12 +179,8 @@ export default function LandingPage() {
   return (
     <div className="w-full h-screen overflow-hidden">
       {sections.map((section, index) => (
-        <div
-          key={section.id}
-          id={`section-${index}`}
-          className={`w-full min-h-screen ${section.className}`}
-        >
-          {section.content}
+        <div key={section.id} id={`section-${index}`} className={`w-full min-h-screen ${section.className}`}>
+          {typeof section.content === "function" ? section.content(router) : section.content}
         </div>
       ))}
     </div>
