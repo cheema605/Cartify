@@ -45,34 +45,34 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#7F8C94]">
+    <div className="min-h-screen flex items-center justify-center bg-[#0e5a6d]">
       <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-200 w-full sm:w-96">
-        <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Login to Cartify</h1>
+        <h1 className="text-3xl font-extrabold mb-6 text-center text-gray-800 font-serif">Login to Cartify</h1>
 
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         {success && <p className="text-green-500 text-center mb-4">{success}</p>}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-gray-700">Email</label>
+            <label className="block text-[#157a94] font-serif">Email</label>
             <input
               type="email"
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border rounded focus:ring focus:ring-blue-200 text-black"
+              className="w-full px-3 py-2 border rounded focus:ring focus:ring-blue-200 text-black font-serif"
               required
             />
           </div>
 
           <div className="mb-4">
-            <label className="block text-gray-700">Password</label>
+            <label className="block text-[#157a94] font-serif">Password</label>
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border rounded focus:ring focus:ring-blue-200 text-black"
+              className="w-full px-3 py-2 border rounded focus:ring focus:ring-blue-200 text-black font-serif"
               required
             />
           </div>
@@ -86,22 +86,22 @@ export default function LoginPage() {
                 onChange={() => setShowPassword(!showPassword)}
                 className="mr-2"
               />
-              <label htmlFor="showPassword" className="text-gray-700 text-sm">Show Password</label>
+              <label htmlFor="showPassword" className="text-[#157a94] text-sm font-serif">Show Password</label>
             </div>
-            <Link href="/signup" className="text-blue-500 underline text-sm hover:text-blue-700">
+            <Link href="/signup" className="text-[#157a94] underline text-sm hover:text-blue-700 font-serif">
               Create a new account
             </Link>
           </div>
 
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-500 to-green-500 text-white py-2 rounded-lg hover:from-green-500 hover:to-blue-500 transition-transform transform hover:scale-105"
+            className="w-full bg-[#157a94] text-white py-2 rounded-lg hover:bg-[#106b82] transition-transform transform hover:scale-105 font-serif"
           >
             Login
           </button>
         </form>
 
-        <p className="mt-6 text-gray-400 text-center text-xs">© 2025 Cartify Pvt Ltd. All rights reserved.</p>
+        <p className="mt-6 text-gray-400 text-center text-xs font-serif">© 2025 Cartify Pvt Ltd. All rights reserved.</p>
       </div>
     </div>
   );
