@@ -24,7 +24,7 @@ const sections = [
               Help
             </button>
             <button className="px-5 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition font-medium">
-              Start
+              Login
             </button>
           </div>
         </div>
@@ -51,14 +51,27 @@ const sections = [
           </div>
   
           {/* Right Image Grid */}
-          <div className="lg:w-1/2 grid grid-cols-2 gap-4 mt-8 lg:mt-0">
+          <div className="lg:w-1/2 grid grid-cols-2 gap-4 mt-4 lg:mt-0">
+  {/* First Row - Offset Left & Right */}
+  <div className="-mt-2">
+    <img src="../images/image1.jpg" alt="Shopping" className="rounded-lg shadow-lg w-full h-auto object-cover" />
+  </div>
+  <div className="mt-2">
+    <img src="../images/image2.jpg" alt="Women discussing" className="rounded-lg shadow-lg w-full h-auto object-cover" />
+  </div>
+  </div>
+  <div className="lg:w-1/2 grid grid-cols-2 gap-4 mt-4 lg:mt-0">
+  {/* Second Row - Offset Opposite Direction */}
+  <div className="mt-2">
+    <img src="../images/image3.jpg" alt="Businesswoman" className="rounded-lg shadow-lg w-full h-auto object-cover" />
+  </div>
+  <div className="-mt-4">
+    <img src="../images/image4.jpg" alt="Group discussion" className="rounded-lg shadow-lg w-full h-auto object-cover" />
+  </div>
+</div>
 
-          <img src="C:\Work\Cartify\frontend\app\images\image2.jpg" alt="Shopping" className="w-64 h-64 object-cover" />
 
-            <img src="C:\Work\Cartify\frontend\app\images\image2.jpg" alt="Women discussing" className="rounded-lg shadow-lg w-full h-auto" />
-            <img src="C:\Work\Cartify\frontend\app\images\image3.jpg" alt="Businesswoman" className="rounded-lg shadow-lg w-full h-auto" />
-            <img src="C:\Work\Cartify\frontend\app\images\image4.png" alt="Group discussion" className="rounded-lg shadow-lg w-full h-auto" />
-          </div>
+
   
         </div>
   
@@ -76,10 +89,10 @@ const sections = [
   
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
-            { id: 1, title: "Wireless Headphones", price: "$59.99", image: "/images/deal1.jpg" },
-            { id: 2, title: "Smartwatch Series 7", price: "$199.99", image: "/images/deal2.jpg" },
-            { id: 3, title: "Gaming Laptop", price: "$999.99", image: "/images/deal3.jpg" },
-            { id: 4, title: "Bluetooth Speaker", price: "$39.99", image: "/images/deal4.jpg" },
+            { id: 1, title: "Wireless Headphones", price: "$59.99", image: "../images/deal1.jpg" },
+            { id: 2, title: "Smartwatch Series 7", price: "$199.99", image: "../images/deal2.jpg" },
+            { id: 3, title: "Gaming Laptop", price: "$999.99", image: "../images/deal3.jpg" },
+            { id: 4, title: "Bluetooth Speaker", price: "$39.99", image: "../images/deal4.jpg" },
           ].map((deal) => (
             <div
               key={deal.id}
@@ -127,36 +140,6 @@ const sections = [
       </div>
     ),
   }
-,
-  {
-    id: 4,
-    className: "bg-[#FF7F50]  text-white flex flex-col items-center justify-center text-center p-10",
-    content: (
-      <>
-        <h1 className="text-3xl font-semibold">Why Choose Cartify?</h1>
-        <ul className="mt-4 text-lg">
-          <li>✔ Seamless transactions</li>
-          <li>✔ Secure and reliable platform</li>
-          <li>✔ User-friendly interface</li>
-        </ul>
-      </>
-    ),
-  },
-  {
-    id: 5,
-    className: "bg-[#00CED1]   text-white flex flex-col items-center justify-center text-center p-10",
-    content: (
-      <>
-        <h1 className="text-3xl font-semibold">Get Started Today!</h1>
-        <p className="text-lg mt-4">
-          Join thousands of users already benefiting from Cartify.
-        </p>
-        <button className="mt-6 px-6 py-3 bg-blue-500 text-white rounded-lg shadow-md">
-          Sign Up Now
-        </button>
-      </>
-    ),
-  },
 ];
 
 export default function LandingPage() {
