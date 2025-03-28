@@ -59,16 +59,17 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#7F8C94]"> {/* Background Color Applied Here */}
+    <div className="min-h-screen flex items-center justify-center bg-[#0e5a6d] font-serif">
+      {/* Signup Dialog Box */}
       <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-200 w-full sm:w-96">
-        <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Sign Up</h1>
+        <h1 className="text-3xl font-extrabold mb-6 text-center text-[#0F1516]">Sign Up</h1> {/* Text color changed */}
 
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         {success && <p className="text-green-500 text-center mb-4">{success}</p>}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-gray-700">Username</label>
+            <label className="block text-[#157a94]">Username</label> {/* Text color changed */}
             <input
               type="text"
               placeholder="Enter your username"
@@ -80,7 +81,7 @@ export default function SignupPage() {
           </div>
 
           <div className="mb-4">
-            <label className="block text-gray-700">Email</label>
+            <label className="block text-[#157a94]">Email</label> {/* Text color changed */}
             <input
               type="email"
               placeholder="Enter your email"
@@ -92,7 +93,7 @@ export default function SignupPage() {
           </div>
 
           <div className="mb-4">
-            <label className="block text-gray-700">Password</label>
+            <label className="block text-[#157a94]">Password</label> {/* Text color changed */}
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Create a password"
@@ -112,16 +113,16 @@ export default function SignupPage() {
                 onChange={() => setShowPassword(!showPassword)}
                 className="mr-2"
               />
-              <label htmlFor="showPassword" className="text-gray-700 text-sm">Show Password</label>
+              <label htmlFor="showPassword" className="text-[#157a94] text-sm">Show Password</label> {/* Text color changed */}
             </div>
-            <Link href="/login" className="text-blue-500 underline text-sm hover:text-blue-700">
+            <Link href="/login" className="text-[#157a94] underline text-sm hover:text-blue-700">
               Login here
             </Link>
           </div>
 
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-500 to-green-500 text-white py-2 rounded-lg hover:from-green-500 hover:to-blue-500 transition-transform transform hover:scale-105"
+            className="w-full bg-gradient-to-r from-[#157a94] to-[#106b82] text-white py-2 rounded-lg hover:bg-[#0F1516] transition-transform transform hover:scale-105"
           >
             Sign Up
           </button>
