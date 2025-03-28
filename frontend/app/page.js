@@ -7,7 +7,7 @@ const sections = [
   {
     id: 1,
     className: "relative flex flex-col lg:flex-row items-center justify-center text-white h-screen px-8 md:px-16 bg-[#157a94] font-[Inter]", // Updated font
-    content: () => (
+    content: (router) => (
       <div className="w-full flex flex-col">
         
         {/* Fixed Top Task Bar */}
@@ -20,10 +20,10 @@ const sections = [
             <a href="#" className="hover:text-gray-300 transition">More</a>
           </nav>
           <div className="flex gap-4">
-            <button className="px-4 py-2 text-white border border-white rounded-lg hover:bg-white hover:text-black transition font-medium">
+            <button className="px-4 py-2 text-white border border-white rounded-lg hover:bg-white hover:text-black transition font-medium" >
               Help
             </button>
-            <button className="px-5 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition font-medium">
+            <button className="px-5 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition font-medium" onClick={() => router.push("/login")}>
               Login
             </button>
           </div>
@@ -41,7 +41,7 @@ const sections = [
               At Cartify, we empower you to easily buy, sell, and rent a variety of items. Join our community and experience seamless transactions that fit your lifestyle.
             </p>
             <div className="mt-6 flex gap-4 justify-center lg:justify-start">
-              <button className="px-6 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-800 transition">
+              <button className="px-6 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-800 transition" onClick={() => router.push("/signup")}>
                 Get Started
               </button>
               <button className="px-6 py-3 bg-transparent border border-white text-white font-semibold rounded-lg hover:bg-white hover:text-black transition">
