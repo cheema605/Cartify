@@ -1,10 +1,12 @@
 import 'dotenv/config'; // ✅ Load env vars at the top
 import express from "express";
 import cors from "cors";
+import purchaseRoute from './routes/purchase.js';
 import signupRoute from "./routes/signup.js";
-import buyerPrefRoute from './routes/buyerPreferences.js';
+import buyerPrefRoute from './routes/BuyerPreferences.js';
 import sellerStoreRoute from './routes/sellerStore.js';
 import loginRoute from './routes/login.js';
+
 
 
 
@@ -27,14 +29,23 @@ app.post("/api/test", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
-
+app.use('/api/purchase', purchaseRoute);
 app.use("/api/signup", signupRoute);
-app.use('/api/buyer/preferences', buyerPrefRoute);
+app.use('/api/buyerpreferences', buyerPrefRoute);
 app.use('/api/seller/create-store', sellerStoreRoute);
 app.use('/api/login', loginRoute);
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, async () => {
   console.log(`🚀 Server running on port ${PORT}`);
   await connectToDatabase(); // ✅ Connect DB when server starts (optional)
+});
+
+
+
+app._router.stack.forEach((r) => {
+  if (r.route && r.route.path) {
+    console.log(`Route: ${r.route.stack[0].method.toUpperCase()} ${r.route.path}`);
+  }
 });
