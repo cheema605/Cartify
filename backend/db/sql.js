@@ -2,10 +2,12 @@ import sql from 'mssql/msnodesqlv8.js';
 
 console.log('DB_SERVER:', process.env.DB_SERVER);
 console.log('DB_DATABASE:', process.env.DB_NAME);
+console.log('DB_USER:', process.env.DB_USER);
 
 const config = {
-  connectionString: `Driver={ODBC Driver 17 for SQL Server};Server=${process.env.DB_SERVER};Database=${process.env.DB_NAME};Trusted_Connection=Yes;`
+  connectionString: `Driver={ODBC Driver 17 for SQL Server};Server=${process.env.DB_SERVER};Database=${process.env.DB_NAME};Uid=${process.env.DB_USER};Pwd=${process.env.DB_PASSWORD};`
 };
+
 
 // Connection pool
 const poolPromise = new sql.ConnectionPool(config)

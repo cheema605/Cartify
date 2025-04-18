@@ -5,10 +5,10 @@ import bcrypt from "bcrypt";
 const router = express.Router();
 
 router.post("/", async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, phone} = req.body;
 
   // Basic validation
-  if (!username || !email || !password) {
+  if (!username || !email || !password || !phone) {
     return res.status(400).json({ message: "All fields are required." });
   }
 
@@ -18,8 +18,7 @@ router.post("/", async (req, res) => {
     // Check if user already exists
     const existingUser = await pool.request()
       .input("email", sql.VarChar, email)
-      .input("username", sql.VarChar, username)
-      .query("SELECT * FROM Users WHERE Email = @email OR Username = @username");
+      .query("SELECT * FROM Users WHERE Email = @email");
 
     if (existingUser.recordset.length > 0) {
       return res.status(400).json({ message: "Email or Username already exists." });
@@ -30,10 +29,13 @@ router.post("/", async (req, res) => {
 
     // Insert new user
     await pool.request()
-      .input("username", sql.VarChar, username)
+      .input("full_name", sql.VarChar, username)
       .input("email", sql.VarChar, email)
       .input("password", sql.VarChar, hashedPassword)
-      .query("INSERT INTO Users (Username, Email, Password) VALUES (@username, @email, @password)");
+      .input("phone", sql.VarChar, phone)
+      .query("INSERT INTO Users (full_name, email, password_hash, phone, created_at) VALUES (@full_name, @email, @password, @phone, GETDATE())");
+
+
 
     res.status(201).json({ message: "Account created successfully!" });
 
