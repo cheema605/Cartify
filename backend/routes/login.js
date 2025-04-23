@@ -27,25 +27,16 @@ router.post("/", async (req, res) => {
     console.log("Fetched user:", user); // ✅ Debug line (optional)
 
     // Check password (use correct column name!)
-    const validPassword = await bcrypt.compare(password, user.password);
+    const validPassword = await bcrypt.compare(password, user.password_hash);
+
     if (!validPassword) return res.status(400).json({ message: "Invalid email or password." });
 
     // Fetch buyer preferences
-    const prefs = await pool.request()
-      .input("user_id", sql.Int, user.id)
-      .query("SELECT * FROM BuyerPreferences WHERE user_id = @user_id");
-
-    // Fetch seller store
-    const store = await pool.request()
-      .input("user_id", sql.Int, user.id)
-      .query("SELECT * FROM SellerStores WHERE user_id = @user_id");
+    
 
     res.json({
       message: "Login successful.",
-      user: { id: user.id, username: user.Username, email: user.Email },
-      buyerPreferences: prefs.recordset[0] || null,
-      sellerStore: store.recordset[0] || null
-    });
+      user: { id: user.id, username: user.Username, email: user.Email }   });
 
   } catch (err) {
     console.error(err);

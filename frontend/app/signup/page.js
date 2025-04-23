@@ -52,7 +52,7 @@ export default function SignupPage() {
     
     setIsSubmitting(true);
     try {
-      const response = await fetch("/api/signup", {
+      const response = await fetch("http://localhost:5000/api/signup", {    
         method: "POST",
         headers: {
           "Content-Type": "application/json",
