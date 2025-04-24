@@ -4,7 +4,8 @@ import cors from "cors";
 import purchaseRoute from './routes/purchase.js';
 import signupRoute from "./routes/signup.js";
 import buyerPrefRoute from './routes/BuyerPreferences.js';
-import sellerStoreRoute from './routes/sellerStore.js';
+import sellerStoreRoute from './routes/Sellers/sellerStore.js';
+import createProduct from './routes/Sellers/createProduct.js';
 import loginRoute from './routes/login.js';
 
 
@@ -33,6 +34,7 @@ app.use('/api/purchase', purchaseRoute);
 app.use("/api/signup", signupRoute);
 app.use('/api/buyerpreferences', buyerPrefRoute);
 app.use('/api/seller/create-store', sellerStoreRoute);
+app.use('/api/seller/create-product', createProduct); 
 app.use('/api/login', loginRoute);
 
 
