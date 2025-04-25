@@ -7,6 +7,7 @@ import buyerPrefRoute from './routes/BuyerPreferences.js';
 import sellerStoreRoute from './routes/Sellers/sellerStore.js';
 import createProduct from './routes/Sellers/createProduct.js';
 import editProduct from './routes/Sellers/editProduct.js';
+import wishlist from './routes/Buyers/WishList.js';
 import loginRoute from './routes/login.js';
 
 
@@ -37,6 +38,7 @@ app.use('/api/buyerpreferences', buyerPrefRoute);
 app.use('/api/seller/create-store', sellerStoreRoute);
 app.use('/api/seller/create-product', createProduct); 
 app.use('/api/seller/edit-product', editProduct); 
+app.use('/api/wishlist', wishlist);
 app.use('/api/login', loginRoute);
 
 
@@ -47,9 +49,16 @@ app.listen(PORT, async () => {
 });
 
 
-
 app._router.stack.forEach((r) => {
   if (r.route && r.route.path) {
     console.log(`Route: ${r.route.stack[0].method.toUpperCase()} ${r.route.path}`);
+  } else if (r.name === 'router') {
+    r.handle.stack.forEach((handler) => {
+      if (handler.route) {
+        console.log(`Route: ${handler.route.stack[0].method.toUpperCase()} ${r.regexp.source + handler.route.path}`);
+      }
+    });
   }
 });
+
+
