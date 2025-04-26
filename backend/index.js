@@ -11,6 +11,7 @@ import wishlist from './routes/Buyers/WishList.js';
 import Discount from './routes/Sellers/Discount.js';
 import Order from './routes/Buyers/Order.js';
 import loginRoute from './routes/login.js';
+import preferences from './routes/Buyers/Preferences.js';
 
 
 
@@ -44,6 +45,7 @@ app.use('/api/wishlist', wishlist);
 app.use('/api/discount', Discount);
 app.use('/api/order', Order);
 
+app.use('/api/preferences', preferences);
 app.use('/api/login', loginRoute);
 
 

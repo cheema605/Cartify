@@ -25,6 +25,7 @@ CREATE TABLE Products (
     seller_id INT FOREIGN KEY REFERENCES Sellers(seller_id),
     name NVARCHAR(100) NOT NULL,
     description TEXT,
+	quantity INT DEFAULT 0,
     price DECIMAL(10, 2),
     category_id INT FOREIGN KEY REFERENCES Categories(category_id),
     is_rentable BIT DEFAULT 0,
@@ -41,7 +42,7 @@ CREATE TABLE Categories (
 CREATE TABLE ProductImages (
     image_id INT PRIMARY KEY IDENTITY,
     product_id INT FOREIGN KEY REFERENCES Products(product_id),
-    image_url NVARCHAR(255) NOT NULL
+    image_data VARBINARY(MAX) NOT NULL
 );
 --done
 CREATE TABLE Discounts (
