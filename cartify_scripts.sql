@@ -1,7 +1,7 @@
 create database caritfy
 
 use caritfy
-
+--done
 CREATE TABLE Users (
     user_id INT PRIMARY KEY IDENTITY,
     full_name NVARCHAR(100) NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE Users (
     phone NVARCHAR(20),
     created_at DATETIME DEFAULT GETDATE()
 );
-
+--done
 CREATE TABLE Sellers (
     seller_id INT PRIMARY KEY IDENTITY,
     user_id INT UNIQUE FOREIGN KEY REFERENCES Users(user_id),
@@ -19,7 +19,7 @@ CREATE TABLE Sellers (
     activated_at DATETIME DEFAULT GETDATE()
 );
 
-
+--done
 CREATE TABLE Products (
     product_id INT PRIMARY KEY IDENTITY,
     seller_id INT FOREIGN KEY REFERENCES Sellers(seller_id),
@@ -32,36 +32,47 @@ CREATE TABLE Products (
     status VARCHAR(20) DEFAULT 'available', -- available, sold, rented
     created_at DATETIME DEFAULT GETDATE()
 );
-
+--done
 CREATE TABLE Categories (
     category_id INT PRIMARY KEY IDENTITY,
     category_name NVARCHAR(50) NOT NULL
 );
-
+--done
 CREATE TABLE ProductImages (
     image_id INT PRIMARY KEY IDENTITY,
     product_id INT FOREIGN KEY REFERENCES Products(product_id),
     image_url NVARCHAR(255) NOT NULL
 );
-
+--done
 CREATE TABLE Discounts (
     discount_id INT PRIMARY KEY IDENTITY,
     product_id INT FOREIGN KEY REFERENCES Products(product_id),
-    discount_percent INT NOT NULL,
+    discount_percent INT NOT NULL,                     
     start_date DATE,
     end_date DATE,
     created_at DATETIME DEFAULT GETDATE()
 );
 
 CREATE TABLE Orders (
-    order_id INT PRIMARY KEY IDENTITY,
-    buyer_id INT FOREIGN KEY REFERENCES Users(user_id),
-    product_id INT FOREIGN KEY REFERENCES Products(product_id),
-    quantity INT DEFAULT 1,
-    total_price DECIMAL(10, 2),
-    status VARCHAR(20) DEFAULT 'pending', -- 'pending', 'shipped', 'delivered', 'cancelled'
-    order_date DATETIME DEFAULT GETDATE()
+    order_id INT PRIMARY KEY IDENTITY,    -- Unique ID for each order
+    buyer_id INT FOREIGN KEY REFERENCES Users(user_id),  -- References the user placing the order
+    total_price DECIMAL(10, 2),  -- Total price of the order
+    status VARCHAR(20) DEFAULT 'pending',  -- Order status, e.g., 'pending', 'shipped', 'delivered'
+    order_date DATETIME DEFAULT GETDATE()  -- The date when the order was placed
 );
+
+
+
+CREATE TABLE Order_Items (
+    order_id INT,  -- Foreign key referencing Orders
+    product_id INT,  -- Foreign key referencing Products
+    quantity INT DEFAULT 1,  -- The quantity of the product in the order
+    price DECIMAL(10, 2),  -- Price of the product at the time of the order
+    PRIMARY KEY (order_id, product_id),  -- Composite primary key of order and product
+    FOREIGN KEY (order_id) REFERENCES Orders(order_id),  -- Foreign key to Orders table
+    FOREIGN KEY (product_id) REFERENCES Products(product_id)  -- Foreign key to Products table
+);
+
 
 CREATE TABLE Payments (
     payment_id INT PRIMARY KEY IDENTITY,

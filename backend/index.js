@@ -8,6 +8,8 @@ import sellerStoreRoute from './routes/Sellers/sellerStore.js';
 import createProduct from './routes/Sellers/createProduct.js';
 import editProduct from './routes/Sellers/editProduct.js';
 import wishlist from './routes/Buyers/WishList.js';
+import Discount from './routes/Sellers/Discount.js';
+import Order from './routes/Buyers/Order.js';
 import loginRoute from './routes/login.js';
 
 
@@ -39,6 +41,9 @@ app.use('/api/seller/create-store', sellerStoreRoute);
 app.use('/api/seller/create-product', createProduct); 
 app.use('/api/seller/edit-product', editProduct); 
 app.use('/api/wishlist', wishlist);
+app.use('/api/discount', Discount);
+app.use('/api/order', Order);
+
 app.use('/api/login', loginRoute);
 
 
