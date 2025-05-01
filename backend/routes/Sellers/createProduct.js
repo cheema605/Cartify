@@ -1,12 +1,8 @@
 import express from "express";
-import multer from "multer";
+import upload from "../../db/multer.js"; // uses CloudinaryStorage
 import { sql, poolPromise } from "../../db/sql.js";
 
 const router = express.Router();
-
-// Setup multer for in-memory storage
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
 
 router.post("/", upload.array("images", 10), async (req, res) => {
   const { user_id, name, description, price, quantity, category_id } = req.body;
@@ -44,18 +40,20 @@ router.post("/", upload.array("images", 10), async (req, res) => {
 
     const product_id = productResult.recordset[0].product_id;
 
-    // Insert images (loop over each buffer)
+    // Store image URLs instead of binary
     for (const file of images) {
+      const cloudinaryURL = file.path;  // Assuming Cloudinary's path is available as `file.path`
+    
       await pool.request()
         .input("product_id", sql.Int, product_id)
-        .input("image_data", sql.VarBinary(sql.MAX), file.buffer)
+        .input("image_url", sql.VarChar, cloudinaryURL)
         .query(`
-          INSERT INTO ProductImages (product_id, image_data)
-          VALUES (@product_id, @image_data)
+          INSERT INTO ProductImages (product_id, image_url)
+          VALUES (@product_id, @image_url)
         `);
     }
 
-    res.status(201).json({ message: "Product (and images) created successfully!" });
+    res.status(201).json({ message: "Product and images uploaded successfully!" });
 
   } catch (err) {
     console.error(err);

@@ -85,25 +85,43 @@ router.post("/remove-from-wishlist", async (req, res) => {
 
 router.get("/get-wishlist/:user_id", async (req, res) => {
     const { user_id } = req.params;
-
+  
     try {
-        const pool = await poolPromise;
-
-        const result = await pool
-            .request()
-            .input('user_id', sql.Int, user_id)  // Correct data type
-            .query('SELECT * FROM Wishlist WHERE user_id = @user_id');
-
-        if (result.recordset.length === 0) {
-            return res.status(404).json({ message: "No wishlist found for this user." });
-        }
-
-        res.json(result.recordset);
+      const pool = await poolPromise;
+  
+      const result = await pool
+        .request()
+        .input('user_id', sql.Int, user_id)
+        .query(`
+          SELECT 
+            w.wishlist_id,
+            p.product_id,
+            p.name,
+            p.description,
+            p.price,
+            p.quantity,
+            (
+              SELECT TOP 1 pi.image_url 
+              FROM ProductImages pi 
+              WHERE pi.product_id = p.product_id
+              ORDER BY pi.image_id
+            ) AS image_url
+          FROM Wishlist w
+          JOIN Products p ON w.product_id = p.product_id
+          WHERE w.user_id = @user_id
+        `);
+  
+      if (result.recordset.length === 0) {
+        return res.status(404).json({ message: "No wishlist found for this user." });
+      }
+  
+      res.json(result.recordset);
     } catch (err) {
-        console.error('Error fetching wishlist:', err);
-        res.status(500).json({ error: 'Internal Server Error', details: err.message });
+      console.error('Error fetching wishlist:', err);
+      res.status(500).json({ error: 'Internal Server Error', details: err.message });
     }
-});
+  });
+  
 
 
 export default router;

@@ -12,11 +12,13 @@ import Discount from './routes/Sellers/Discount.js';
 import Order from './routes/Buyers/Order.js';
 import loginRoute from './routes/login.js';
 import preferences from './routes/Buyers/Preferences.js';
+import shoppingCart from './routes/Buyers/ShoppingCart.js';
+import uploadRoute from './routes/upload.js';
+import exploreRoute from './routes/explore/explore.js';
 
 
 
-
-import { poolPromise, connectToDatabase } from "./db/sql.js"; // ✅ Import both
+import { poolPromise} from "./db/sql.js"; // ✅ Import both
 
 const app = express();
 
@@ -44,15 +46,17 @@ app.use('/api/seller/edit-product', editProduct);
 app.use('/api/wishlist', wishlist);
 app.use('/api/discount', Discount);
 app.use('/api/order', Order);
-
+app.use('/api/shoppping-cart', shoppingCart);
 app.use('/api/preferences', preferences);
 app.use('/api/login', loginRoute);
+app.use('/api/upload', uploadRoute);
+app.use('/api/explore', exploreRoute);
+
 
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, async () => {
   console.log(`🚀 Server running on port ${PORT}`);
-  await connectToDatabase(); // ✅ Connect DB when server starts (optional)
 });
 
 

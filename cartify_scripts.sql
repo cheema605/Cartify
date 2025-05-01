@@ -42,7 +42,7 @@ CREATE TABLE Categories (
 CREATE TABLE ProductImages (
     image_id INT PRIMARY KEY IDENTITY,
     product_id INT FOREIGN KEY REFERENCES Products(product_id),
-    image_data VARBINARY(MAX) NOT NULL
+    image_url VARCHAR(MAX) NOT NULL
 );
 --done
 CREATE TABLE Discounts (
@@ -164,3 +164,12 @@ CREATE TABLE Messages (
     sent_at DATETIME DEFAULT GETDATE(),
     message_status VARCHAR(50) CHECK (message_status IN ('Sent', 'Read'))
 );
+
+CREATE TABLE Preferences (
+    preference_id INT PRIMARY KEY IDENTITY,
+    user_id INT FOREIGN KEY REFERENCES Users(user_id) ON DELETE CASCADE,
+    category_id INT FOREIGN KEY REFERENCES Categories(category_id) ON DELETE CASCADE,
+    added_at DATETIME DEFAULT GETDATE(),
+    CONSTRAINT UQ_UserCategory UNIQUE (user_id, category_id)
+);
+
