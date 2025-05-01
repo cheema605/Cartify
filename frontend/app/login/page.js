@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -45,63 +46,134 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0e5a6d]">
-      <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-200 w-full sm:w-96">
-        <h1 className="text-3xl font-extrabold mb-6 text-center text-gray-800 font-serif">Login to Cartify</h1>
-
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-        {success && <p className="text-green-500 text-center mb-4">{success}</p>}
-
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-[#157a94] font-serif">Email</label>
-            <input
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border rounded focus:ring focus:ring-blue-200 text-black font-serif"
-              required
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-[#157a94] font-serif">Password</label>
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border rounded focus:ring focus:ring-blue-200 text-black font-serif"
-              required
-            />
-          </div>
-
-          <div className="mb-6 flex justify-between items-center">
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="showPassword"
-                checked={showPassword}
-                onChange={() => setShowPassword(!showPassword)}
-                className="mr-2"
-              />
-              <label htmlFor="showPassword" className="text-[#157a94] text-sm font-serif">Show Password</label>
-            </div>
-            <Link href="/signup" className="text-[#157a94] underline text-sm hover:text-blue-700 font-serif">
-              Create a new account
-            </Link>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-[#157a94] text-white py-2 rounded-lg hover:bg-[#106b82] transition-transform transform hover:scale-105 font-serif"
-          >
-            Login
+    <div className="min-h-screen flex flex-col md:flex-row bg-[#f5f5f5]">
+      {/* Navigation Bar */}
+      <div className="fixed top-0 left-0 w-full flex items-center justify-between px-8 md:px-16 py-4 bg-[#106b82] shadow-md z-50 font-serif">
+        <span className="text-2xl font-extrabold italic tracking-wide" onClick={() => router.push("/")}>Cartify</span>
+        <nav className="hidden md:flex gap-6 text-lg font-medium text-white font-serif">
+          <a href="/" className="hover:text-gray-300 transition">Home</a>
+          <a href="#" className="hover:text-gray-300 transition">Shop</a>
+          <a href="#" className="hover:text-gray-300 transition">Rent</a>
+          <a href="#" className="hover:text-gray-300 transition">More</a>
+        </nav>
+        <div className="flex gap-4">
+          <button className="px-4 py-2 text-white border border-white rounded-lg hover:bg-white hover:text-black transition font-medium font-serif" >
+            Help
           </button>
-        </form>
+          <button className="px-5 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition font-medium font-serif" onClick={() => router.push("/signup")}>
+            Sign Up
+          </button>
+        </div>
+      </div>
 
-        <p className="mt-6 text-gray-400 text-center text-xs font-serif">© 2025 Cartify Pvt Ltd. All rights reserved.</p>
+      {/* Left side - Illustration */}
+      <div className="w-full md:w-1/2 bg-gradient-to-br from-[#0e5a6d] to-[#157a94] flex flex-col justify-center items-center p-8 text-white text-center mt-16">
+        <h1 className="text-4xl font-bold mb-4">Welcome Back to Cartify!</h1>
+        <p className="text-xl mb-8 max-w-md">
+          Log in to access your account and continue shopping with ease.
+        </p>
+        <div className="relative w-full max-w-md h-64">
+          <img
+            src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=800&q=80"
+            alt="Shopping Illustration"
+            className="object-contain w-full h-full"
+          />
+        </div>
+        <p className="mt-8 text-sm opacity-80">
+          Don't have an account?{' '}
+          <Link href="/signup" className="underline font-semibold hover:opacity-90 text-white">
+            Sign up here
+          </Link>
+        </p>
+      </div>
+
+      {/* Right side - Form */}
+      <div className="w-full md:w-1/2 flex items-center justify-center p-8 mt-16">
+        <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
+          <h2 className="text-3xl font-bold text-[#0F1516] mb-6">Login to Cartify</h2>
+
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="mb-4 p-3 bg-green-100 text-green-700 rounded-lg text-sm">
+              {success}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-[#157a94] mb-1">
+                Email
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-black focus:ring-2 focus:ring-[#157a94] focus:border-transparent"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-[#157a94] mb-1">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-black focus:ring-2 focus:ring-[#157a94] focus:border-transparent"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-[#157a94] hover:text-[#0F1516]"
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="showPassword"
+                  checked={showPassword}
+                  onChange={() => setShowPassword(!showPassword)}
+                  className="mr-2"
+                />
+                <label htmlFor="showPassword" className="text-[#157a94] text-sm">
+                  Show Password
+                </label>
+              </div>
+              <Link href="/signup" className="text-[#157a94] underline text-sm hover:opacity-90">
+                Create a new account
+              </Link>
+            </div>
+
+            <button
+              type="submit"
+              disabled={false}
+              className="w-full py-3 px-4 bg-gradient-to-r from-[#157a94] to-[#0e5a6d] text-white font-medium rounded-lg hover:opacity-90 transition-all disabled:opacity-70"
+            >
+              Login
+            </button>
+          </form>
+
+          <p className="mt-6 text-center text-sm text-gray-500">
+            © 2025 Cartify Pvt Ltd. All rights reserved.
+          </p>
+        </div>
       </div>
     </div>
   );

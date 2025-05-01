@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -76,30 +77,48 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-[#f5f5f5]">
+      {/* Navigation Bar */}
+      <div className="fixed top-0 left-0 w-full flex items-center justify-between px-8 md:px-16 py-4 bg-[#106b82] shadow-md z-50 font-serif">
+        <span className="text-2xl font-bold italic tracking-wide text-white cursor-pointer" onClick={() => router.push("/")}>Cartify</span>
+        <nav className="hidden md:flex gap-6 text-lg font-medium text-white font-serif">
+          <a href="/" className="hover:text-gray-300 transition">Home</a>
+          <a href="#" className="hover:text-gray-300 transition">Shop</a>
+          <a href="#" className="hover:text-gray-300 transition">Rent</a>
+          <a href="#" className="hover:text-gray-300 transition">More</a>
+        </nav>
+        <div className="flex gap-4">
+          <button className="px-4 py-2 text-white border border-white rounded-lg hover:bg-white hover:text-black transition font-medium font-serif" >
+            Help
+          </button>
+          <button className="px-5 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition font-medium font-serif" onClick={() => router.push("/login")}>
+            Login
+          </button>
+        </div>
+      </div>
+
       {/* Left side - Illustration */}
-      <div className="w-full md:w-1/2 bg-gradient-to-br from-[#0e5a6d] to-[#157a94] flex flex-col justify-center items-center p-8 text-white text-center">
+      <div className="w-full md:w-1/2 bg-gradient-to-br from-[#0e5a6d] to-[#157a94] flex flex-col justify-center items-center p-8 text-white text-center mt-16">
         <h1 className="text-4xl font-bold mb-4">Welcome to Cartify!</h1>
         <p className="text-xl mb-8 max-w-md">
           Join thousands of happy shoppers and discover amazing products at unbeatable prices.
         </p>
         <div className="relative w-full max-w-md h-64">
-          <Image 
-            src="/images/shopping-illustration.svg" 
+          <img
+            src="https://www.truthmedia.gr/sites/default/files/online-shopping-ecommerce-ss-1920_1.png"
             alt="Shopping Illustration"
-            fill
-            className="object-contain"
+            className="object-contain w-full h-full"
           />
         </div>
         <p className="mt-8 text-sm opacity-80">
           Already have an account?{' '}
-          <Link href="/login" className="underline font-semibold hover:opacity-90">
+          <Link href="/login" className="underline font-semibold hover:opacity-90 text-white">
             Sign in here
           </Link>
         </p>
       </div>
 
       {/* Right side - Form */}
-      <div className="w-full md:w-1/2 flex items-center justify-center p-8">
+      <div className="w-full md:w-1/2 flex items-center justify-center p-8 mt-16">
         <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
           <h2 className="text-3xl font-bold text-[#0F1516] mb-6">Create Account</h2>
           
@@ -119,7 +138,7 @@ export default function SignupPage() {
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
-                className={`w-full px-4 py-2 rounded-lg border ${errors.username ? 'border-red-500' : 'border-gray-300'} focus:ring-2 focus:ring-[#157a94] focus:border-transparent`}
+                className={`w-full px-4 py-2 rounded-lg border ${errors.username ? 'border-red-500' : 'border-gray-300'} focus:ring-2 focus:ring-[#157a94] focus:border-transparent text-black`}
                 placeholder="John Doe"
               />
               {errors.username && (
@@ -136,7 +155,7 @@ export default function SignupPage() {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className={`w-full px-4 py-2 rounded-lg border ${errors.email ? 'border-red-500' : 'border-gray-300'} focus:ring-2 focus:ring-[#157a94] focus:border-transparent`}
+                className={`w-full px-4 py-2 rounded-lg border ${errors.email ? 'border-red-500' : 'border-gray-300'} focus:ring-2 focus:ring-[#157a94] focus:border-transparent text-black`}
                 placeholder="john@example.com"
               />
               {errors.email && (
@@ -153,7 +172,7 @@ export default function SignupPage() {
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                className={`w-full px-4 py-2 rounded-lg border ${errors.phone ? 'border-red-500' : 'border-gray-300'} focus:ring-2 focus:ring-[#157a94] focus:border-transparent`}
+                className={`w-full px-4 py-2 rounded-lg border ${errors.phone ? 'border-red-500' : 'border-gray-300'} focus:ring-2 focus:ring-[#157a94] focus:border-transparent text-black`}
                 placeholder="+1 234 567 8900"
               />
               {errors.phone && (
@@ -171,7 +190,7 @@ export default function SignupPage() {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className={`w-full px-4 py-2 rounded-lg border ${errors.password ? 'border-red-500' : 'border-gray-300'} focus:ring-2 focus:ring-[#157a94] focus:border-transparent`}
+                className={`w-full px-4 py-2 rounded-lg border ${errors.password ? 'border-red-500' : 'border-gray-300'} focus:ring-2 focus:ring-[#157a94] focus:border-transparent text-black`}
                   placeholder="••••••••"
                 />
                 <button
