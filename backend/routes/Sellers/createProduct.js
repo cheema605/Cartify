@@ -1,11 +1,23 @@
 import express from "express";
-import upload from "../../db/multer.js"; // uses CloudinaryStorage
+import upload from "../../db/multer.js";
 import { sql, poolPromise } from "../../db/sql.js";
 
 const router = express.Router();
 
 router.post("/", upload.array("images", 10), async (req, res) => {
-  const { user_id, name, description, price, quantity, category_id } = req.body;
+  const {
+    user_id,
+    name,
+    description,
+    price,
+    quantity,
+    category_id,
+    is_rentable,
+    is_biddable,
+    daily_late_fee,
+    damage_fee
+  } = req.body;
+
   const images = req.files;
 
   if (!user_id || !name || !price || !quantity)
@@ -14,7 +26,7 @@ router.post("/", upload.array("images", 10), async (req, res) => {
   try {
     const pool = await poolPromise;
 
-    // Check if the seller exists
+    // Check if seller exists
     const sellerQuery = await pool.request()
       .input("user_id", sql.Int, user_id)
       .query("SELECT seller_id FROM Sellers WHERE user_id = @user_id");
@@ -32,18 +44,32 @@ router.post("/", upload.array("images", 10), async (req, res) => {
       .input("price", sql.Decimal(10, 2), price)
       .input("category_id", sql.Int, category_id || null)
       .input("quantity", sql.Int, quantity)
+      .input("is_rentable", sql.Bit, is_rentable || 0)
+      .input("is_biddable", sql.Bit, is_biddable || 0)
       .query(`
-        INSERT INTO Products (seller_id, name, description, price, category_id, quantity, created_at)
+        INSERT INTO Products (seller_id, name, description, price, category_id, quantity, is_rentable, is_biddable, created_at)
         OUTPUT INSERTED.product_id
-        VALUES (@seller_id, @name, @description, @price, @category_id, @quantity, GETDATE())
+        VALUES (@seller_id, @name, @description, @price, @category_id, @quantity, @is_rentable, @is_biddable, GETDATE())
       `);
 
     const product_id = productResult.recordset[0].product_id;
 
-    // Store image URLs instead of binary
+    // Save return policy if rentable
+    if (is_rentable && daily_late_fee && damage_fee) {
+      await pool.request()
+        .input("product_id", sql.Int, product_id)
+        .input("daily_late_fee", sql.Decimal(10, 2), daily_late_fee)
+        .input("damage_fee", sql.Decimal(10, 2), damage_fee)
+        .query(`
+          INSERT INTO ReturnPolicies (product_id, daily_late_fee, damage_fee, created_at)
+          VALUES (@product_id, @daily_late_fee, @damage_fee, GETDATE())
+        `);
+    }
+
+    // Upload images
     for (const file of images) {
-      const cloudinaryURL = file.path;  // Assuming Cloudinary's path is available as `file.path`
-    
+      const cloudinaryURL = file.path;
+
       await pool.request()
         .input("product_id", sql.Int, product_id)
         .input("image_url", sql.VarChar, cloudinaryURL)
@@ -53,7 +79,7 @@ router.post("/", upload.array("images", 10), async (req, res) => {
         `);
     }
 
-    res.status(201).json({ message: "Product and images uploaded successfully!" });
+    res.status(201).json({ message: "Product created successfully!", product_id });
 
   } catch (err) {
     console.error(err);
