@@ -1,0 +1,103 @@
+"use client";
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Settings, User, Bell, Shield } from "lucide-react";
+
+export default function SettingsPage() {
+  return (
+    <div className="flex-1 space-y-4 p-8 pt-6">
+      <div className="flex items-center justify-between space-y-2">
+        <h2 className="text-3xl font-bold tracking-tight text-black">Settings</h2>
+      </div>
+      <Tabs defaultValue="general" className="space-y-4 text-black">
+        <TabsList className="bg-gray-200">
+          <TabsTrigger value="general" className="flex items-center gap-2">
+            <Settings className="h-4 w-4" />
+            General
+          </TabsTrigger>
+          <TabsTrigger value="account" className="flex items-center gap-2">
+            <User className="h-4 w-4" />
+            Account
+          </TabsTrigger>
+          <TabsTrigger value="notifications" className="flex items-center gap-2">
+            <Bell className="h-4 w-4" />
+            Notifications
+          </TabsTrigger>
+          <TabsTrigger value="security" className="flex items-center gap-2">
+            <Shield className="h-4 w-4" />
+            Security
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="general" className="space-y-4">
+          <Card className="bg-white">
+            <CardHeader>
+              <CardTitle>General Settings</CardTitle>
+              <CardDescription>
+                Manage your general application settings and preferences.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Configure your general settings here. This section will be expanded with more options.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="account" className="space-y-4">
+          <Card className="bg-white">
+            <CardHeader>
+              <CardTitle>Account Settings</CardTitle>
+              <CardDescription>
+                Manage your account details and preferences.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Update your account settings and personal information here.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="notifications" className="space-y-4">
+          <Card className="bg-white">
+            <CardHeader>
+              <CardTitle>Notification Preferences</CardTitle>
+              <CardDescription>
+                Customize how you receive notifications.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Configure your notification preferences and alert settings.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="security" className="space-y-4">
+          <Card className="bg-white">
+            <CardHeader>
+              <CardTitle>Security Settings</CardTitle>
+              <CardDescription>
+                Manage your security preferences and authentication settings.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Update your security settings and privacy preferences here.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
