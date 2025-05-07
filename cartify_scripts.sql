@@ -105,7 +105,7 @@ CREATE TABLE Rentals (
 );
 
 CREATE TABLE ReturnPolicies (
-    policy_id INT PRIMARY KEY IDENTITY,
+    product_id INT PRIMARY KEY FOREIGN KEY REFERENCES Products(product_id) ON DELETE CASCADE,
     daily_late_fee DECIMAL(10, 2),
     damage_fee DECIMAL(10, 2),
     created_at DATETIME DEFAULT GETDATE()
@@ -120,7 +120,7 @@ CREATE TABLE ShoppingCart (
 );
 
 CREATE TABLE Wishlist (
-    wishlist_id INT PRIMARY KEY IDENTITY,
+    wishlist_id INT PRIMARY KEY IDENTITY,  
     user_id INT FOREIGN KEY REFERENCES Users(user_id),
     product_id INT FOREIGN KEY REFERENCES Products(product_id),
     added_at DATETIME DEFAULT GETDATE(),
