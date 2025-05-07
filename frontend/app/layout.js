@@ -27,8 +27,10 @@ export default function RootLayout({ children }) {
         <link rel="icon" href="/icon.ico" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen relative`}
       >
+        {/* Background gradient only, grid overlay removed */}
+        <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#0a0a23] via-[#10102a] to-[#1a1a2e]" />
         <LayoutWrapper>
           {children}
         </LayoutWrapper>

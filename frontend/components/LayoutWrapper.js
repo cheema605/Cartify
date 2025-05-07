@@ -10,6 +10,8 @@ export default function LayoutWrapper({ children }) {
   const userId = 1; // TODO: Replace with actual logged-in user ID
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const isDashboardRoute = pathname.startsWith('/dashboard');
+  const isExplorePage = pathname === '/explore';
 
   useEffect(() => {
     const cartOpenParam = searchParams.get("cartOpen");
@@ -34,7 +36,7 @@ export default function LayoutWrapper({ children }) {
 
   return (
     <>
-      <NavbarComponent cartOpen={cartOpen} toggleCart={toggleCart} />
+      {!isDashboardRoute && <NavbarComponent cartOpen={cartOpen} toggleCart={toggleCart} />}
       <CartSlidingPanel isOpen={cartOpen} onClose={closeCart} userId={userId} disableOverlay={true} />
       {children}
     </>
