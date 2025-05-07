@@ -1,39 +1,26 @@
 import express from 'express';
-import { sql, poolPromise } from '../../db/sql.js';  // Assuming you have a poolPromise setup for db connection
+import { sql, poolPromise } from '../../db/sql.js';
+import authenticateJWT from '../../middleware/auth.js';
 
 const router = express.Router();
 
-/*
-  This route accepts a POST request to add a product to a user's wishlist.
-  The request body must contain the following fields:
-  
-  Request Body (JSON):
-  - user_id: (Int) ID of the user who is adding the product to the wishlist.
-  - product_id: (Int) ID of the product being added to the wishlist.
-  
-  Example Request:
-  POST /api/wishlist/add-to-wishlist
-  {
-    "user_id": 1,
-    "product_id": 10
-  }
+/**
+ * @route POST /api/wishlist/add-to-wishlist
+ * @desc Add a product to user's wishlist
+ * @access Protected
+ */
+router.post('/add-to-wishlist', authenticateJWT, async (req, res) => {
+    const { product_id } = req.body;
+    console.log("product_id", product_id);
+    const user_id = req.user;
 
-  - If either the `user_id` or `product_id` is missing, the server responds with a 400 error.
-  - The server also checks if the product is already in the wishlist for the given user, preventing duplicates.
-*/
-
-router.post('/add-to-wishlist', async (req, res) => {
-    const { user_id, product_id } = req.body;
-
-    // Validate input
-    if (!user_id || !product_id) {
-        return res.status(400).json({ message: 'User ID and Product ID are required.' });
+    if (!product_id) {
+        return res.status(400).json({ message: 'Product ID is required.' });
     }
 
     try {
         const pool = await poolPromise;
 
-        // Check if the product already exists in the user's wishlist
         const checkWishlist = await pool.request()
             .input('user_id', sql.Int, user_id)
             .input('product_id', sql.Int, product_id)
@@ -43,7 +30,6 @@ router.post('/add-to-wishlist', async (req, res) => {
             return res.status(400).json({ message: 'Product already exists in the wishlist.' });
         }
 
-        // Insert the new product into the wishlist
         await pool.request()
             .input('user_id', sql.Int, user_id)
             .input('product_id', sql.Int, product_id)
@@ -56,20 +42,25 @@ router.post('/add-to-wishlist', async (req, res) => {
     }
 });
 
-router.post("/remove-from-wishlist", async (req, res) => {
-    const { user_id, product_id } = req.body;
+/**
+ * @route POST /api/wishlist/remove-from-wishlist
+ * @desc Remove a product from user's wishlist
+ * @access Protected
+ */
+router.post("/remove-from-wishlist", authenticateJWT, async (req, res) => {
+    const { product_id } = req.body;
+    const user_id = req.user;
 
-    if (!user_id || !product_id) {
-        return res.status(400).json({ message: 'User ID and Product ID are required.' });
+    if (!product_id) {
+        return res.status(400).json({ message: 'Product ID is required.' });
     }
 
     try {
         const pool = await poolPromise;
 
-        const result = await pool
-            .request()
-            .input('user_id', sql.Int, user_id)  // Correct data type
-            .input('product_id', sql.Int, product_id)  // Correct data type
+        const result = await pool.request()
+            .input('user_id', sql.Int, user_id)
+            .input('product_id', sql.Int, product_id)
             .query('DELETE FROM Wishlist WHERE user_id = @user_id AND product_id = @product_id');
 
         if (result.rowsAffected[0] === 0) {
@@ -83,45 +74,47 @@ router.post("/remove-from-wishlist", async (req, res) => {
     }
 });
 
-router.get("/get-wishlist/:user_id", async (req, res) => {
-    const { user_id } = req.params;
-  
-    try {
-      const pool = await poolPromise;
-  
-      const result = await pool
-        .request()
-        .input('user_id', sql.Int, user_id)
-        .query(`
-          SELECT 
-            w.wishlist_id,
-            p.product_id,
-            p.name,
-            p.description,
-            p.price,
-            p.quantity,
-            (
-              SELECT TOP 1 pi.image_url 
-              FROM ProductImages pi 
-              WHERE pi.product_id = p.product_id
-              ORDER BY pi.image_id
-            ) AS image_url
-          FROM Wishlist w
-          JOIN Products p ON w.product_id = p.product_id
-          WHERE w.user_id = @user_id
-        `);
-  
-      if (result.recordset.length === 0) {
-        return res.status(404).json({ message: "No wishlist found for this user." });
-      }
-  
-      res.json(result.recordset);
-    } catch (err) {
-      console.error('Error fetching wishlist:', err);
-      res.status(500).json({ error: 'Internal Server Error', details: err.message });
-    }
-  });
-  
+/**
+ * @route GET /api/wishlist/get-wishlist
+ * @desc Get all wishlist products for the authenticated user
+ * @access Protected
+ */
+router.get("/get-wishlist", authenticateJWT, async (req, res) => {
+    const user_id = req.user;
 
+    try {
+        const pool = await poolPromise;
+
+        const result = await pool.request()
+            .input('user_id', sql.Int, user_id)
+            .query(`
+                SELECT 
+                    w.wishlist_id,
+                    p.product_id,
+                    p.name,
+                    p.description,
+                    p.price,
+                    p.quantity,
+                    (
+                        SELECT TOP 1 pi.image_url 
+                        FROM ProductImages pi 
+                        WHERE pi.product_id = p.product_id
+                        ORDER BY pi.image_id
+                    ) AS image_url
+                FROM Wishlist w
+                JOIN Products p ON w.product_id = p.product_id
+                WHERE w.user_id = @user_id
+            `);
+
+        if (result.recordset.length === 0) {
+            return res.status(404).json({ message: "No wishlist found for this user." });
+        }
+
+        res.json(result.recordset);
+    } catch (err) {
+        console.error('Error fetching wishlist:', err);
+        res.status(500).json({ error: 'Internal Server Error', details: err.message });
+    }
+});
 
 export default router;
