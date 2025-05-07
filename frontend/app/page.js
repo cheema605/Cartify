@@ -2,36 +2,48 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Carousel from "../components/ui/carousel";
+import AnimatedCounter from "../components/ui/animatedCounter";
+
+const heroAnimation = (
+  <svg
+    className="w-48 h-48 mx-auto mb-6 animate-spin-slow"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="white"
+  >
+    <circle
+      className="opacity-25"
+      cx="12"
+      cy="12"
+      r="10"
+      strokeWidth="4"
+      stroke="currentColor"
+    />
+    <path
+      className="opacity-75"
+      fill="currentColor"
+      d="M4 12a8 8 0 018-8v8H4z"
+    />
+  </svg>
+);
+
+const trendingDealsImages = [
+  { url: "https://images.unsplash.com/photo-1512499617640-c2f99912a0f1?auto=format&fit=crop&w=800&q=80", alt: "Wireless Headphones" },
+  { url: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80", alt: "Smartwatch Series 7" },
+  { url: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80", alt: "Gaming Laptop" },
+  { url: "https://images.unsplash.com/photo-1496180727794-817822f65950?auto=format&fit=crop&w=800&q=80", alt: "Bluetooth Speaker" },
+];
 
 const sections = [
   {
     id: 1,
-    className: "relative flex flex-col lg:flex-row items-center justify-center text-white h-screen px-8 md:px-16 bg-[#157a94] font-[Inter]", // Updated font
+    className: "relative flex flex-col lg:flex-row items-center justify-center text-white h-screen px-8 md:px-16 bg-gradient-to-r from-[#157a94] via-[#0e5a6d] to-[#0a4a56] font-[Inter]",
     content: (router) => (
       <div className="w-full flex flex-col">
-        
-        {/* Fixed Top Task Bar */}
-        <div className="fixed top-0 left-0 w-full flex items-center justify-between px-8 md:px-16 py-4 bg-[#106b82] shadow-md z-50">
-          <span className="text-2xl font-bold italic tracking-wide">Cartify</span>
-          <nav className="hidden md:flex gap-6 text-lg font-medium">
-            <a href="#" className="hover:text-gray-300 transition">Home</a>
-            <a href="#" className="hover:text-gray-300 transition">Shop</a>
-            <a href="#" className="hover:text-gray-300 transition">Rent</a>
-            <a href="#" className="hover:text-gray-300 transition">More</a>
-          </nav>
-          <div className="flex gap-4">
-            <button className="px-4 py-2 text-white border border-white rounded-lg hover:bg-white hover:text-black transition font-medium" >
-              Help
-            </button>
-            <button className="px-5 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition font-medium" onClick={() => router.push("/login")}>
-              Login
-            </button>
-          </div>
-        </div>
-  
         {/* Main Hero Section */}
-        <div className="flex flex-col lg:flex-row items-center justify-between max-w-7xl mx-auto flex-1 pt-24"> {/* Adjusted padding for navbar */}
-          
+        <div className="flex flex-col lg:flex-row items-center justify-between max-w-7xl mx-auto flex-1 pt-24">
           {/* Left Content */}
           <div className="lg:w-1/2 text-center lg:text-left">
             <h1 className="text-5xl md:text-6xl font-extrabold drop-shadow-md leading-tight">
@@ -49,32 +61,11 @@ const sections = [
               </button>
             </div>
           </div>
-  
-          {/* Right Image Grid */}
-          <div className="lg:w-1/2 grid grid-cols-2 gap-4 mt-4 lg:mt-0">
-  {/* First Row - Offset Left & Right */}
-  <div className="-mt-2">
-    <img src="../images/image1.jpg" alt="Shopping" className="rounded-lg shadow-lg w-full h-auto object-cover" />
-  </div>
-  <div className="mt-2">
-    <img src="../images/image2.jpg" alt="Women discussing" className="rounded-lg shadow-lg w-full h-auto object-cover" />
-  </div>
-  </div>
-  <div className="lg:w-1/2 grid grid-cols-2 gap-4 mt-4 lg:mt-0">
-  {/* Second Row - Offset Opposite Direction */}
-  <div className="mt-2">
-    <img src="../images/image3.jpg" alt="Businesswoman" className="rounded-lg shadow-lg w-full h-auto object-cover" />
-  </div>
-  <div className="-mt-4">
-    <img src="../images/image4.jpg" alt="Group discussion" className="rounded-lg shadow-lg w-full h-auto object-cover" />
-  </div>
-</div>
-
-
-
-  
+          {/* Right Animated SVG */}
+          <div className="lg:w-1/2 flex justify-center items-center">
+            {heroAnimation}
+          </div>
         </div>
-  
       </div>
     ),
   },
@@ -82,64 +73,70 @@ const sections = [
     id: 2,
     className: "min-h-screen bg-white flex flex-col items-center py-12 font-serif",
     content: (
-      <div className="w-11/12 max-w-6xl mt-35"> {/* Added mt-12 for spacing */}
-        <h2 className="text-4xl font-extrabold text-gray-900 mb-8 tracking-wide">
+      <div className="w-full max-w-7xl mx-auto mt-12 px-4 sm:px-6 lg:px-8">
+        <h2 className="text-4xl font-extrabold text-gray-900 mb-8 tracking-wide text-center">
           🔥 Trending Deals
         </h2>
-  
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
           {[
-            { id: 1, title: "Wireless Headphones", price: "$59.99", image: "../images/deal1.jpg" },
-            { id: 2, title: "Smartwatch Series 7", price: "$199.99", image: "../images/deal2.jpg" },
-            { id: 3, title: "Gaming Laptop", price: "$999.99", image: "../images/deal3.jpg" },
-            { id: 4, title: "Bluetooth Speaker", price: "$39.99", image: "../images/deal4.jpg" },
+            { id: 1, title: "Wireless Headphones", price: "$59.99", image: "https://images.unsplash.com/photo-1512499617640-c2f99912a0f1?auto=format&fit=crop&w=800&q=80" },
+            { id: 2, title: "Smartwatch Series 7", price: "$199.99", image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80" },
+            { id: 3, title: "Gaming Laptop", price: "$999.99", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80" },
+            { id: 4, title: "Bluetooth Speaker", price: "$39.99", image: "https://images.unsplash.com/photo-1496180727794-817822f65950?auto=format&fit=crop&w=800&q=80" },
           ].map((deal) => (
-            <div
-              key={deal.id}
-              className="bg-gray-100 rounded-lg p-4 shadow-lg hover:shadow-2xl transition transform hover:-translate-y-2"
-            >
-              <img
-                src={deal.image}
-                alt={deal.title}
-                className="w-full h-40 object-cover rounded-lg mb-4"
-              />
-              <h3 className="text-xl font-bold text-gray-800 tracking-wide">{deal.title}</h3>
-              <p className="text-lg text-gray-600 italic">{deal.price}</p>
-              <button className="mt-4 px-5 py-2 bg-[#157a94] text-white font-bold rounded-lg hover:bg-[#106b82] transition shadow-md">
-                Buy Now
-              </button>
+            <div key={deal.id} className="bg-white border border-gray-300 rounded-lg shadow-md p-4 flex flex-col items-center">
+              <img src={deal.image} alt={deal.title} className="w-full h-40 object-cover rounded-md mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900">{deal.title}</h3>
+              <p className="text-md font-medium text-gray-700 mt-2">{deal.price}</p>
             </div>
           ))}
         </div>
       </div>
     ),
-  }  ,
+  },
   {
     id: 3,
-    className: "min-h-screen flex flex-col items-center font-serif",
+    className: "h-screen bg-gradient-to-r from-[#0a4a56] via-[#0e5a6d] to-[#157a94] text-white flex justify-center items-center font-serif",
     content: (
-      <div className="w-full flex flex-col items-center">
-        
-        {/* Upper Half - White Background */}
-        <div className="w-full min-h-[50vh] bg-white"></div>
-
-  
-        {/* Lower Half - Teal Background */}
-        <div className="w-full bg-[#0e5a6d] text-white py-12 text-center shadow-md">
-          <h2 className="text-3xl font-extrabold tracking-wide">📞 Contact Us</h2>
-          <p className="text-lg mt-2">Have any questions? Reach out to us via email or phone.</p>
-  
-          {/* Contact Details */}
-          <p className="text-xl font-semibold mt-4">✉️ Email: support@example.com</p>
-          <p className="text-xl font-semibold mt-2">📞 Phone: +123 456 7890</p>
-          <p className="text-lg mt-4 italic">Available: Mon - Fri, 9 AM - 6 PM</p>
-  
-          {/* Footer */}
-          <p className="mt-8 text-sm opacity-80">© 2025 YourCompany. All Rights Reserved.</p>
+      <div className="w-full max-w-7xl mx-auto flex flex-col items-center px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
+          <div>
+            <AnimatedCounter end={1500} suffix="+" />
+            <p className="mt-2 text-lg font-semibold">Products Sold</p>
+          </div>
+          <div>
+            <AnimatedCounter end={1200} suffix="+" />
+            <p className="mt-2 text-lg font-semibold">Happy Customers</p>
+          </div>
+          <div>
+            <AnimatedCounter end={500} suffix="+" />
+            <p className="mt-2 text-lg font-semibold">Stores Joined</p>
+          </div>
         </div>
       </div>
     ),
-  }
+  },
+  {
+    id: 4,
+    className: "min-h-screen flex flex-col items-center font-serif",
+    content: (
+      <div className="w-full flex flex-col items-center">
+        {/* Upper Half - White Background */}
+        <div className="w-full min-h-[50vh] bg-white"></div>
+        {/* Lower Half - Teal Background */}
+        <div className="w-full bg-[#0e5a6d] text-white py-12 text-center shadow-md">
+          <h2 className="text-3xl font-extrabold tracking-wide">Contact Us</h2>
+          <p className="text-lg mt-2">Have any questions? Reach out to us via email or phone.</p>
+          {/* Contact Details */}
+          <p className="text-xl font-semibold mt-4">✉️ Email: cartifystores@gmail.com</p>
+          <p className="text-xl font-semibold mt-2">📞 Phone: +123 456 7890</p>
+          <p className="text-lg mt-4 italic">Available: Mon - Fri, 9 AM - 6 PM</p>
+          {/* Footer */}
+          <p className="mt-8 text-sm opacity-80">© 2025 Cartify Pvt. Ltd. All Rights Reserved.</p>
+        </div>
+      </div>
+    ),
+  },
 ];
 
 export default function LandingPage() {

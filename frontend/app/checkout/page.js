@@ -20,7 +20,13 @@ export default function CheckoutPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!shippingInfo.name || !shippingInfo.address || !shippingInfo.city || !shippingInfo.zip || !shippingInfo.country) {
+    if (
+      !shippingInfo.name ||
+      !shippingInfo.address ||
+      !shippingInfo.city ||
+      !shippingInfo.zip ||
+      !shippingInfo.country
+    ) {
       setError("Please fill in all fields");
       return;
     }
@@ -29,76 +35,99 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0e5a6d] flex items-center justify-center p-6">
-      <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-200 w-full max-w-2xl">
-        <h1 className="text-3xl font-extrabold text-gray-800 mb-6 text-center font-serif">Checkout</h1>
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-start pt-24 px-4 sm:px-6 lg:px-8">
+      <div className="bg-white p-8 rounded-xl shadow-md border border-gray-200 w-full max-w-xl">
+        <h1 className="text-2xl font-semibold text-gray-900 mb-6 text-center font-serif tracking-normal">
+          Checkout
+        </h1>
+        {error && (
+          <p className="text-red-600 text-center mb-4 font-medium">{error}</p>
+        )}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="space-y-5">
           {/* Shipping Information */}
-          <div className="mb-4">
-            <label className="block text-[#157a94] font-serif">Full Name</label>
-            <input
-              type="text"
-              name="name"
-              value={shippingInfo.name}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border rounded focus:ring focus:ring-blue-200 text-black font-serif"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-[#157a94] font-serif">Address</label>
-            <input
-              type="text"
-              name="address"
-              value={shippingInfo.address}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border rounded focus:ring focus:ring-blue-200 text-black font-serif"
-              required
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="space-y-4">
             <div>
-              <label className="block text-[#157a94] font-serif">City</label>
+              <label className="block text-gray-700 font-medium mb-1 font-serif">
+                Full Name
+              </label>
               <input
                 type="text"
-                name="city"
-                value={shippingInfo.city}
+                name="name"
+                value={shippingInfo.name}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded focus:ring focus:ring-blue-200 text-black font-serif"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400 text-gray-900 font-serif transition duration-200"
+                placeholder="John Doe"
                 required
               />
             </div>
             <div>
-              <label className="block text-[#157a94] font-serif">Zip Code</label>
+              <label className="block text-gray-700 font-medium mb-1 font-serif">
+                Address
+              </label>
               <input
                 type="text"
-                name="zip"
-                value={shippingInfo.zip}
+                name="address"
+                value={shippingInfo.address}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded focus:ring focus:ring-blue-200 text-black font-serif"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400 text-gray-900 font-serif transition duration-200"
+                placeholder="123 Main St"
                 required
               />
             </div>
-          </div>
-          <div className="mb-4">
-            <label className="block text-[#157a94] font-serif">Country</label>
-            <input
-              type="text"
-              name="country"
-              value={shippingInfo.country}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border rounded focus:ring focus:ring-blue-200 text-black font-serif"
-              required
-            />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-gray-700 font-medium mb-1 font-serif">
+                  City
+                </label>
+                <input
+                  type="text"
+                  name="city"
+                  value={shippingInfo.city}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400 text-gray-900 font-serif transition duration-200"
+                  placeholder="New York"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 font-medium mb-1 font-serif">
+                  Zip Code
+                </label>
+                <input
+                  type="text"
+                  name="zip"
+                  value={shippingInfo.zip}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400 text-gray-900 font-serif transition duration-200"
+                  placeholder="10001"
+                  required
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-gray-700 font-medium mb-1 font-serif">
+                Country
+              </label>
+              <input
+                type="text"
+                name="country"
+                value={shippingInfo.country}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400 text-gray-900 font-serif transition duration-200"
+                placeholder="USA"
+                required
+              />
+            </div>
           </div>
 
           {/* Payment Method */}
-          <div className="mb-6">
-            <label className="block text-[#157a94] font-serif mb-2">Payment Method</label>
+          <div>
+            <label className="block text-gray-700 font-medium mb-3 font-serif">
+              Payment Method
+            </label>
             <select
-              className="w-full px-3 py-2 border rounded focus:ring focus:ring-blue-200 text-black font-serif"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400 text-gray-900 font-serif transition duration-200"
               value={paymentMethod}
               onChange={(e) => setPaymentMethod(e.target.value)}
             >
@@ -111,15 +140,15 @@ export default function CheckoutPage() {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-[#157a94] text-white py-2 rounded-lg hover:bg-[#106b82] transition-transform transform hover:scale-105 font-serif"
+            className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition-transform transform hover:scale-105 font-serif font-semibold text-base shadow-md"
           >
             Place Order
           </button>
         </form>
 
-        {/* Return to Cart */}
-        <p className="mt-4 text-center text-sm font-serif">
-          <Link href="/cart" className="text-[#157a94] underline hover:text-blue-700">
+        {/* Return to Explore with Cart Open */}
+        <p className="mt-6 text-center text-sm font-serif text-gray-600">
+          <Link href="/explore?cartOpen=true" className="text-indigo-600 underline hover:text-indigo-800">
             Back to Cart
           </Link>
         </p>

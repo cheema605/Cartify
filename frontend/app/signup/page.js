@@ -77,24 +77,6 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-[#f5f5f5]">
-      {/* Navigation Bar */}
-      <div className="fixed top-0 left-0 w-full flex items-center justify-between px-8 md:px-16 py-4 bg-[#106b82] shadow-md z-50 font-serif">
-        <span className="text-2xl font-bold italic tracking-wide text-white cursor-pointer" onClick={() => router.push("/")}>Cartify</span>
-        <nav className="hidden md:flex gap-6 text-lg font-medium text-white font-serif">
-          <a href="/" className="hover:text-gray-300 transition">Home</a>
-          <a href="#" className="hover:text-gray-300 transition">Shop</a>
-          <a href="#" className="hover:text-gray-300 transition">Rent</a>
-          <a href="#" className="hover:text-gray-300 transition">More</a>
-        </nav>
-        <div className="flex gap-4">
-          <button className="px-4 py-2 text-white border border-white rounded-lg hover:bg-white hover:text-black transition font-medium font-serif" >
-            Help
-          </button>
-          <button className="px-5 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition font-medium font-serif" onClick={() => router.push("/login")}>
-            Login
-          </button>
-        </div>
-      </div>
 
       {/* Left side - Illustration */}
       <div className="w-full md:w-1/2 bg-gradient-to-br from-[#0e5a6d] to-[#157a94] flex flex-col justify-center items-center p-8 text-white text-center mt-16">
