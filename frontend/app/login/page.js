@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,8 +33,8 @@ export default function LoginPage() {
         setEmail("");
         setPassword("");
 
-        // Redirect to homepage or dashboard
-        setTimeout(() => router.push("/"), 2000);
+        // Redirect to mode selection page after login
+        setTimeout(() => router.push("/mode-selection"), 2000);
       } else {
         setError(data.message || "Login failed. Please check your credentials.");
       }
@@ -47,25 +46,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-[#f5f5f5]">
-      {/* Navigation Bar */}
-      <div className="fixed top-0 left-0 w-full flex items-center justify-between px-8 md:px-16 py-4 bg-[#106b82] shadow-md z-50 font-serif">
-        <span className="text-2xl font-extrabold italic tracking-wide" onClick={() => router.push("/")}>Cartify</span>
-        <nav className="hidden md:flex gap-6 text-lg font-medium text-white font-serif">
-          <a href="/" className="hover:text-gray-300 transition">Home</a>
-          <a href="#" className="hover:text-gray-300 transition">Shop</a>
-          <a href="#" className="hover:text-gray-300 transition">Rent</a>
-          <a href="#" className="hover:text-gray-300 transition">More</a>
-        </nav>
-        <div className="flex gap-4">
-          <button className="px-4 py-2 text-white border border-white rounded-lg hover:bg-white hover:text-black transition font-medium font-serif" >
-            Help
-          </button>
-          <button className="px-5 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition font-medium font-serif" onClick={() => router.push("/signup")}>
-            Sign Up
-          </button>
-        </div>
-      </div>
-
       {/* Left side - Illustration */}
       <div className="w-full md:w-1/2 bg-gradient-to-br from-[#0e5a6d] to-[#157a94] flex flex-col justify-center items-center p-8 text-white text-center mt-16">
         <h1 className="text-4xl font-bold mb-4">Welcome Back to Cartify!</h1>
