@@ -2,8 +2,11 @@
 import express from "express";
 import { sql, poolPromise } from "../db/sql.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";  // Import jwt
 
 const router = express.Router();
+
+const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";  // Secret key for signing the JWT
 
 router.post("/", async (req, res) => {
   const { email, password } = req.body;
@@ -31,13 +34,23 @@ router.post("/", async (req, res) => {
 
     if (!validPassword) return res.status(400).json({ message: "Invalid email or password." });
 
-    // Fetch buyer preferences
-    
+    // Create JWT token
+    const token = jwt.sign(
+      {
+        id: user.user_id,
+        email: user.email,
+        username: user.full_name,
+      },
+      JWT_SECRET,
+      { expiresIn: '1h' }
+    );
 
     res.json({
       message: "Login successful.",
-      user: { id: user.id, username: user.Username, email: user.Email }   });
-
+      token,  // Send the JWT token in the response
+      user: { id: user.id, username: user.Username, email: user.Email },
+    });
+    
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Login failed.", error: err.message });

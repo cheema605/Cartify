@@ -29,13 +29,15 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
+        localStorage.setItem("jwt_token", data.token); // ✅ Save JWT token
+      
         setSuccess("Login successful! Redirecting...");
         setEmail("");
         setPassword("");
-
-        // Redirect to mode selection page after login
+      
         setTimeout(() => router.push("/mode-selection"), 2000);
-      } else {
+      }
+       else {
         setError(data.message || "Login failed. Please check your credentials.");
       }
     } catch (err) {

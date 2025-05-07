@@ -16,6 +16,9 @@ router.post("/", async (req, res) => {
     const pool = await poolPromise;
 
     // Check if user already exists
+
+    const result = await pool.request().query("SELECT DB_NAME() AS CurrentDB");
+console.log("✅ Currently connected to DB:", result.recordset[0].CurrentDB);
     const existingUser = await pool.request()
       .input("email", sql.VarChar, email)
       .query("SELECT * FROM Users WHERE Email = @email");

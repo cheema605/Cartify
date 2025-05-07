@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Carousel from "../../components/ui/carousel";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 const sampleCategories = [
   { id: 1, name: "Electronics", icon: "📱" },
@@ -13,22 +15,198 @@ const sampleCategories = [
   { id: 7, name: "Beauty", icon: "💄" },
 ];
 
-const sampleProducts = [
-  { id: 1, name: "Smartphone", price: 1200, originalPrice: 1500, image: "/placeholder.jpg", rating: 4.5, categoryId: 1 },
-  { id: 2, name: "Dress", price: 800, originalPrice: 1000, image: "/placeholder.jpg", rating: 4.0, categoryId: 2 },
-  { id: 3, name: "Sofa", price: 1500, originalPrice: 1800, image: "/placeholder.jpg", rating: 4.8, categoryId: 3 },
-  { id: 4, name: "Football", price: 500, originalPrice: 700, image: "/placeholder.jpg", rating: 4.2, categoryId: 4 },
-  { id: 5, name: "Teddy Bear", price: 2000, originalPrice: 2200, image: "/placeholder.jpg", rating: 4.7, categoryId: 5 },
-  { id: 6, name: "Novel", price: 900, originalPrice: 1100, image: "/placeholder.jpg", rating: 4.3, categoryId: 6 },
-  { id: 7, name: "Lipstick", price: 300, originalPrice: 400, image: "/placeholder.jpg", rating: 4.1, categoryId: 7 },
-];
-
+// Carousel images as placeholders
 const carouselImages = [
   { url: "/images/deal1.jpg", alt: "Deal 1" },
   { url: "/images/deal2.jpg", alt: "Deal 2" },
   { url: "/images/deal3.jpg", alt: "Deal 3" },
   { url: "/images/deal4.jpg", alt: "Deal 4" },
 ];
+
+const ExplorePage = () => {
+    const router = useRouter();
+  const [mode, setMode] = useState("products"); // Default mode is "products"
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortOption, setSortOption] = useState("default");
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [productData, setProductData] = useState([]);
+
+  useEffect(() => {
+    const fetchProductData = async () => {
+      setLoading(true);
+      const token = localStorage.getItem("jwt_token"); // Get the JWT token from localStorage
+
+      if (!token) {
+        setError("No authentication token found");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        // Fetch the product suggestions from the API
+        const response = await axios.get('http://localhost:5000/api/explore', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        
+        
+        setProductData(response.data);
+        setLoading(false);
+      } catch (error) {
+        if (
+          error.response &&
+          (error.response.status === 401 || error.response.status === 403)
+        ) {
+          console.warn("Unauthorized. Redirecting to login...");
+          router.push("/login"); // 🔁 Redirect using Next.js
+        }
+        setError("Failed to fetch data");
+        setLoading(false);
+      }
+    };
+
+    fetchProductData();
+  }, []);
+
+  const filteredItems = useMemo(() => {
+    let items = [];
+
+    if (mode === "products") {
+      items = productData.flatMap((category) =>
+        category.product_suggestions.map((product) => ({
+          ...product,
+          rating: 0, // Default rating if not provided
+        }))
+      );
+    }
+
+    if (selectedCategory) {
+      items = items.filter((item) => item.category_id === selectedCategory);
+    }
+
+    if (searchQuery.trim() !== "") {
+      items = items.filter((item) =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    switch (sortOption) {
+      case "price-asc":
+        items = items.slice().sort((a, b) => a.price - b.price);
+        break;
+      case "price-desc":
+        items = items.slice().sort((a, b) => b.price - a.price);
+        break;
+      case "name-asc":
+        items = items.slice().sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case "name-desc":
+        items = items.slice().sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      default:
+        break;
+    }
+
+    return items;
+  }, [mode, searchQuery, sortOption, selectedCategory, productData]);
+
+  return (
+    <div className="min-h-screen w-full bg-gray-100 relative pt-20">
+      {/* Carousel Slideshow */}
+      <div className="container mx-auto mt-4">
+        <Carousel images={carouselImages} autoPlay={true} autoPlayTime={4000} />
+      </div>
+  
+      {/* Categories Bar */}
+      <div className="container mx-auto mt-6 p-4 overflow-x-auto">
+        <h2 className="text-xl font-bold mb-4 text-gray-800">Categories</h2>
+        <div className="flex space-x-6">
+          {sampleCategories.map((category) => (
+            <div
+              key={category.id}
+              className={`flex flex-col items-center justify-center w-20 h-20 rounded-full cursor-pointer transition-shadow shadow-sm hover:shadow-lg ${
+                selectedCategory === category.id ? "bg-teal-600 text-white shadow-lg" : "bg-white text-gray-700"
+              }`}
+              onClick={() => setSelectedCategory(selectedCategory === category.id ? null : category.id)}
+            >
+              <div className="text-4xl mb-1">{category.icon}</div>
+              <p className="text-sm font-semibold">{category.name}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+  
+      {/* Search and Sort */}
+      <div className="container mx-auto mt-6 p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <label htmlFor="search" className="sr-only">Search Products</label>
+        <input
+          id="search"
+          type="text"
+          placeholder="Search products..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full md:w-1/2 py-3 px-5 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-md transition text-teal-900"
+        />
+        <label htmlFor="sort" className="sr-only">Sort By</label>
+        <select
+          id="sort"
+          value={sortOption}
+          onChange={(e) => setSortOption(e.target.value)}
+          className="w-full md:w-1/4 py-3 px-5 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-md transition text-teal-900"
+        >
+          <option value="default" className="text-teal-900">Sort By</option>
+          <option value="price-asc" className="text-teal-900">Price: Low to High</option>
+          <option value="price-desc" className="text-teal-900">Price: High to Low</option>
+          <option value="name-asc" className="text-teal-900">Name: A to Z</option>
+          <option value="name-desc" className="text-teal-900">Name: Z to A</option>
+        </select>
+      </div>
+  
+      {/* Mode Toggle */}
+      <div className="flex justify-center gap-4 mb-4">
+        <button
+          onClick={() => setMode("products")}
+          className={`px-4 py-2 rounded ${mode === "products" ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+        >
+          Explore Products
+        </button>
+        <button
+          onClick={() => setMode("rentals")}
+          className={`px-4 py-2 rounded ${mode === "rentals" ? "bg-blue-600 text-white" : "bg-gray-200"}`}
+        >
+          Explore Rentals
+        </button>
+      </div>
+      {/* Suggested Products by Category */}
+      <div className="container mx-auto mt-10 p-4 space-y-10">
+        {productData.map((category) => (
+          <div key={category.category_id}>
+            <h2 className="text-2xl font-bold mb-4 text-gray-800">{category.category_name}</h2>
+  
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {category.product_suggestions.map((product) => (
+                <div key={product.product_id} className="bg-white p-3 rounded-lg shadow hover:shadow-md transition">
+                  <img
+                    src={product.image_url || "/images/default.jpg"}
+                    alt={product.name}
+                    className="w-full h-36 object-cover rounded"
+                  />
+                  <h3 className="text-md font-semibold mt-2 text-teal-900">{product.name}</h3>
+                  <p className="text-teal-600 font-bold">Rs. {product.price}</p>
+                  <StarRating rating={4} />
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+  
 
 function StarRating({ rating }) {
   const fullStars = Math.floor(rating);
@@ -58,116 +236,5 @@ function StarRating({ rating }) {
   );
 }
 
-export default function ExplorePage() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortOption, setSortOption] = useState("default");
-  const [selectedCategory, setSelectedCategory] = useState(null);
 
-  const filteredProducts = useMemo(() => {
-    let filtered = sampleProducts;
-
-    if (selectedCategory) {
-      filtered = filtered.filter(p => p.categoryId === selectedCategory);
-    }
-
-    if (searchQuery.trim() !== "") {
-      filtered = filtered.filter(p =>
-        p.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    switch (sortOption) {
-      case "price-asc":
-        filtered = filtered.slice().sort((a, b) => a.price - b.price);
-        break;
-      case "price-desc":
-        filtered = filtered.slice().sort((a, b) => b.price - a.price);
-        break;
-      case "name-asc":
-        filtered = filtered.slice().sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case "name-desc":
-        filtered = filtered.slice().sort((a, b) => b.name.localeCompare(a.name));
-        break;
-      default:
-        break;
-    }
-
-    return filtered;
-  }, [searchQuery, sortOption, selectedCategory]);
-
-  return (
-    <div className="min-h-screen w-full bg-gray-100 relative pt-20">
-      {/* Carousel Slideshow */}
-      <div className="container mx-auto mt-4">
-        <Carousel images={carouselImages} autoPlay={true} autoPlayTime={4000} />
-      </div>
-
-      {/* Categories Bar */}
-      <div className="container mx-auto mt-6 p-4 overflow-x-auto">
-        <h2 className="text-xl font-bold mb-4 text-gray-800">Categories</h2>
-        <div className="flex space-x-6">
-          {sampleCategories.map((category) => (
-            <div
-              key={category.id}
-              className={`flex flex-col items-center justify-center w-20 h-20 rounded-full cursor-pointer transition-shadow shadow-sm hover:shadow-lg ${
-                selectedCategory === category.id ? "bg-teal-600 text-white shadow-lg" : "bg-white text-gray-700"
-              }`}
-              onClick={() => setSelectedCategory(selectedCategory === category.id ? null : category.id)}
-            >
-              <div className="text-4xl mb-1">{category.icon}</div>
-              <p className="text-sm font-semibold">{category.name}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Search and Sort */}
-      <div className="container mx-auto mt-6 p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <label htmlFor="search" className="sr-only">Search Products</label>
-        <input
-          id="search"
-          type="text"
-          placeholder="Search products..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full md:w-1/2 py-3 px-5 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-md transition text-teal-900"
-        />
-        <label htmlFor="sort" className="sr-only">Sort By</label>
-        <select
-          id="sort"
-          value={sortOption}
-          onChange={(e) => setSortOption(e.target.value)}
-          className="w-full md:w-1/4 py-3 px-5 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-md transition text-teal-900"
-        >
-          <option value="default" className="text-teal-900">Sort By</option>
-          <option value="price-asc" className="text-teal-900">Price: Low to High</option>
-          <option value="price-desc" className="text-teal-900">Price: High to Low</option>
-          <option value="name-asc" className="text-teal-900">Name: A to Z</option>
-          <option value="name-desc" className="text-teal-900">Name: Z to A</option>
-        </select>
-      </div>
-
-      {/* Products Grid */}
-      <div className="container mx-auto mt-4 p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        {filteredProducts.length > 0 ? (
-          filteredProducts.map((product) => (
-            <div key={product.id} className="bg-white p-2 shadow-lg rounded-lg">
-              <img
-                src={product.image}
-                alt={product.name}
-                className="w-full h-40 object-cover rounded"
-              />
-              <h2 className="text-sm font-semibold mt-2 text-teal-900">{product.name}</h2>
-              <p className="text-teal-600 font-bold">Rs. {product.price}</p>
-              <p className="text-red-500 line-through text-sm">Rs. {product.originalPrice}</p>
-              <StarRating rating={product.rating} />
-            </div>
-          ))
-        ) : (
-          <p className="text-center col-span-full text-red-600">No products found.</p>
-        )}
-      </div>
-    </div>
-  );
-}
+export default ExplorePage;
