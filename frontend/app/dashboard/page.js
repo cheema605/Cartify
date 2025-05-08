@@ -9,6 +9,8 @@ import {
   TrendingUp,
   ArrowUpRight,
 } from 'lucide-react';
+import { useState } from 'react';
+import DashboardToggle from '@/components/DashboardToggle';
 
 const stats = [
   {
@@ -42,6 +44,7 @@ const stats = [
 ];
 
 export default function DashboardPage() {
+  const [toggleChecked, setToggleChecked] = useState(true);
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -54,6 +57,18 @@ export default function DashboardPage() {
         <div className="text-sm text-gray-500">
           Last updated: {new Date().toLocaleDateString()}
         </div>
+      </div>
+      <div className="flex justify-end mb-1 -mt-7">
+        <DashboardToggle
+          checked={toggleChecked}
+          onToggle={(checked) => {
+            setToggleChecked(checked);
+            if (!checked) {
+              setTimeout(() => (window.location.href = '/'), 300);
+            }
+          }}
+          size="sm"
+        />
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">

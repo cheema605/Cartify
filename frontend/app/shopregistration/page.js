@@ -31,6 +31,57 @@ export default function SellerRegistrationPage() {
     router.push("/success"); // Navigate to success page
   };
 
+  const sampleCategories = [
+    {
+      id: 1,
+      name: "Earphone",
+      label: "With EARPHONE",
+      image: "/images/earphone.png",
+      bg: "bg-neutral-900",
+      buttonColor: "bg-red-500 text-white",
+    },
+    {
+      id: 2,
+      name: "Wear Gadgets",
+      label: "Wear GADGET",
+      image: "/images/watch.png",
+      bg: "bg-yellow-400",
+      buttonColor: "bg-white text-yellow-500",
+    },
+    {
+      id: 3,
+      name: "Laptop",
+      label: "Devices LAPTOP",
+      image: "/images/laptop.png",
+      bg: "bg-red-500",
+      buttonColor: "bg-white text-red-500",
+    },
+    {
+      id: 4,
+      name: "Gaming Console",
+      label: "Gaming CONSOLE",
+      image: "/images/console.png",
+      bg: "bg-gray-100",
+      buttonColor: "bg-red-500 text-white",
+    },
+    {
+      id: 5,
+      name: "Oculus",
+      label: "Game OCULUS",
+      image: "/images/oculus.png",
+      bg: "bg-green-400",
+      buttonColor: "bg-white text-green-500",
+    },
+    {
+      id: 6,
+      name: "Amazon Speaker",
+      label: "Amazon SPEAKER",
+      image: "/images/speaker.png",
+      bg: "bg-blue-500",
+      buttonColor: "bg-white text-blue-500",
+    },
+  ];
+
   return (
     <div className="w-full h-screen overflow-hidden bg-[#f9f9f9]" style={{ fontFamily: "Times New Roman, Times, serif" }}>
       {/* Fixed Top Task Bar */}

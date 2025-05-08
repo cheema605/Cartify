@@ -18,7 +18,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { Plus, Search } from 'lucide-react'
+import { Plus, Search, Upload } from 'lucide-react'
 
 const productsData = [
   {
@@ -54,6 +54,13 @@ export default function ProductsPage() {
   const [filter, setFilter] = useState({ name: '', category: '' })
   const [products, setProducts] = useState(productsData)
   const [selectedProduct, setSelectedProduct] = useState(null)
+  const [productImage, setProductImage] = useState(null)
+  const [productForm, setProductForm] = useState({
+    name: '',
+    price: '',
+    stock: '',
+    category: '',
+  })
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target
@@ -79,6 +86,65 @@ export default function ProductsPage() {
     setIsEditProductOpen(false)
   }
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      setProductImage(file)
+    }
+  }
+
+  const handleFormChange = (e) => {
+    const { name, value } = e.target
+    setProductForm(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  const handleAddProduct = async () => {
+    const formData = new FormData()
+    formData.append('name', productForm.name)
+    formData.append('price', productForm.price)
+    formData.append('quantity', productForm.stock)
+    formData.append('category', productForm.category)
+    if (productImage) {
+      formData.append('images', productImage)
+    }
+
+    try {
+      const response = await fetch('/api/seller/create-product', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        // Add the new product to the list
+        setProducts(prev => [...prev, {
+          id: data.product_id,
+          name: productForm.name,
+          price: parseFloat(productForm.price),
+          stock: parseInt(productForm.stock),
+          category: productForm.category,
+          status: 'In Stock'
+        }])
+        // Reset form and close dialog
+        setProductForm({
+          name: '',
+          price: '',
+          stock: '',
+          category: '',
+        })
+        setProductImage(null)
+        setIsAddProductOpen(false)
+      } else {
+        console.error('Failed to add product')
+      }
+    } catch (error) {
+      console.error('Error adding product:', error)
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -98,21 +164,64 @@ export default function ProductsPage() {
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-black">Product Name</label>
-                <Input placeholder="Enter product name" className="bg-gray-100 text-black focus:outline-none focus:ring-1 focus:ring-gray-200 focus:border-gray-200" />
+                <Input 
+                  name="name"
+                  value={productForm.name}
+                  onChange={handleFormChange}
+                  placeholder="Enter product name" 
+                  className="bg-gray-100 text-black focus:outline-none focus:ring-1 focus:ring-gray-200 focus:border-gray-200" 
+                />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-black">Price</label>
-                <Input type="number" placeholder="0.00" className="bg-gray-100 text-black focus:outline-none focus:ring-1 focus:ring-gray-200 focus:border-gray-200" />
+                <Input 
+                  name="price"
+                  value={productForm.price}
+                  onChange={handleFormChange}
+                  type="number" 
+                  placeholder="0.00" 
+                  className="bg-gray-100 text-black focus:outline-none focus:ring-1 focus:ring-gray-200 focus:border-gray-200" 
+                />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-black">Stock</label>
-                <Input type="number" placeholder="0" className="bg-gray-100 text-black focus:outline-none focus:ring-1 focus:ring-gray-200 focus:border-gray-200" />
+                <Input 
+                  name="stock"
+                  value={productForm.stock}
+                  onChange={handleFormChange}
+                  type="number" 
+                  placeholder="0" 
+                  className="bg-gray-100 text-black focus:outline-none focus:ring-1 focus:ring-gray-200 focus:border-gray-200" 
+                />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-black">Category</label>
-                <Input placeholder="Enter category" className="bg-gray-100 text-black focus:outline-none focus:ring-1 focus:ring-gray-200 focus:border-gray-200" />
+                <Input 
+                  name="category"
+                  value={productForm.category}
+                  onChange={handleFormChange}
+                  placeholder="Enter category" 
+                  className="bg-gray-100 text-black focus:outline-none focus:ring-1 focus:ring-gray-200 focus:border-gray-200" 
+                />
               </div>
-              <Button className="w-full bg-black text-white hover:bg-black/90">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-black">Product Image</label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="bg-gray-100 text-black focus:outline-none focus:ring-1 focus:ring-gray-200 focus:border-gray-200"
+                  />
+                  {productImage && (
+                    <span className="text-sm text-gray-500">{productImage.name}</span>
+                  )}
+                </div>
+              </div>
+              <Button 
+                className="w-full bg-black text-white hover:bg-black/90"
+                onClick={handleAddProduct}
+              >
                 Add Product
               </Button>
             </div>

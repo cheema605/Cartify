@@ -4,18 +4,19 @@ import React, { useState, useEffect, useMemo } from "react";
 import Carousel from "../../components/ui/carousel";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { Heart, ShoppingCart, Star, Filter, Search } from "lucide-react";
+import Image from "next/image";
+import Navbar from "../../components/Navbar";
 
 const sampleCategories = [
-  { id: 1, name: "Electronics", icon: "📱" },
-  { id: 2, name: "Fashion", icon: "👗" },
-  { id: 3, name: "Home", icon: "🏠" },
-  { id: 4, name: "Sports", icon: "⚽" },
-  { id: 5, name: "Toys", icon: "🧸" },
-  { id: 6, name: "Books", icon: "📚" },
-  { id: 7, name: "Beauty", icon: "💄" },
+  { id: 1, name: "Earphone", icon: "🎧" },
+  { id: 2, name: "Wear Gadget", icon: "⌚" },
+  { id: 3, name: "Laptop", icon: "💻" },
+  { id: 4, name: "Gaming Console", icon: "🎮" },
+  { id: 5, name: "Oculus", icon: "🕶️" },
+  { id: 6, name: "Speaker", icon: "🔊" },
 ];
 
-// Carousel images as placeholders
 const carouselImages = [
   { url: "/images/deal1.jpg", alt: "Deal 1" },
   { url: "/images/deal2.jpg", alt: "Deal 2" },
@@ -23,20 +24,72 @@ const carouselImages = [
   { url: "/images/deal4.jpg", alt: "Deal 4" },
 ];
 
+const StarRating = ({ rating }) => {
+  return (
+    <div className="flex items-center gap-1">
+      {[...Array(5)].map((_, i) => (
+        <Star
+          key={i}
+          className={`w-4 h-4 ${
+            i < rating ? "text-yellow-400 fill-yellow-400" : "text-gray-300"
+          }`}
+        />
+      ))}
+    </div>
+  );
+};
+
+const ProductCard = ({ product }) => {
+  const router = useRouter();
+
+  return (
+    <div
+      className="group relative bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden"
+      onClick={() => router.push(`/productpage/${product.product_id}`)}
+    >
+      <div className="relative aspect-square overflow-hidden">
+        <Image
+          src={product.image_url || "/images/default.jpg"}
+          alt={product.name}
+          fill
+          className="object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+        <button className="absolute top-2 right-2 p-2 rounded-full bg-white/80 hover:bg-white transition-colors">
+          <Heart className="w-5 h-5 text-gray-600 hover:text-red-500" />
+        </button>
+      </div>
+      <div className="p-4">
+        <h3 className="text-lg font-semibold text-gray-900 line-clamp-1">
+          {product.name}
+        </h3>
+        <div className="mt-2 flex items-center justify-between">
+          <p className="text-xl font-bold text-teal-600">Rs. {product.price}</p>
+          <StarRating rating={4} />
+        </div>
+        <button className="mt-3 w-full py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors flex items-center justify-center gap-2">
+          <ShoppingCart className="w-5 h-5" />
+          Add to Cart
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const ExplorePage = () => {
-    const router = useRouter();
-  const [mode, setMode] = useState("products"); // Default mode is "products"
+  const router = useRouter();
+  const [mode, setMode] = useState("products");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState("default");
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [productData, setProductData] = useState([]);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   useEffect(() => {
     const fetchProductData = async () => {
       setLoading(true);
-      const token = localStorage.getItem("jwt_token"); // Get the JWT token from localStorage
+      const token = localStorage.getItem("jwt_token");
 
       if (!token) {
         setError("No authentication token found");
@@ -45,14 +98,12 @@ const ExplorePage = () => {
       }
 
       try {
-        // Fetch the product suggestions from the API
-        const response = await axios.get('http://localhost:5000/api/explore', {
+        const response = await axios.get("http://localhost:5000/api/explore", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        
-        
+
         setProductData(response.data);
         setLoading(false);
       } catch (error) {
@@ -61,7 +112,7 @@ const ExplorePage = () => {
           (error.response.status === 401 || error.response.status === 403)
         ) {
           console.warn("Unauthorized. Redirecting to login...");
-          router.push("/login"); // 🔁 Redirect using Next.js
+          router.push("/login");
         }
         setError("Failed to fetch data");
         setLoading(false);
@@ -78,7 +129,7 @@ const ExplorePage = () => {
       items = productData.flatMap((category) =>
         category.product_suggestions.map((product) => ({
           ...product,
-          rating: 0, // Default rating if not provided
+          rating: 0,
         }))
       );
     }
@@ -114,127 +165,153 @@ const ExplorePage = () => {
   }, [mode, searchQuery, sortOption, selectedCategory, productData]);
 
   return (
-    <div className="min-h-screen w-full bg-gray-100 relative pt-20">
-      {/* Carousel Slideshow */}
-      <div className="container mx-auto mt-4">
-        <Carousel images={carouselImages} autoPlay={true} autoPlayTime={4000} />
+    <div className="min-h-screen bg-gray-200">
+      {/* Floating Navbar */}
+      <div className="fixed -top-4 left-1/2 z-50 -translate-x-1/2 w-[98vw] max-w-7xl">
+        <Navbar />
       </div>
-  
-      {/* Categories Bar */}
-      <div className="container mx-auto mt-6 p-4 overflow-x-auto">
-        <h2 className="text-xl font-bold mb-4 text-gray-800">Categories</h2>
-        <div className="flex space-x-6">
-          {sampleCategories.map((category) => (
-            <div
-              key={category.id}
-              className={`flex flex-col items-center justify-center w-20 h-20 rounded-full cursor-pointer transition-shadow shadow-sm hover:shadow-lg ${
-                selectedCategory === category.id ? "bg-teal-600 text-white shadow-lg" : "bg-white text-gray-700"
-              }`}
-              onClick={() => setSelectedCategory(selectedCategory === category.id ? null : category.id)}
-            >
-              <div className="text-4xl mb-1">{category.icon}</div>
-              <p className="text-sm font-semibold">{category.name}</p>
-            </div>
-          ))}
+      {/* Hero Section */}
+      <div className="relative bg-gradient-to-b from-teal-600 to-teal-800 pt-20 pb-12">
+        <div className="container mx-auto px-4">
+          <Carousel
+            images={carouselImages}
+            autoPlay={true}
+            autoPlayTime={4000}
+          />
         </div>
       </div>
-  
-      {/* Search and Sort */}
-      <div className="container mx-auto mt-6 p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <label htmlFor="search" className="sr-only">Search Products</label>
-        <input
-          id="search"
-          type="text"
-          placeholder="Search products..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full md:w-1/2 py-3 px-5 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-md transition text-teal-900"
-        />
-        <label htmlFor="sort" className="sr-only">Sort By</label>
-        <select
-          id="sort"
-          value={sortOption}
-          onChange={(e) => setSortOption(e.target.value)}
-          className="w-full md:w-1/4 py-3 px-5 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-md transition text-teal-900"
-        >
-          <option value="default" className="text-teal-900">Sort By</option>
-          <option value="price-asc" className="text-teal-900">Price: Low to High</option>
-          <option value="price-desc" className="text-teal-900">Price: High to Low</option>
-          <option value="name-asc" className="text-teal-900">Name: A to Z</option>
-          <option value="name-desc" className="text-teal-900">Name: Z to A</option>
-        </select>
-      </div>
-  
-      {/* Mode Toggle */}
-      <div className="flex justify-center gap-4 mb-4">
-        <button
-          onClick={() => setMode("products")}
-          className={`px-4 py-2 rounded ${mode === "products" ? "bg-blue-600 text-white" : "bg-gray-200"}`}
-        >
-          Explore Products
-        </button>
-        <button
-          onClick={() => setMode("rentals")}
-          className={`px-4 py-2 rounded ${mode === "rentals" ? "bg-blue-600 text-white" : "bg-gray-200"}`}
-        >
-          Explore Rentals
-        </button>
-      </div>
-      {/* Suggested Products by Category */}
-      <div className="container mx-auto mt-10 p-4 space-y-10">
-        {productData.map((category) => (
-          <div key={category.category_id}>
-            <h2 className="text-2xl font-bold mb-4 text-gray-800">{category.category_name}</h2>
-  
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {category.product_suggestions.map((product) => (
-                <div key={product.product_id} className="bg-white p-3 rounded-lg shadow hover:shadow-md transition">
-                  <img
-                    src={product.image_url || "/images/default.jpg"}
-                    alt={product.name}
-                    className="w-full h-36 object-cover rounded"
-                  />
-                  <h3 className="text-md font-semibold mt-2 text-teal-900">{product.name}</h3>
-                  <p className="text-teal-600 font-bold">Rs. {product.price}</p>
-                  <StarRating rating={4} />
-                </div>
-              ))}
-            </div>
+
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-8 pt-24">
+        {/* Search and Filter Bar */}
+        <div className="flex flex-col md:flex-row gap-4 mb-8 ">
+          {/* Modern Search Bar */}
+          <div className="relative flex-1">
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 rounded-full bg-white/70 backdrop-blur-md shadow-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-900 placeholder-gray-400 transition"
+              style={{ boxShadow: "0 4px 24px 0 rgba(0,0,0,0.07)" }}
+            />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-400 pointer-events-none" />
           </div>
-        ))}
+
+          {/* Sort & Filter Controls */}
+          <div className="flex gap-3 items-center bg-white/70 backdrop-blur-md rounded-full px-4 py-2 shadow-lg border border-gray-200">
+            <select
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+              className="px-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/80 shadow-sm text-gray-700 font-medium transition"
+            >
+              <option value="default">Sort By</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="name-asc">Name: A to Z</option>
+              <option value="name-desc">Name: Z to A</option>
+            </select>
+            <button
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500 to-teal-400 text-white font-semibold shadow hover:from-blue-600 hover:to-teal-500 transition"
+            >
+              <Filter className="w-5 h-5" />
+              Filters
+            </button>
+          </div>
+        </div>
+
+        {/* Category Section - Styled Grid */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Explore by Categories</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {sampleCategories.map((category, index) => (
+              <div
+                key={category.id}
+                className={`rounded-xl p-6 shadow-md text-white cursor-pointer transition-transform transform hover:scale-105 ${
+                  [
+                    "bg-gradient-to-br from-black to-gray-800", // Earphone
+                    "bg-yellow-400 text-black", // Wear Gadget
+                    "bg-red-500", // Laptop
+                    "bg-violet-500 text-black", // Console
+                    "bg-green-500", // Oculus
+                    "bg-blue-500", // Speaker
+                    "bg-pink-500", // fallback
+                  ][index % 7]
+                }`}
+                onClick={() =>
+                  setSelectedCategory(
+                    selectedCategory === category.id ? null : category.id
+                  )
+                }
+              >
+                <div className="text-4xl mb-4">{category.icon}</div>
+                <h3 className="text-xl font-semibold mb-1">{category.name}</h3>
+                <p className="mb-4 text-sm">Discover the best in {category.name}</p>
+                <button className="px-4 py-2 bg-white text-sm font-medium rounded-md text-black hover:bg-gray-100 transition">
+                  Browse
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Mode Toggle */}
+        <div className="flex justify-center gap-4 mb-8">
+          <button
+            onClick={() => setMode("products")}
+            className={`px-8 py-3 rounded-full font-semibold text-lg shadow-lg transition-all duration-300
+              ${mode === "products"
+                ? "bg-gradient-to-r from-blue-500 to-teal-400 text-white ring-2 ring-blue-300/60 backdrop-blur-md"
+                : "bg-white/60 text-gray-800 border border-gray-300 hover:bg-white/80 hover:shadow-xl backdrop-blur-md"}
+            `}
+          >
+            Explore Products
+          </button>
+          <button
+            onClick={() => setMode("rentals")}
+            className={`px-8 py-3 rounded-full font-semibold text-lg shadow-lg transition-all duration-300
+              ${mode === "rentals"
+                ? "bg-gradient-to-r from-blue-500 to-teal-400 text-white ring-2 ring-blue-300/60 backdrop-blur-md"
+                : "bg-white/60 text-gray-800 border border-gray-300 hover:bg-white/80 hover:shadow-xl backdrop-blur-md"}
+            `}
+          >
+            Explore Rentals
+          </button>
+        </div>
+
+        {/* Products Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredItems.map((product) => (
+            <ProductCard key={product.product_id} product={product} />
+          ))}
+        </div>
+
+        {/* Loading */}
+        {loading && (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
+          </div>
+        )}
+
+        {/* Error */}
+        {error && (
+          <div className="text-center py-12">
+            <p className="text-red-600">{error}</p>
+          </div>
+        )}
+
+        {/* Empty */}
+        {!loading && !error && filteredItems.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-gray-600">
+              No products found matching your criteria.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
 };
-  
-
-function StarRating({ rating }) {
-  const fullStars = Math.floor(rating);
-  const halfStar = rating - fullStars >= 0.5;
-  const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
-
-  return (
-    <div className="flex items-center justify-center space-x-1 text-yellow-400">
-      {[...Array(fullStars)].map((_, i) => (
-        <svg key={"full" + i} className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.49 6.91l6.561-.955L10 0l2.949 5.955 6.561.955-4.755 4.635 1.123 6.545z"/></svg>
-      ))}
-      {halfStar && (
-        <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-          <defs>
-            <linearGradient id="half-grad">
-              <stop offset="50%" stopColor="currentColor" />
-              <stop offset="50%" stopColor="transparent" stopOpacity="1" />
-            </linearGradient>
-          </defs>
-          <path fill="url(#half-grad)" d="M10 15l-5.878 3.09 1.123-6.545L.49 6.91l6.561-.955L10 0l2.949 5.955 6.561.955-4.755 4.635 1.123 6.545z"/>
-        </svg>
-      )}
-      {[...Array(emptyStars)].map((_, i) => (
-        <svg key={"empty" + i} className="w-4 h-4 fill-gray-300" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.49 6.91l6.561-.955L10 0l2.949 5.955 6.561.955-4.755 4.635 1.123 6.545z"/></svg>
-      ))}
-    </div>
-  );
-}
-
 
 export default ExplorePage;

@@ -36,7 +36,7 @@ export default function LayoutWrapper({ children }) {
 
   return (
     <>
-      {!isDashboardRoute && <NavbarComponent cartOpen={cartOpen} toggleCart={toggleCart} />}
+      {!isDashboardRoute && !isExplorePage && <NavbarComponent cartOpen={cartOpen} toggleCart={toggleCart} />}
       <CartSlidingPanel isOpen={cartOpen} onClose={closeCart} userId={userId} disableOverlay={true} />
       {children}
     </>

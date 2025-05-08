@@ -3,7 +3,16 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Store, BarChart3, Package, Settings, Users, ShoppingCart, Menu, X } from 'lucide-react';
+import {
+  Store,
+  BarChart3,
+  Package,
+  Settings,
+  Users,
+  ShoppingCart,
+  Menu,
+  X,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import DashboardToggle from '@/components/DashboardToggle';
 
@@ -41,7 +50,7 @@ export default function DashboardLayout({ children }) {
                 onToggle={(checked) => {
                   setToggleChecked(checked);
                   if (!checked) {
-                    setTimeout(() => window.location.href = '/', 300);
+                    setTimeout(() => (window.location.href = '/'), 300);
                   }
                 }}
                 size="sm"
@@ -61,7 +70,12 @@ export default function DashboardLayout({ children }) {
         )}
       >
         <div className="flex h-16 items-center justify-between border-b px-4">
-          <h1 className={cn('font-semibold text-xl text-gray-900', collapsed ? 'hidden' : 'block')}>
+          <h1
+            className={cn(
+              'font-semibold text-xl text-gray-900',
+              collapsed ? 'hidden' : 'block'
+            )}
+          >
             Dashboard
           </h1>
           <button
@@ -81,13 +95,20 @@ export default function DashboardLayout({ children }) {
                 href={item.href}
                 className={cn(
                   'flex items-center space-x-3 rounded-lg px-3 py-2.5 transition-colors',
-                  isActive 
-                    ? 'bg-teal-50 text-teal-700' 
+                  isActive
+                    ? 'bg-teal-50 text-teal-700'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 )}
               >
-                <item.icon className={cn('h-5 w-5', isActive ? 'text-teal-600' : 'text-gray-400')} />
-                <span className={cn('text-sm font-medium', collapsed ? 'hidden' : 'block')}>
+                <item.icon
+                  className={cn(
+                    'h-5 w-5',
+                    isActive ? 'text-teal-600' : 'text-gray-400'
+                  )}
+                />
+                <span
+                  className={cn('text-sm font-medium', collapsed ? 'hidden' : 'block')}
+                >
                   {item.label}
                 </span>
               </Link>
@@ -100,12 +121,11 @@ export default function DashboardLayout({ children }) {
       <main
         className={cn(
           'min-h-screen transition-all duration-300',
-          'lg:ml-64',
           collapsed ? 'lg:ml-20' : 'lg:ml-64',
           'pt-16 lg:pt-0'
         )}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
           {children}
         </div>
       </main>
@@ -116,22 +136,6 @@ export default function DashboardLayout({ children }) {
           className="fixed inset-0 bg-gray-900/50 z-20 lg:hidden"
           onClick={() => setMobileMenuOpen(false)}
         />
-      )}
-
-      {/* Desktop Dashboard Toggle (top right) */}
-      {pathname === '/dashboard' && (
-        <div className="hidden lg:block fixed top-20 right-8 z-50">
-          <DashboardToggle
-            checked={toggleChecked}
-            onToggle={(checked) => {
-              setToggleChecked(checked);
-              if (!checked) {
-                setTimeout(() => window.location.href = '/', 300);
-              }
-            }}
-            size="sm"
-          />
-        </div>
       )}
     </div>
   );
