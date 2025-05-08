@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import DashboardToggle from '@/components/DashboardToggle';
+import Link from 'next/link';
 
 const stats = [
   {

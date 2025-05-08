@@ -59,7 +59,6 @@ export default function DashboardLayout({ children }) {
           )}
         </div>
       </div>
-
       {/* Sidebar */}
       <aside
         className={cn(
@@ -100,23 +99,24 @@ export default function DashboardLayout({ children }) {
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 )}
               >
-                <item.icon
-                  className={cn(
-                    'h-5 w-5',
-                    isActive ? 'text-teal-600' : 'text-gray-400'
-                  )}
-                />
-                <span
-                  className={cn('text-sm font-medium', collapsed ? 'hidden' : 'block')}
-                >
-                  {item.label}
+                <span className="flex items-center space-x-3">
+                  <item.icon
+                    className={cn(
+                      'h-5 w-5',
+                      isActive ? 'text-teal-600' : 'text-gray-400'
+                    )}
+                  />
+                  <span
+                    className={cn('text-sm font-medium', collapsed ? 'hidden' : 'block')}
+                  >
+                    {item.label}
+                  </span>
                 </span>
               </Link>
             );
           })}
         </nav>
       </aside>
-
       {/* Main Content */}
       <main
         className={cn(
@@ -129,7 +129,6 @@ export default function DashboardLayout({ children }) {
           {children}
         </div>
       </main>
-
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
         <div

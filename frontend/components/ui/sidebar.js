@@ -42,14 +42,14 @@ export function Sidebar() {
                   : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' // Inactive state: medium gray text, hover changes bg/text
               )}
             >
-              {/* Icon color will inherit from the Link's text color (currentColor) */}
-              <item.icon className="h-5 w-5" />
-              {/* Span color will inherit from the Link */}
-              <span>{item.label}</span>
+              <span className="flex items-center gap-3">
+                <item.icon className="h-5 w-5" />
+                <span>{item.label}</span>
+              </span>
             </Link>
-          )
+          );
         })}
       </nav>
     </aside>
-  )
+  );
 }

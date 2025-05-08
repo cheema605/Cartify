@@ -71,10 +71,8 @@ export default function CartSlidingPanel({ isOpen, onClose, userId, disableOverl
           >
             Continue Shopping
           </button>
-          <Link href="/checkout" legacyBehavior>
-            <button className="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded">
-              Proceed to Checkout
-            </button>
+          <Link href="/checkout" className="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded">
+            Proceed to Checkout
           </Link>
         </div>
       </div>
