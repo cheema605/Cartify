@@ -16,7 +16,7 @@ router.get('/', authenticateJWT, async (req, res) => {
         const preferenceResult = await pool.request()
             .input('user_id', sql.Int, user_id)
             .query(`
-                SELECT TOP 7 P.category_id, C.category_name
+                SELECT TOP 7 P.category_id, C.category_name, C.symbol
                 FROM Preferences P
                 JOIN Categories C ON P.category_id = C.category_id
                 WHERE P.user_id = @user_id
@@ -27,7 +27,7 @@ router.get('/', authenticateJWT, async (req, res) => {
         const finalResponse = [];
 
         for (const pref of preferences) {
-            const { category_id, category_name } = pref;
+            const { category_id, category_name, symbol } = pref;
 
             // Get previously used product names
             const nameResult = await pool.request()
@@ -106,6 +106,7 @@ router.get('/', authenticateJWT, async (req, res) => {
             finalResponse.push({
                 category_id,
                 category_name,
+                symbol,
                 product_suggestions: productResult.recordset,
                 rental_suggestions: rentalResult.recordset,
             });

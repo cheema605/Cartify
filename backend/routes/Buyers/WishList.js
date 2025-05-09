@@ -81,7 +81,7 @@ router.post("/remove-from-wishlist", authenticateJWT, async (req, res) => {
  */
 router.get("/get-wishlist", authenticateJWT, async (req, res) => {
     const user_id = req.user;
-
+    
     try {
         const pool = await poolPromise;
 
@@ -105,13 +105,14 @@ router.get("/get-wishlist", authenticateJWT, async (req, res) => {
                 JOIN Products p ON w.product_id = p.product_id
                 WHERE w.user_id = @user_id
             `);
-
+            console.log("result", result.recordset);
         if (result.recordset.length === 0) {
             return res.status(404).json({ message: "No wishlist found for this user." });
         }
-
+        console.log("result", result.recordset);
         res.json(result.recordset);
     } catch (err) {
+        console.log('Error fetching wishlist:', err);
         console.error('Error fetching wishlist:', err);
         res.status(500).json({ error: 'Internal Server Error', details: err.message });
     }
