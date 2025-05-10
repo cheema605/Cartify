@@ -1,16 +1,155 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Check, ShoppingCart, Timer, ChevronLeft, ChevronRight } from 'lucide-react'
-
-// import { Button } from '@components/ui/button'
-// import { Card, CardContent } from '@components/ui/card'
-// import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/ui/tabs'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+
+function ReviewsSection({ productId }) {
+  const [showReviews, setShowReviews] = useState(false)
+  const [reviews, setReviews] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [rating, setRating] = useState(5)
+  const [reviewText, setReviewText] = useState('')
+  const router = useRouter()
+
+  const toggleReviews = () => {
+    setShowReviews(!showReviews)
+  }
+
+  useEffect(() => {
+    if (showReviews) {
+      fetchReviews()
+    }
+  }, [showReviews])
+
+  const fetchReviews = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const token = localStorage.getItem('token')
+      const res = await fetch(`http://localhost:5000/api/reviews/get-review/${productId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      if (res.status === 401) {
+        router.push('/login')
+        return
+      }
+      if (!res.ok) {
+        console.error('Failed to fetch reviews:', res.statusText) 
+        throw new Error('Failed to fetch reviews')
+      }
+      const data = await res.json()
+      setReviews(data.reviews)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setError(null)
+    try {
+      const token = localStorage.getItem('token')
+      const res = await fetch('http://localhost:5000/api/reviews/add-review', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          product_id: productId,
+          rating,
+          review_text: reviewText,
+        }),
+      })
+      if (res.status === 401) {
+        router.push('/login')
+        return
+      }
+      if (!res.ok) {
+        throw new Error('Failed to add review')
+      }
+      setReviewText('')
+      setRating(5)
+      fetchReviews()
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
+  return (
+    <div className="mt-8 px-2 md:px-0">
+      <button
+        onClick={toggleReviews}
+        className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition"
+      >
+        {showReviews ? 'Hide Reviews' : 'See Reviews'}
+      </button>
+      {showReviews && (
+        <>
+          <div className="mt-4 space-y-6">
+            {loading && <p>Loading reviews...</p>}
+            {error && <p className="text-red-600">{error}</p>}
+            {!loading && !error && reviews.length === 0 && <p>No reviews yet.</p>}
+            {!loading && !error && reviews.map((review) => (
+              <div key={review.review_id} className="border rounded-lg p-4 shadow-sm bg-white">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-semibold text-gray-900">{review.full_name}</span>
+                  <div className="flex space-x-1 text-yellow-400">
+                    {Array(review.rating).fill(0).map((_, i) => (
+                      <svg key={i} className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.185 3.644a1 1 0 00.95.69h3.828c.969 0 1.371 1.24.588 1.81l-3.1 2.254a1 1 0 00-.364 1.118l1.185 3.644c.3.921-.755 1.688-1.54 1.118l-3.1-2.254a1 1 0 00-1.176 0l-3.1 2.254c-.784.57-1.838-.197-1.539-1.118l1.184-3.644a1 1 0 00-.364-1.118L2.37 9.07c-.783-.57-.38-1.81.588-1.81h3.829a1 1 0 00.95-.69l1.184-3.644z" />
+                      </svg>
+                    ))}
+                  </div>
+                </div>
+                <p className="text-gray-700">{review.review_text}</p>
+              </div>
+            ))}
+          </div>
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4 bg-white p-4 rounded shadow">
+            <h3 className="text-xl font-semibold">Add Your Review</h3>
+            <label className="block">
+              Rating:
+              <select
+                value={rating}
+                onChange={(e) => setRating(parseInt(e.target.value))}
+                className="ml-2 border rounded px-2 py-1"
+              >
+                {[5,4,3,2,1].map((r) => (
+                  <option key={r} value={r}>{r}</option>
+                ))}
+              </select>
+            </label>
+            <label className="block">
+              Review:
+              <textarea
+                value={reviewText}
+                onChange={(e) => setReviewText(e.target.value)}
+                required
+                className="w-full border rounded px-2 py-1 mt-1"
+                rows={4}
+              />
+            </label>
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+              Submit Review
+            </Button>
+          </form>
+        </>
+      )}
+    </div>
+  )
+}
 
 export default function ProductPage() {
   const [selectedOption, setSelectedOption] = useState('buy')
@@ -152,7 +291,6 @@ export default function ProductPage() {
           </Tabs>
         </div>
       </div>
-
       {/* Product Description */}
       <div className="mt-2 md:mt-4 px-2 md:px-0">
         <h2 className="text-2xl font-bold text-gray-900">Product Description</h2>
@@ -169,67 +307,8 @@ export default function ProductPage() {
           </p>
         </div>
       </div>
-
       {/* Reviews Section */}
-      <div className="mt-8 px-2 md:px-0">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Reviews</h2>
-        <div className="space-y-6">
-          {/* Single Review */}
-          <div className="border rounded-lg p-4 shadow-sm bg-white">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-semibold text-gray-900">John Doe</span>
-              <div className="flex space-x-1 text-yellow-400">
-                {Array(5)
-                  .fill(0)
-                  .map((_, i) => (
-                    <svg
-                      key={i}
-                      className="w-5 h-5"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.185 3.644a1 1 0 00.95.69h3.828c.969 0 1.371 1.24.588 1.81l-3.1 2.254a1 1 0 00-.364 1.118l1.185 3.644c.3.921-.755 1.688-1.54 1.118l-3.1-2.254a1 1 0 00-1.176 0l-3.1 2.254c-.784.57-1.838-.197-1.539-1.118l1.184-3.644a1 1 0 00-.364-1.118L2.37 9.07c-.783-.57-.38-1.81.588-1.81h3.829a1 1 0 00.95-.69l1.184-3.644z" />
-                    </svg>
-                  ))}
-              </div>
-            </div>
-            <p className="text-gray-700">
-              These headphones have amazing sound quality and the noise cancellation works perfectly. Highly recommend!
-            </p>
-          </div>
-
-          {/* Single Review */}
-          <div className="border rounded-lg p-4 shadow-sm bg-white">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-semibold text-gray-900">Jane Smith</span>
-              <div className="flex space-x-1 text-yellow-400">
-                {Array(4)
-                  .fill(0)
-                  .map((_, i) => (
-                    <svg
-                      key={i}
-                      className="w-5 h-5"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.185 3.644a1 1 0 00.95.69h3.828c.969 0 1.371 1.24.588 1.81l-3.1 2.254a1 1 0 00-.364 1.118l1.185 3.644c.3.921-.755 1.688-1.54 1.118l-3.1-2.254a1 1 0 00-1.176 0l-3.1 2.254c-.784.57-1.838-.197-1.539-1.118l1.184-3.644a1 1 0 00-.364-1.118L2.37 9.07c-.783-.57-.38-1.81.588-1.81h3.829a1 1 0 00.95-.69l1.184-3.644z" />
-                    </svg>
-                  ))}
-                <svg
-                  className="w-5 h-5 text-gray-300"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.185 3.644a1 1 0 00.95.69h3.828c.969 0 1.371 1.24.588 1.81l-3.1 2.254a1 1 0 00-.364 1.118l1.185 3.644c.3.921-.755 1.688-1.54 1.118l-3.1-2.254a1 1 0 00-1.176 0l-3.1 2.254c-.784.57-1.838-.197-1.539-1.118l1.184-3.644a1 1 0 00-.364-1.118L2.37 9.07c-.783-.57-.38-1.81.588-1.81h3.829a1 1 0 00.95-.69l1.184-3.644z" />
-                </svg>
-              </div>
-            </div>
-            <p className="text-gray-700">
-              Great headphones but the battery life could be better. Still worth the price.
-            </p>
-          </div>
-        </div>
-      </div>
+      <ReviewsSection productId={1} />
     </div>
   )
 }

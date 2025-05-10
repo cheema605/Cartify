@@ -15,6 +15,7 @@ import preferences from './routes/Buyers/Preferences.js';
 import shoppingCart from './routes/Buyers/ShoppingCart.js';
 import uploadRoute from './routes/upload.js';
 import exploreRoute from './routes/explore/explore.js';
+import reviewRoute from './routes/Buyers/reviews.js';
 
 
 
@@ -51,6 +52,7 @@ app.use('/api/preferences', preferences);
 app.use('/api/login', loginRoute);
 app.use('/api/upload', uploadRoute);
 app.use('/api/explore', exploreRoute);
+app.use('/api/reviews', reviewRoute);
 
 
 
