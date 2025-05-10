@@ -43,20 +43,9 @@ export default function DashboardLayout({ children }) {
         </button>
         <h1 className="text-xl font-semibold text-gray-900">Dashboard</h1>
         <div>
-          {pathname === '/dashboard' && (
-            <div className="mt-4">
-              <DashboardToggle
-                checked={toggleChecked}
-                onToggle={(checked) => {
-                  setToggleChecked(checked);
-                  if (!checked) {
-                    setTimeout(() => (window.location.href = '/'), 300);
-                  }
-                }}
-                size="sm"
-              />
-            </div>
-          )}
+          <div className="mt-4">
+            <DashboardToggle size="sm" />
+          </div>
         </div>
       </div>
       {/* Sidebar */}
