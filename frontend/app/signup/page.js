@@ -77,30 +77,31 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-[#f5f5f5]">
-
       {/* Left side - Illustration */}
-      <div className="w-full md:w-1/2 bg-gradient-to-br from-[#0e5a6d] to-[#157a94] flex flex-col justify-center items-center p-8 text-white text-center mt-16">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Cartify!</h1>
-        <p className="text-xl mb-8 max-w-md">
-          Join thousands of happy shoppers and discover amazing products at unbeatable prices.
-        </p>
-        <div className="relative w-full max-w-md h-64">
-          <img
-            src="https://www.truthmedia.gr/sites/default/files/online-shopping-ecommerce-ss-1920_1.png"
-            alt="Shopping Illustration"
-            className="object-contain w-full h-full"
-          />
+      <div className="w-full md:w-1/2 bg-gradient-to-br from-[#0e5a6d] to-[#157a94] flex flex-col justify-center items-center p-8 text-white text-center min-h-screen">
+        <div className="mt-24">
+          <h1 className="text-4xl font-bold mb-4">Welcome to Cartify!</h1>
+          <p className="text-xl mb-8 max-w-md">
+            Join thousands of happy shoppers and discover amazing products at unbeatable prices.
+          </p>
+          <div className="relative w-full max-w-md h-64">
+            <img
+              src="https://www.truthmedia.gr/sites/default/files/online-shopping-ecommerce-ss-1920_1.png"
+              alt="Shopping Illustration"
+              className="object-contain w-full h-full"
+            />
+          </div>
+          <p className="mt-8 text-sm opacity-80">
+            Already have an account?{' '}
+            <Link href="/login" className="underline font-semibold hover:opacity-90 text-white">
+              Sign in here
+            </Link>
+          </p>
         </div>
-        <p className="mt-8 text-sm opacity-80">
-          Already have an account?{' '}
-          <Link href="/login" className="underline font-semibold hover:opacity-90 text-white">
-            Sign in here
-          </Link>
-        </p>
       </div>
 
       {/* Right side - Form */}
-      <div className="w-full md:w-1/2 flex items-center justify-center p-8 mt-16">
+      <div className="w-full md:w-1/2 flex items-center justify-center p-8 pt-24">
         <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
           <h2 className="text-3xl font-bold text-[#0F1516] mb-6">Create Account</h2>
           

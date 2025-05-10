@@ -6,7 +6,6 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { Heart, ShoppingCart, Star, Filter, Search } from "lucide-react";
 import Image from "next/image";
-import Navbar from "../../components/Navbar";
 import CartSlidingPanel from "../../components/CartSlidingPanel";
 
 const sampleCategories = [
@@ -186,10 +185,6 @@ const ExplorePage = () => {
 
   return (
     <div className="min-h-screen bg-gray-200">
-      {/* Floating Navbar */}
-      <div className="fixed -top-4 left-1/2 z-50 -translate-x-1/2 w-[98vw] max-w-7xl">
-        <Navbar cartOpen={cartOpen} toggleCart={toggleCart} />
-      </div>
       {/* Hero Section */}
       <div className="relative bg-gradient-to-b from-teal-600 to-teal-800 pt-20 pb-12">
         <div className="container mx-auto px-4">

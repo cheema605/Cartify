@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "../../components/Navbar";
+import { User, Mail, Lock, Phone, Home, Store as StoreIcon, FileText } from 'lucide-react';
+import Logo from '../../components/Logo';
 
 export default function SellerRegistrationPage() {
   const router = useRouter();
@@ -23,6 +25,8 @@ export default function SellerRegistrationPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [passwordMatchError, setPasswordMatchError] = useState("");
   const [logoPreview, setLogoPreview] = useState("");
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (formData.logoUrl) {
@@ -51,236 +55,259 @@ export default function SellerRegistrationPage() {
     setShowPassword(!showPassword);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setIsSubmitting(true);
+
     if (formData.password !== formData.confirmPassword) {
       setPasswordMatchError("Passwords do not match");
+      setIsSubmitting(false);
       return;
     }
-    // Add form submission logic here (e.g., API integration with Users and Stores table)
-    console.log("Form submitted", formData);
-    router.push("/success"); // Navigate to success page
+
+    try {
+      const token = localStorage.getItem('jwt_token');
+      if (!token) {
+        setError('Please log in to register as a seller');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Create store
+      const response = await fetch('http://localhost:5000/api/seller/create-store', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          store_name: formData.storeName,
+          store_description: formData.description
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Store created successfully
+        router.push('/dashboard');
+      } else {
+        setError(data.message || 'Failed to create store');
+      }
+    } catch (err) {
+      console.error('Error creating store:', err);
+      setError('Failed to create store. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 font-sans">
-      {/* Navbar */}
-      <div className="fixed top-0 left-1/2 z-50 -translate-x-1/2 w-[98vw] max-w-7xl">
-        <Navbar />
-      </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a0a23] via-[#10102a] to-[#1a1a2e] font-sans px-2">
+      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl p-8 md:p-12 animate-fadeIn flex flex-col items-center mt-32">
+        {/* Logo and Header */}
+        <div className="flex flex-col items-center mb-8">
+          <Logo />
+          <h2 className="text-3xl md:text-4xl font-extrabold text-teal-700 mt-2 mb-1 tracking-tight">Seller Registration</h2>
+          <p className="text-gray-500 text-center text-base md:text-lg">Join Cartify as a seller and grow your business!</p>
+        </div>
 
-      {/* Form Container */}
-      <div className="pt-24 pb-16 px-4 flex justify-center">
-        <div className="w-full max-w-3xl bg-white rounded-lg shadow-lg p-8 animate-fadeIn">
-          <h2 className="text-3xl font-extrabold text-center text-teal-700 mb-8">
-            Seller Registration
-          </h2>
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 w-full p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-600 text-center">{error}</p>
+          </div>
+        )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* First Name */}
-            <div className="flex flex-col">
-              <label htmlFor="firstName" className="text-gray-700 font-semibold mb-2">
-                First Name
-              </label>
-              <input
-                type="text"
-                id="firstName"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-                className="px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 transition"
-                required
-              />
+        <form onSubmit={handleSubmit} className="space-y-6 w-full">
+          {/* Personal Info Section */}
+          <div>
+            <h3 className="text-lg font-semibold text-teal-700 mb-2 flex items-center gap-2"><User className="w-5 h-5" /> Personal Info</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* First Name */}
+              <div className="relative">
+                <User className="absolute left-3 top-3.5 text-teal-400 w-5 h-5" />
+                <input
+                  type="text"
+                  id="firstName"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  className="pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 transition w-full text-gray-900"
+                  placeholder="First Name"
+                  required
+                />
+              </div>
+              {/* Last Name */}
+              <div className="relative">
+                <User className="absolute left-3 top-3.5 text-teal-400 w-5 h-5" />
+                <input
+                  type="text"
+                  id="lastName"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  className="pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 transition w-full text-gray-900"
+                  placeholder="Last Name"
+                  required
+                />
+              </div>
             </div>
-
-            {/* Last Name */}
-            <div className="flex flex-col">
-              <label htmlFor="lastName" className="text-gray-700 font-semibold mb-2">
-                Last Name
-              </label>
-              <input
-                type="text"
-                id="lastName"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                className="px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 transition"
-                required
-              />
-            </div>
-
             {/* Email */}
-            <div className="flex flex-col">
-              <label htmlFor="email" className="text-gray-700 font-semibold mb-2">
-                Email Address
-              </label>
+            <label htmlFor="email" className="block text-gray-800 font-semibold mb-1 ml-1 mt-4">Email Address</label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-3.5 text-teal-400 w-5 h-5" />
               <input
                 type="email"
                 id="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 transition"
+                className="pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 transition w-full text-gray-900"
+                placeholder="Email Address"
                 required
               />
             </div>
-
-            {/* Password */}
-            <div className="flex flex-col relative">
-              <label htmlFor="password" className="text-gray-700 font-semibold mb-2">
-                Password
-              </label>
-              <input
-                type={showPassword ? "text" : "password"}
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className={`px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 transition ${
-                  passwordMatchError ? "border-red-500" : ""
-                }`}
-                required
-              />
-              <button
-                type="button"
-                onClick={toggleShowPassword}
-                className="absolute right-3 top-9 text-sm text-teal-600 hover:text-teal-800 focus:outline-none"
-              >
-                {showPassword ? "Hide" : "Show"}
-              </button>
-            </div>
-
-            {/* Confirm Password */}
-            <div className="flex flex-col relative">
-              <label htmlFor="confirmPassword" className="text-gray-700 font-semibold mb-2">
-                Confirm Password
-              </label>
-              <input
-                type={showPassword ? "text" : "password"}
-                id="confirmPassword"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className={`px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 transition ${
-                  passwordMatchError ? "border-red-500" : ""
-                }`}
-                required
-              />
-              <button
-                type="button"
-                onClick={toggleShowPassword}
-                className="absolute right-3 top-9 text-sm text-teal-600 hover:text-teal-800 focus:outline-none"
-              >
-                {showPassword ? "Hide" : "Show"}
-              </button>
-              {passwordMatchError && (
-                <p className="text-red-600 text-sm mt-1">{passwordMatchError}</p>
-              )}
-            </div>
-
             {/* Phone Number */}
-            <div className="flex flex-col">
-              <label htmlFor="phoneNumber" className="text-gray-700 font-semibold mb-2">
-                Phone Number
-              </label>
+            <label htmlFor="phoneNumber" className="block text-gray-800 font-semibold mb-1 ml-1 mt-4">Phone Number</label>
+            <div className="relative">
+              <Phone className="absolute left-3 top-3.5 text-teal-400 w-5 h-5" />
               <input
                 type="tel"
                 id="phoneNumber"
                 name="phoneNumber"
                 value={formData.phoneNumber}
                 onChange={handleChange}
-                className="px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 transition"
+                className="pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 transition w-full text-gray-900"
+                placeholder="Phone Number"
                 required
               />
             </div>
-
             {/* Address */}
-            <div className="flex flex-col">
-              <label htmlFor="address" className="text-gray-700 font-semibold mb-2">
-                Address
-              </label>
+            <label htmlFor="address" className="block text-gray-800 font-semibold mb-1 ml-1 mt-4">Address</label>
+            <div className="relative">
+              <Home className="absolute left-3 top-3.5 text-teal-400 w-5 h-5" />
               <input
                 type="text"
                 id="address"
                 name="address"
                 value={formData.address}
                 onChange={handleChange}
-                className="px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 transition"
+                className="pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 transition w-full text-gray-900"
+                placeholder="Address"
                 required
               />
             </div>
+          </div>
 
+          {/* Store Info Section */}
+          <div>
+            <h3 className="text-lg font-semibold text-teal-700 mb-2 flex items-center gap-2"><StoreIcon className="w-5 h-5" /> Store Info</h3>
             {/* Store Name */}
-            <div className="flex flex-col">
-              <label htmlFor="storeName" className="text-gray-700 font-semibold mb-2">
-                Store Name
-              </label>
+            <label htmlFor="storeName" className="block text-gray-800 font-semibold mb-1 ml-1 mt-4">Store Name</label>
+            <div className="relative">
+              <StoreIcon className="absolute left-3 top-3.5 text-teal-400 w-5 h-5" />
               <input
                 type="text"
                 id="storeName"
                 name="storeName"
                 value={formData.storeName}
                 onChange={handleChange}
-                className="px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 transition"
+                className="pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 transition w-full text-gray-900"
+                placeholder="Store Name"
                 required
               />
             </div>
-
             {/* Store Description */}
-            <div className="flex flex-col">
-              <label htmlFor="description" className="text-gray-700 font-semibold mb-2">
-                Store Description
-              </label>
+            <label htmlFor="description" className="block text-gray-800 font-semibold mb-1 ml-1 mt-4">Store Description</label>
+            <div className="relative">
+              <FileText className="absolute left-3 top-3.5 text-teal-400 w-5 h-5" />
               <textarea
                 id="description"
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                className="px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 transition"
+                className="pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 transition w-full text-gray-900"
+                placeholder="Store Description"
                 rows="3"
                 required
               />
             </div>
+          </div>
 
-            {/* Logo URL */}
-            <div className="flex flex-col">
-              <label htmlFor="logoUrl" className="text-gray-700 font-semibold mb-2">
-                Logo URL
-              </label>
-              <input
-                type="url"
-                id="logoUrl"
-                name="logoUrl"
-                value={formData.logoUrl}
-                onChange={handleChange}
-                className="px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 transition"
-              />
-              {logoPreview && (
-                <img
-                  src={logoPreview}
-                  alt="Logo Preview"
-                  className="mt-2 w-32 h-32 object-contain rounded-md border border-gray-300"
+          {/* Password Section */}
+          <div>
+            <h3 className="text-lg font-semibold text-teal-700 mb-2 flex items-center gap-2"><Lock className="w-5 h-5" /> Set Password</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Password */}
+              <div className="relative">
+                <Lock className="absolute left-3 top-3.5 text-teal-400 w-5 h-5" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className={`pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 transition w-full ${passwordMatchError ? "border-red-500" : ""} text-gray-900`}
+                  placeholder="Password"
+                  required
                 />
+                <button
+                  type="button"
+                  onClick={toggleShowPassword}
+                  className="absolute right-3 top-3.5 text-sm text-teal-600 hover:text-teal-800 focus:outline-none"
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
+              {/* Confirm Password */}
+              <div className="relative">
+                <Lock className="absolute left-3 top-3.5 text-teal-400 w-5 h-5" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className={`pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 transition w-full ${passwordMatchError ? "border-red-500" : ""} text-gray-900`}
+                  placeholder="Confirm Password"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={toggleShowPassword}
+                  className="absolute right-3 top-3.5 text-sm text-teal-600 hover:text-teal-800 focus:outline-none"
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
+            </div>
+            {passwordMatchError && (
+              <p className="text-red-600 text-sm mt-1">{passwordMatchError}</p>
+            )}
+          </div>
+
+          {/* Submit Button */}
+          <div className="flex justify-center mt-8">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={`px-10 py-3 bg-gradient-to-r from-teal-600 to-blue-500 text-white font-bold rounded-lg shadow-lg transition text-lg flex items-center gap-2 ${
+                isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:from-teal-700 hover:to-blue-600'
+              }`}
+            >
+              {isSubmitting && (
+                <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                </svg>
               )}
-            </div>
-
-            <div className="flex justify-center mt-8">
-              <button
-                type="submit"
-                className="px-8 py-3 bg-teal-600 text-white font-bold rounded-lg hover:bg-teal-700 transition"
-              >
-                Register
-              </button>
-            </div>
-          </form>
-        </div>
+              {isSubmitting ? 'Creating Store...' : 'Create Store'}
+            </button>
+          </div>
+        </form>
       </div>
-
-      {/* Footer */}
-      <div className="w-full bg-teal-700 text-white py-4 text-center">
-        <p className="text-sm">© 2025 Cartify. All Rights Reserved.</p>
-      </div>
-
       <style jsx>{`
         @keyframes fadeIn {
           from {
