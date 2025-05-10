@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { Card } from '@/components/ui/card';
+import { Card } from "../../components/ui/card";
 import {
   BarChart3,
   DollarSign,
@@ -8,44 +8,45 @@ import {
   ShoppingCart,
   TrendingUp,
   ArrowUpRight,
-} from 'lucide-react';
-import { useState } from 'react';
-import DashboardToggle from '@/components/DashboardToggle';
-import Link from 'next/link';
-
-const stats = [
-  {
-    title: 'Total Revenue',
-    value: '$45,231.89',
-    icon: DollarSign,
-    trend: '+20.1% from last month',
-    trendUp: true,
-  },
-  {
-    title: 'Products',
-    value: '356',
-    icon: Package,
-    trend: '+12 new products',
-    trendUp: true,
-  },
-  {
-    title: 'Orders',
-    value: '2,345',
-    icon: ShoppingCart,
-    trend: '+8.1% from last week',
-    trendUp: true,
-  },
-  {
-    title: 'Conversion Rate',
-    value: '3.2%',
-    icon: TrendingUp,
-    trend: '+2.4% from last week',
-    trendUp: true,
-  },
-];
+} from "lucide-react";
+import { useState } from "react";
+import DashboardToggle from "../../components/DashboardToggle";
 
 export default function DashboardPage() {
   const [toggleChecked, setToggleChecked] = useState(true);
+
+  // Static mock data for stats
+  const stats = [
+    {
+      title: "Total Revenue",
+      value: "$12,345.67",
+      icon: DollarSign,
+      trend: "5.4%",
+      trendUp: true,
+    },
+    {
+      title: "Products",
+      value: "24",
+      icon: Package,
+      trend: "2.1%",
+      trendUp: true,
+    },
+    {
+      title: "Orders",
+      value: "56",
+      icon: ShoppingCart,
+      trend: "-1.3%",
+      trendUp: false,
+    },
+    {
+      title: "Conversion Rate",
+      value: "3.8%",
+      icon: TrendingUp,
+      trend: "0.5%",
+      trendUp: true,
+    },
+  ];
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -65,7 +66,7 @@ export default function DashboardPage() {
           onToggle={(checked) => {
             setToggleChecked(checked);
             if (!checked) {
-              setTimeout(() => (window.location.href = '/'), 300);
+              setTimeout(() => (window.location.href = "/"), 300);
             }
           }}
           size="sm"
@@ -74,13 +75,20 @@ export default function DashboardPage() {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
-          <Card key={stat.title} className="p-6 bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+          <Card
+            key={stat.title}
+            className="p-6 bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
+          >
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">{stat.title}</p>
                 <h2 className="mt-2 text-3xl font-semibold text-gray-900">{stat.value}</h2>
                 <div className="mt-2 flex items-center text-sm">
-                  <span className={`flex items-center ${stat.trendUp ? 'text-green-600' : 'text-red-600'}`}>
+                  <span
+                    className={`flex items-center ${
+                      stat.trendUp ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
                     <ArrowUpRight className="h-4 w-4 mr-1" />
                     {stat.trend}
                   </span>

@@ -112,7 +112,7 @@ export default function ProductsPage() {
     }
 
     try {
-      const response = await fetch('/api/seller/create-product', {
+      const response = await fetch('http://localhost:5000/api/seller/create-product', {
         method: 'POST',
         body: formData,
       })

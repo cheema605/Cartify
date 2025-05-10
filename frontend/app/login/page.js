@@ -35,7 +35,7 @@ export default function LoginPage() {
         setEmail("");
         setPassword("");
       
-        setTimeout(() => router.push("/mode-selection"), 2000);
+        setTimeout(() => router.push("/explore"), 2000);
       }
        else {
         setError(data.message || "Login failed. Please check your credentials.");
