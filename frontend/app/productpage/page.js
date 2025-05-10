@@ -32,8 +32,9 @@ function ReviewsSection({ productId }) {
     setLoading(true)
     setError(null)
     try {
-      const token = localStorage.getItem('token')
-      const res = await fetch(`http://localhost:5000/api/reviews/get-review/${productId}`, {
+      const token = localStorage.getItem('jwt_token')
+      const res = await fetch(`http://localhost:5000/api/reviews/get-review/2`, {
+        Method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -59,7 +60,7 @@ function ReviewsSection({ productId }) {
     e.preventDefault()
     setError(null)
     try {
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem('jwt_token')
       const res = await fetch('http://localhost:5000/api/reviews/add-review', {
         method: 'POST',
         headers: {
@@ -67,7 +68,7 @@ function ReviewsSection({ productId }) {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          product_id: productId,
+          product_id: 2,
           rating,
           review_text: reviewText,
         }),
@@ -77,6 +78,7 @@ function ReviewsSection({ productId }) {
         return
       }
       if (!res.ok) {
+        console.log("Product ID:", req.query.productId || req.body.productId);
         throw new Error('Failed to add review')
       }
       setReviewText('')
