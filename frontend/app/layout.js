@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import LayoutWrapper from "../components/LayoutWrapper";
+import { DashboardModeProvider } from '../context/DashboardModeContext';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,19 +23,21 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="icon" href="/icon.ico" />
-      </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen relative`}
-      >
-        {/* Background gradient only, grid overlay removed */}
-        <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#0a0a23] via-[#10102a] to-[#1a1a2e]" />
-        <LayoutWrapper>
-          {children}
-        </LayoutWrapper>
-      </body>
-    </html>
+    <DashboardModeProvider>
+      <html lang="en">
+        <head>
+          <link rel="icon" href="/icon.ico" />
+        </head>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen relative`}
+        >
+          {/* Background gradient only, grid overlay removed */}
+          <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#0a0a23] via-[#10102a] to-[#1a1a2e]" />
+          <LayoutWrapper>
+            {children}
+          </LayoutWrapper>
+        </body>
+      </html>
+    </DashboardModeProvider>
   );
 }

@@ -55,6 +55,7 @@ export default function ProductsPage() {
   const [products, setProducts] = useState(productsData)
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [productImage, setProductImage] = useState(null)
+  const [error, setError] = useState('')
   const [productForm, setProductForm] = useState({
     name: '',
     price: '',
@@ -102,18 +103,67 @@ export default function ProductsPage() {
   }
 
   const handleAddProduct = async () => {
-    const formData = new FormData()
-    formData.append('name', productForm.name)
-    formData.append('price', productForm.price)
-    formData.append('quantity', productForm.stock)
-    formData.append('category', productForm.category)
-    if (productImage) {
-      formData.append('images', productImage)
+    setError('') // Clear any previous errors
+
+    // Validate required fields
+    if (!productForm.name.trim()) {
+      setError('Product name is required')
+      return
+    }
+    if (!productForm.price) {
+      setError('Price is required')
+      return
+    }
+    if (!productForm.stock) {
+      setError('Stock quantity is required')
+      return
+    }
+    if (!productForm.category.trim()) {
+      setError('Category is required')
+      return
+    }
+    if (!productImage) {
+      setError('Product image is required')
+      return
     }
 
     try {
+      const token = localStorage.getItem('jwt_token')
+      if (!token) {
+        setError('Please log in to add products')
+        return
+      }
+
+      // Decode the JWT token to get user_id
+      const tokenParts = token.split('.')
+      if (tokenParts.length !== 3) {
+        setError('Invalid token format')
+        return
+      }
+
+      const payload = JSON.parse(atob(tokenParts[1]))
+      const user_id = payload.id
+
+      if (!user_id) {
+        setError('User ID not found in token')
+        return
+      }
+
+      const formData = new FormData()
+      formData.append('user_id', user_id)
+      formData.append('name', productForm.name.trim())
+      formData.append('price', productForm.price)
+      formData.append('quantity', productForm.stock)
+      formData.append('category', productForm.category.trim())
+      if (productImage) {
+        formData.append('images', productImage)
+      }
+
       const response = await fetch('http://localhost:5000/api/seller/create-product', {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
         body: formData,
       })
 
@@ -138,9 +188,11 @@ export default function ProductsPage() {
         setProductImage(null)
         setIsAddProductOpen(false)
       } else {
-        console.error('Failed to add product')
+        const errorData = await response.json()
+        setError(errorData.message || 'Failed to add product')
       }
     } catch (error) {
+      setError('Error adding product. Please try again.')
       console.error('Error adding product:', error)
     }
   }
@@ -162,18 +214,24 @@ export default function ProductsPage() {
               <DialogTitle className="text-black">Add New Product</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
+              {error && (
+                <div className="p-3 bg-red-100 text-red-700 rounded-lg text-sm">
+                  {error}
+                </div>
+              )}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-black">Product Name</label>
+                <label className="text-sm font-medium text-black">Product Name *</label>
                 <Input 
                   name="name"
                   value={productForm.name}
                   onChange={handleFormChange}
                   placeholder="Enter product name" 
                   className="bg-gray-100 text-black focus:outline-none focus:ring-1 focus:ring-gray-200 focus:border-gray-200" 
+                  required
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-black">Price</label>
+                <label className="text-sm font-medium text-black">Price *</label>
                 <Input 
                   name="price"
                   value={productForm.price}
@@ -181,10 +239,11 @@ export default function ProductsPage() {
                   type="number" 
                   placeholder="0.00" 
                   className="bg-gray-100 text-black focus:outline-none focus:ring-1 focus:ring-gray-200 focus:border-gray-200" 
+                  required
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-black">Stock</label>
+                <label className="text-sm font-medium text-black">Stock *</label>
                 <Input 
                   name="stock"
                   value={productForm.stock}
@@ -192,26 +251,29 @@ export default function ProductsPage() {
                   type="number" 
                   placeholder="0" 
                   className="bg-gray-100 text-black focus:outline-none focus:ring-1 focus:ring-gray-200 focus:border-gray-200" 
+                  required
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-black">Category</label>
+                <label className="text-sm font-medium text-black">Category *</label>
                 <Input 
                   name="category"
                   value={productForm.category}
                   onChange={handleFormChange}
                   placeholder="Enter category" 
                   className="bg-gray-100 text-black focus:outline-none focus:ring-1 focus:ring-gray-200 focus:border-gray-200" 
+                  required
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-black">Product Image</label>
+                <label className="text-sm font-medium text-black">Product Image *</label>
                 <div className="flex items-center gap-2">
                   <Input
                     type="file"
                     accept="image/*"
                     onChange={handleImageChange}
                     className="bg-gray-100 text-black focus:outline-none focus:ring-1 focus:ring-gray-200 focus:border-gray-200"
+                    required
                   />
                   {productImage && (
                     <span className="text-sm text-gray-500">{productImage.name}</span>

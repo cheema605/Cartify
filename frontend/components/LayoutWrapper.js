@@ -14,6 +14,18 @@ export default function LayoutWrapper({ children }) {
   const isDashboardRoute = pathname.startsWith('/dashboard');
   const isExplorePage = pathname === '/explore';
 
+  // Clear JWT token only on app initialization
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // Check if this is the first load of the app
+      const isFirstLoad = !sessionStorage.getItem('hasLoaded');
+      if (isFirstLoad) {
+        localStorage.removeItem('jwt_token');
+        sessionStorage.setItem('hasLoaded', 'true');
+      }
+    }
+  }, []);
+
   useEffect(() => {
     const cartOpenParam = searchParams.get("cartOpen");
     if (cartOpenParam === "true") {
