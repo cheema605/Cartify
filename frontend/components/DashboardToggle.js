@@ -44,12 +44,20 @@ export default function DashboardToggle({ size = 'md' }) {
         }
         const payload = JSON.parse(atob(tokenParts[1]));
         const user_id = payload.id;
+
+        console.log('Token user_id:', user_id);
+        const apiUrl = `http://localhost:5000/api/seller/create-store/check/${user_id}`;
+        console.log('API URL:', apiUrl);
         // Check if user has a store
-        const response = await fetch(`http://localhost:5000/api/seller/create-store/check/${user_id}`, {
+        const response = await fetch(apiUrl, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
+        console.log('Check store response status:', response.status);
+        const data = await response.json();
+        console.log('Check store response data:', data);
+
         if (response.ok) {
           setIsSellerMode(true);
           setTimeout(() => router.push("/dashboard"), 350);
