@@ -97,7 +97,7 @@ router.post("/api/chat", async (req, res) => {
         responseSent = true;
         return res.status(500).json({ error: 'Python script timed out' });
       }
-    }, 15000); // 15 sec
+    }, 65000); // 15 sec
 
     pythonProcess.stdout.on('data', (data) => {
       dataString += data.toString();

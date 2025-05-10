@@ -45,8 +45,8 @@ const ProductCard = ({ product }) => {
 
   return (
     <div
-      className="group relative bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden"
-      onClick={() => router.push(`/productpage/${product.product_id}`)}
+      className="group relative bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer"
+      onClick={() => router.push(`/productpage?product_id=${product.product_id}`)}
     >
       <div className="relative aspect-square overflow-hidden">
         <Image
@@ -76,8 +76,6 @@ const ProductCard = ({ product }) => {
   );
 };
 
-
-
 const ExplorePage = () => {
   const router = useRouter();
   const [mode, setMode] = useState("products");
@@ -103,10 +101,6 @@ const ExplorePage = () => {
       setCartOpen(false);
     };
 
-    // No router.events in next/navigation, so use router.events is undefined
-    // Instead, listen to router changes via useRouter and use useEffect cleanup
-
-    // This is a workaround: close cart on unmount or route change
     return () => {
       setCartOpen(false);
     };
@@ -209,7 +203,12 @@ const ExplorePage = () => {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8 pt-24">
-<CartSlidingPanel isOpen={cartOpen} onClose={() => setCartOpen(false)} userId={"current"} disableOverlay={true} />
+        <CartSlidingPanel
+          isOpen={cartOpen}
+          onClose={() => setCartOpen(false)}
+          userId={"current"}
+          disableOverlay={true}
+        />
         {/* Search and Filter Bar */}
         <div className="flex flex-col md:flex-row gap-4 mb-8 ">
           {/* Modern Search Bar */}
@@ -248,40 +247,40 @@ const ExplorePage = () => {
           </div>
         </div>
 
-{/* Category Section - Styled Grid */}
-<div className="mb-8">
-  <h2 className="text-2xl font-bold text-gray-900 mb-6">Explore by Categories</h2>
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-    {productData.map((category, index) => (
-      <div
-        key={category.id}
-        className={`rounded-xl p-6 shadow-md text-white cursor-pointer transition-transform transform hover:scale-105 ${
-          [
-            "bg-gradient-to-br from-black to-gray-800", // Example for category 1
-            "bg-yellow-400 text-black", // Example for category 2
-            "bg-red-500", // Example for category 3
-            "bg-violet-500 text-black", // Example for category 4
-            "bg-green-500", // Example for category 5
-            "bg-blue-500", // Example for category 6
-            "bg-pink-500", // Fallback
-          ][index % 7]
-        }`}
-        onClick={() =>
-          setSelectedCategory(
-            selectedCategory === category.id ? null : category.id
-          )
-        }
-      >
-        <div className="text-4xl mb-4">{category.symbol}</div>
-        <h3 className="text-xl font-semibold mb-1">{category.category_name}</h3>
-        <p className="mb-4 text-sm">Discover the best in {category.category_name}</p>
-        <button className="px-4 py-2 bg-white text-sm font-medium rounded-md text-black hover:bg-gray-100 transition">
-          Browse
-        </button>
-      </div>
-    ))}
-  </div>
-</div>
+        {/* Category Section - Styled Grid */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Explore by Categories</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {productData.map((category, index) => (
+              <div
+                key={category.id}
+                className={`rounded-xl p-6 shadow-md text-white cursor-pointer transition-transform transform hover:scale-105 ${
+                  [
+                    "bg-gradient-to-br from-black to-gray-800", // Example for category 1
+                    "bg-yellow-400 text-black", // Example for category 2
+                    "bg-red-500", // Example for category 3
+                    "bg-violet-500 text-black", // Example for category 4
+                    "bg-green-500", // Example for category 5
+                    "bg-blue-500", // Example for category 6
+                    "bg-pink-500", // Fallback
+                  ][index % 7]
+                }`}
+                onClick={() =>
+                  setSelectedCategory(
+                    selectedCategory === category.id ? null : category.id
+                  )
+                }
+              >
+                <div className="text-4xl mb-4">{category.symbol}</div>
+                <h3 className="text-xl font-semibold mb-1">{category.category_name}</h3>
+                <p className="mb-4 text-sm">Discover the best in {category.category_name}</p>
+                <button className="px-4 py-2 bg-white text-sm font-medium rounded-md text-black hover:bg-gray-100 transition">
+                  Browse
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* Mode Toggle */}
         <div className="flex justify-center gap-4 mb-8">
@@ -307,36 +306,26 @@ const ExplorePage = () => {
           </button>
         </div>
 
-        {/* Products Grid */}
-        {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredItems.map((product) => (
-            <ProductCard key={product.product_id} product={product} />
-          ))}
-        </div> */}
-
         {/* Suggested Categories and Products */}
 
-{productData.slice(0, 7).map(({ category_name, product_suggestions, rental_suggestions }) => {
-  const suggestions = mode === "rentals" ? rental_suggestions : product_suggestions;
+        {productData.slice(0, 7).map(({ category_name, product_suggestions, rental_suggestions }) => {
+          const suggestions = mode === "rentals" ? rental_suggestions : product_suggestions;
 
-  return (
-    <div key={category_name} className="mb-8">
-      <h2 className="text-xl font-semibold mb-4">{category_name}</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {suggestions && suggestions.length > 0 ? (
-          suggestions.map((product) => (
-            <ProductCard key={product.product_id} product={product} />
-          ))
-        ) : (
-          <div className="col-span-4 text-center">No products available</div>
-        )}
-      </div>
-    </div>
-  );
-})}
-
-
-
+          return (
+            <div key={category_name} className="mb-8">
+              <h2 className="text-xl font-semibold mb-4">{category_name}</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {suggestions && suggestions.length > 0 ? (
+                  suggestions.map((product) => (
+                    <ProductCard key={product.product_id} product={product} />
+                  ))
+                ) : (
+                  <div className="col-span-4 text-center">No products available</div>
+                )}
+              </div>
+            </div>
+          );
+        })}
 
         {/* Loading */}
         {loading && (

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import { Check, ShoppingCart, Timer, ChevronLeft, ChevronRight } from 'lucide-react'
 
@@ -33,8 +33,8 @@ function ReviewsSection({ productId }) {
     setError(null)
     try {
       const token = localStorage.getItem('jwt_token')
-      const res = await fetch(`http://localhost:5000/api/reviews/get-review/2`, {
-        Method: 'GET',
+      const res = await fetch(`http://localhost:5000/api/reviews/get-review/${productId}`, {
+        method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -44,7 +44,7 @@ function ReviewsSection({ productId }) {
         return
       }
       if (!res.ok) {
-        console.error('Failed to fetch reviews:', res.statusText) 
+        console.error('Failed to fetch reviews:', res.statusText)
         throw new Error('Failed to fetch reviews')
       }
       const data = await res.json()
@@ -68,7 +68,7 @@ function ReviewsSection({ productId }) {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          product_id: 2,
+          product_id: productId,
           rating,
           review_text: reviewText,
         }),
@@ -78,7 +78,6 @@ function ReviewsSection({ productId }) {
         return
       }
       if (!res.ok) {
-        console.log("Product ID:", req.query.productId || req.body.productId);
         throw new Error('Failed to add review')
       }
       setReviewText('')
@@ -153,26 +152,76 @@ function ReviewsSection({ productId }) {
   )
 }
 
+function isTokenExpired(token) {
+  if (!token) return true;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const exp = payload.exp;
+    if (!exp) return true;
+    const now = Math.floor(Date.now() / 1000);
+    return now >= exp;
+  } catch {
+    return true;
+  }
+}
+
 export default function ProductPage() {
   const [selectedOption, setSelectedOption] = useState('buy')
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [product, setProduct] = useState(null)
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  // const productId = searchParams.get('product_id')
+  const productId = searchParams.get('product_id') || 2 // Default to 1 if not found
 
-  const images = [
-    "/images/deal1.jpg?height=500&width=500",
-    "/images/deal2.jpg?height=500&width=500",
-    "/images/deal3.jpg?height=500&width=500"
-  ]
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      const token = localStorage.getItem('jwt_token')
+      if (!token || isTokenExpired(token)) {
+        router.push('/login')
+        return
+      }
+      try {
+        const res = await fetch(`http://localhost:5000/api/products/products?product_id=${productId}`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        if (res.status === 401) {
+          router.push('/login')
+          return
+        }
+        if (!res.ok) {
+          console.error('Failed to fetch product:', res.statusText)
+          return
+        }
+        const data = await res.json()
+        setProduct(data)
+      } catch (err) {
+        console.error('Error fetching product:', err)
+      }
+    }
+    if (productId) {
+      fetchProduct()
+    }
+  }, [productId, router])
 
   const handleOptionChange = (value) => {
     setSelectedOption(value)
   }
 
   const prevImage = () => {
-    setCurrentImageIndex((prevIndex) => (prevIndex === 0 ? images.length - 1 : prevIndex - 1))
+    setCurrentImageIndex((prevIndex) => (prevIndex === 0 ? (product?.images?.length || 1) - 1 : prevIndex - 1))
   }
 
   const nextImage = () => {
-    setCurrentImageIndex((prevIndex) => (prevIndex === images.length - 1 ? 0 : prevIndex + 1))
+    setCurrentImageIndex((prevIndex) => (prevIndex === (product?.images?.length || 1) - 1 ? 0 : prevIndex + 1))
+  }
+
+  if (!product) {
+    return <div>Loading product...</div>
   }
 
   return (
@@ -187,13 +236,17 @@ export default function ProductPage() {
           >
             <ChevronLeft className="h-6 w-6 text-gray-700" />
           </button>
-          <Image
-            src={images[currentImageIndex]}
-            alt={`Product Image ${currentImageIndex + 1}`}
-            fill
-            className="object-cover"
-            priority
-          />
+          {product.image_url ? (
+            <Image
+              src={product.image_url}
+              alt={`Product Image`}
+              fill
+              className="object-cover"
+              priority
+            />
+          ) : (
+            <div>No Image</div>
+          )}
           <button
             onClick={nextImage}
             className="absolute right-2 z-10 p-2 bg-white bg-opacity-70 rounded-full hover:bg-opacity-100 transition"
@@ -207,7 +260,7 @@ export default function ProductPage() {
         <div className="flex flex-col gap-6">
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-              Premium Wireless Headphones
+              {product.name}
             </h1>
           </div>
 
@@ -227,9 +280,9 @@ export default function ProductPage() {
                 <CardContent className="pt-4 md:pt-6 px-4 md:px-6">
                   <div className="flex flex-col gap-4">
                     <div>
-                      <span className="text-3xl font-bold text-gray-900">$299.99</span>
+                      <span className="text-3xl font-bold text-gray-900">${product.price}</span>
                       <div className="flex items-center space-x-1 mt-2">
-                        {Array(5)
+                        {Array(Math.round(product.average_rating))
                           .fill(0)
                           .map((_, i) => (
                             <svg
@@ -261,9 +314,9 @@ export default function ProductPage() {
                 <CardContent className="pt-4 md:pt-6 px-4 md:px-6">
                   <div className="flex flex-col gap-4">
                     <div>
-                      <span className="text-3xl font-bold text-gray-900">$29.99</span>
+                      <span className="text-3xl font-bold text-gray-900">${(product.price * 0.1).toFixed(2)}</span>
                       <div className="flex items-center space-x-1 mt-2">
-                        {Array(5)
+                        {Array(Math.round(product.average_rating))
                           .fill(0)
                           .map((_, i) => (
                             <svg
@@ -282,6 +335,7 @@ export default function ProductPage() {
                       size="lg"
                       className="mt-2 md:mt-4 w-full md:w-auto border-[#234C58] text-[#1a3a43] hover:bg-[#f5f9fa] hover:text-[#234C58]"
                       variant="outline"
+                      disabled={!product.is_rentable}
                     >
                       <Timer className="mr-2 h-5 w-5" />
                       Rent Now
@@ -297,20 +351,11 @@ export default function ProductPage() {
       <div className="mt-2 md:mt-4 px-2 md:px-0">
         <h2 className="text-2xl font-bold text-gray-900">Product Description</h2>
         <div className="mt-4 space-y-4 text-gray-700">
-          <p>
-            Our Premium Wireless Headphones deliver an exceptional audio experience with deep bass and crystal-clear
-            highs. The comfortable over-ear design allows for hours of comfortable listening, while the active noise
-            cancellation technology blocks out unwanted background noise.
-          </p>
-          <p>
-            With a battery life of up to 30 hours, you can enjoy your music all day long without worrying about
-            recharging. The headphones also feature intuitive touch controls, allowing you to adjust volume, skip
-            tracks, and answer calls with a simple tap.
-          </p>
+          <p>{product.description}</p>
         </div>
       </div>
       {/* Reviews Section */}
-      <ReviewsSection productId={1} />
+      <ReviewsSection productId={product.product_id} />
     </div>
   )
 }
