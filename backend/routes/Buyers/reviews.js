@@ -1,5 +1,5 @@
 import express from 'express'
-import { sql } from '../../db/sql.js'
+import { sql, poolPromise } from '../../db/sql.js' // update import
 import authenticateJWT from '../../middleware/auth.js'
 
 const router = express.Router()
@@ -9,17 +9,19 @@ router.get('/get-review/:productId', async (req, res) => {
   const productId = req.params.productId
 
   try {
-    console.log('Fetching reviews for product ID:', productId);
-    const query = `
-      SELECT r.review_id, r.rating, r.review_text, r.review_image, r.created_at,
-             u.user_id, u.full_name
-      FROM Reviews r
-      JOIN Users u ON r.user_id = u.user_id
-      WHERE r.product_id = @productId
-      ORDER BY r.created_at DESC
-    `
+    console.log('Fetching reviews for product ID:', productId)
 
-    const result = await sql.query(query, { productId })
+    const pool = await poolPromise // Get the pool connection
+    const result = await pool.request()
+      .input('productId', sql.Int, productId)
+      .query(`
+        SELECT r.review_id, r.rating, r.review_text, r.review_image, r.created_at,
+               u.user_id, u.full_name
+        FROM Reviews r
+        JOIN Users u ON r.user_id = u.user_id
+        WHERE r.product_id = @productId
+        ORDER BY r.created_at DESC
+      `)
 
     res.json({
       success: true,
@@ -41,13 +43,19 @@ router.post('/add-review/', authenticateJWT, async (req, res) => {
   }
 
   try {
-    console.log('Adding review for product ID:', product_id);
-    const query = `
-      INSERT INTO Reviews (user_id, product_id, rating, review_text, review_image)
-      VALUES (@userId, @product_id, @rating, @review_text, @review_image)
-    `
+    console.log('Adding review for product ID:', product_id)
 
-    await sql.query(query, { userId, product_id, rating, review_text, review_image })
+    const pool = await poolPromise // Get the pool connection
+    await pool.request()
+      .input('userId', sql.Int, userId)
+      .input('product_id', sql.Int, product_id)
+      .input('rating', sql.Int, rating)
+      .input('review_text', sql.NVarChar(sql.MAX), review_text || '')
+      .input('review_image', sql.NVarChar(sql.MAX), review_image || '')
+      .query(`
+        INSERT INTO Reviews (user_id, product_id, rating, review_text, review_image)
+        VALUES (@userId, @product_id, @rating, @review_text, @review_image)
+      `)
 
     res.json({ success: true, message: 'Review added successfully' })
   } catch (error) {

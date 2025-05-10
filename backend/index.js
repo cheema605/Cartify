@@ -28,6 +28,25 @@ app.use(cors());
 
 app.get("/api/health", (req, res) => res.json({ message: "API is running 🚀" }));
 
+app.get("/api/db-test", async (req, res) => {
+  try {
+    const pool = await poolPromise;
+    // Test query to check if tables exist
+    const result = await pool.request().query(`
+      SELECT TABLE_NAME 
+      FROM INFORMATION_SCHEMA.TABLES 
+      WHERE TABLE_TYPE = 'BASE TABLE'
+    `);
+    res.json({
+      message: "Database connection successful",
+      tables: result.recordset
+    });
+  } catch (err) {
+    console.error("❌ Database test error:", err);
+    res.status(500).json({ error: "Database connection failed", details: err.message });
+  }
+});
+
 app.post("/api/test", async (req, res) => {
   try {
     const pool = await poolPromise;

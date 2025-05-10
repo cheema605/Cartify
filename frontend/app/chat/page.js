@@ -3,11 +3,18 @@
 import React, { useState, useRef, useEffect } from "react";
 
 function Avatar({ sender }) {
+  if (sender === "seller") {
+    return (
+      <img
+        src="/images/ai-avatar.gif"
+        alt="AI Avatar"
+        className="w-12 h-12 rounded-full select-none"
+      />
+    );
+  }
   return (
-    <div className={`flex items-center justify-center w-8 h-8 rounded-full text-white font-bold select-none ${
-      sender === "buyer" ? "bg-[#157a94]" : "bg-[#0e5a6d]"
-    }`}>
-      {sender === "buyer" ? "B" : "S"}
+    <div className="flex items-center justify-center w-12 h-12 rounded-full text-white font-bold select-none bg-[#157a94]">
+      B
     </div>
   );
 }
@@ -31,7 +38,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState([
     { id: 1, sender: "seller", text: "Hello! How can I help you today?" }
   ]);
-  const [input, setInput] = useState("Hi! I am interested in your product.");
+  const [input, setInput] = useState("");
   const messagesEndRef = useRef(null);
 
   // Scroll to bottom when messages change
@@ -49,21 +56,16 @@ export default function ChatPage() {
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
   };
 
   return (
-    <div className="flex flex-col h-screen bg-[#157a94] text-white font-serif">
-      {/* Header */}
-      <header className="flex items-center justify-between px-6 py-4 bg-[#106b82] shadow-md">
-        <h1 className="text-xl font-bold italic tracking-wide">Cartify Chat</h1>
-      </header>
-
+    <div className="flex flex-col h-screen bg-white text-black font-serif pt-20">
       {/* Centered Chat Container */}
-      <main className="flex-1 flex justify-center items-center">
+      <main className="flex-1 flex justify-center items-center px-4">
         <div className="flex flex-col w-full max-w-md h-[600px] bg-white rounded-lg shadow-lg text-black">
           {/* Messages */}
           <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 scrollbar-thin scrollbar-thumb-[#0e5a6d] scrollbar-track-[#f0f0f0]">

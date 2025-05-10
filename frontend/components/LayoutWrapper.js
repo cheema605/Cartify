@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams, usePathname } from "next/navigation";
 import NavbarComponent from "./Navbar";
 import CartSlidingPanel from "./CartSlidingPanel";
+import ChatWidget from "./ChatWidget";
 
 export default function LayoutWrapper({ children }) {
   const [cartOpen, setCartOpen] = useState(false);
@@ -38,6 +39,7 @@ export default function LayoutWrapper({ children }) {
     <>
       {!isDashboardRoute && !isExplorePage && <NavbarComponent cartOpen={cartOpen} toggleCart={toggleCart} />}
       <CartSlidingPanel isOpen={cartOpen} onClose={closeCart} userId={userId} disableOverlay={true} />
+      <ChatWidget />
       {children}
     </>
   );
