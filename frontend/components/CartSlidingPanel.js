@@ -34,7 +34,7 @@ export default function CartSlidingPanel({ isOpen, onClose, userId, disableOverl
 
       {/* Sliding panel */}
       <div
-        className={`fixed top-0 right-0 h-full w-80 bg-white shadow-lg z-50 flex flex-col transform transition-transform duration-[1500ms] ease-in-out ${
+        className={`fixed top-0 right-0 h-full w-80 bg-white shadow-lg z-70 flex flex-col transform transition-transform duration-[1500ms] ease-in-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >

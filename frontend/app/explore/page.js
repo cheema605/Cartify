@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Heart, ShoppingCart, Star, Filter, Search } from "lucide-react";
 import Image from "next/image";
 import Navbar from "../../components/Navbar";
+import CartSlidingPanel from "../../components/CartSlidingPanel";
 
 const sampleCategories = [
   { id: 1, name: "Earphone", icon: "🎧" },
@@ -87,6 +88,29 @@ const ExplorePage = () => {
   const [error, setError] = useState(null);
   const [productData, setProductData] = useState([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
+
+  const toggleCart = () => {
+    setCartOpen(!cartOpen);
+  };
+
+  useEffect(() => {
+    setCartOpen(false);
+  }, []);
+
+  useEffect(() => {
+    const handleRouteChange = () => {
+      setCartOpen(false);
+    };
+
+    // No router.events in next/navigation, so use router.events is undefined
+    // Instead, listen to router changes via useRouter and use useEffect cleanup
+
+    // This is a workaround: close cart on unmount or route change
+    return () => {
+      setCartOpen(false);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchProductData = async () => {
@@ -170,7 +194,7 @@ const ExplorePage = () => {
     <div className="min-h-screen bg-gray-200">
       {/* Floating Navbar */}
       <div className="fixed -top-4 left-1/2 z-50 -translate-x-1/2 w-[98vw] max-w-7xl">
-        <Navbar />
+        <Navbar cartOpen={cartOpen} toggleCart={toggleCart} />
       </div>
       {/* Hero Section */}
       <div className="relative bg-gradient-to-b from-teal-600 to-teal-800 pt-20 pb-12">
@@ -185,6 +209,7 @@ const ExplorePage = () => {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8 pt-24">
+<CartSlidingPanel isOpen={cartOpen} onClose={() => setCartOpen(false)} userId={"current"} disableOverlay={true} />
         {/* Search and Filter Bar */}
         <div className="flex flex-col md:flex-row gap-4 mb-8 ">
           {/* Modern Search Bar */}
