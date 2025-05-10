@@ -36,7 +36,7 @@ function Message({ msg }) {
 
 export default function ChatPage() {
   const [messages, setMessages] = useState([
-    { id: 1, sender: "seller", text: "Hello! How can I help you today?" }
+    { id: 1, sender: "seller", text: "Hello! How can I help yous today?" }
   ]);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef(null);
@@ -80,7 +80,7 @@ export default function ChatPage() {
             <textarea
               className="flex-1 resize-none rounded-lg px-4 py-2 mr-4 text-black focus:outline-none focus:ring-2 focus:ring-[#0e5a6d]"
               rows={1}
-              placeholder="Type your message..."
+              placeholder="Type your messages..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -100,7 +100,7 @@ export default function ChatPage() {
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
-              <span>Send</span>
+              <span>Send it!</span>
             </button>
           </footer>
         </div>

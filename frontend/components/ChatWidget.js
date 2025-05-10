@@ -37,7 +37,7 @@ function Message({ msg }) {
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { id: 1, sender: "seller", text: "Hello! How can I help you today?" }
+    { id: 1, sender: "seller", text: "Hello g! How can I help you today?" }
   ]);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef(null);
@@ -52,14 +52,40 @@ export default function ChatWidget() {
     setIsOpen(!isOpen);
   };
 
-  const handleSend = () => {
-    if (input.trim() === "") return;
+  const handleSend = async () => {
+  if (input.trim() === "") return;
+
+  const newMsg = { id: messages.length + 1, sender: "buyer", text: input.trim() };
+  setMessages((prev) => [...prev, newMsg]);
+  setInput("");
+
+  try {
+    const res = await fetch("http://localhost:5000/api/chatbot/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: input.trim() }),
+    });
+
+    const data = await res.json();
+    const botMsg = {
+      id: newMsg.id + 1,
+      sender: "seller",
+      text: data.reply || "Sorry, I didn't understand that.",
+    };
+    setMessages((prev) => [...prev, botMsg]);
+  } catch (error) {
+    console.error("Chatbot error:", error);
     setMessages((prev) => [
       ...prev,
-      { id: prev.length + 1, sender: "buyer", text: input.trim() },
+      {
+        id: newMsg.id + 1,
+        sender: "seller",
+        text: "⚠️ Something went wrong. Try again later.",
+      },
     ]);
-    setInput("");
-  };
+  }
+};
+
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {

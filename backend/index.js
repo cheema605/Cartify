@@ -16,6 +16,7 @@ import shoppingCart from './routes/Buyers/ShoppingCart.js';
 import uploadRoute from './routes/upload.js';
 import exploreRoute from './routes/explore/explore.js';
 import reviewRoute from './routes/Buyers/reviews.js';
+import chatbot from './routes/chatbot/chatbot.js';
 
 
 
@@ -72,6 +73,7 @@ app.use('/api/login', loginRoute);
 app.use('/api/upload', uploadRoute);
 app.use('/api/explore', exploreRoute);
 app.use('/api/reviews', reviewRoute);
+app.use('/api/chatbot', chatbot);
 
 
 
