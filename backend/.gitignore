@@ -7,5 +7,5 @@
 # Logs
 **/logs/
 **/*.log
-routes/chatbot/intentmodels.pt
-routes/chatbot/label2id.pt
+**/routes/chatbot/intentmodels.pt
+**/routes/chatbot/label2id.pt
