@@ -6,23 +6,8 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { Heart, ShoppingCart, Star, Filter, Search } from "lucide-react";
 import Image from "next/image";
+import Navbar from "../../components/Navbar";
 import CartSlidingPanel from "../../components/CartSlidingPanel";
-
-const sampleCategories = [
-  { id: 1, name: "Earphone", icon: "🎧" },
-  { id: 2, name: "Wear Gadget", icon: "⌚" },
-  { id: 3, name: "Laptop", icon: "💻" },
-  { id: 4, name: "Gaming Console", icon: "🎮" },
-  { id: 5, name: "Oculus", icon: "🕶️" },
-  { id: 6, name: "Speaker", icon: "🔊" },
-];
-
-const carouselImages = [
-  { url: "/images/deal1.jpg", alt: "Deal 1" },
-  { url: "/images/deal2.jpg", alt: "Deal 2" },
-  { url: "/images/deal3.jpg", alt: "Deal 3" },
-  { url: "/images/deal4.jpg", alt: "Deal 4" },
-];
 
 const StarRating = ({ rating }) => {
   return (
@@ -151,6 +136,13 @@ const ExplorePage = () => {
           rating: 0,
         }))
       );
+    } else if (mode === "rentals") {
+      items = productData.flatMap((category) =>
+        category.rental_suggestions.map((product) => ({
+          ...product,
+          rating: 0,
+        }))
+      );
     }
 
     if (selectedCategory) {
@@ -185,6 +177,10 @@ const ExplorePage = () => {
 
   return (
     <div className="min-h-screen bg-gray-200">
+      {/* Floating Navbar */}
+      <div className="fixed -top-4 left-1/2 z-50 -translate-x-1/2 w-[98vw] max-w-7xl">
+        <Navbar cartOpen={cartOpen} toggleCart={toggleCart} />
+      </div>
       {/* Hero Section */}
       <div className="relative bg-gradient-to-b from-teal-600 to-teal-800 pt-20 pb-12">
         <div className="container mx-auto px-4">
@@ -242,41 +238,6 @@ const ExplorePage = () => {
           </div>
         </div>
 
-        {/* Category Section - Styled Grid */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Explore by Categories</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {productData.map((category, index) => (
-              <div
-                key={category.id}
-                className={`rounded-xl p-6 shadow-md text-white cursor-pointer transition-transform transform hover:scale-105 ${
-                  [
-                    "bg-gradient-to-br from-black to-gray-800", // Example for category 1
-                    "bg-yellow-400 text-black", // Example for category 2
-                    "bg-red-500", // Example for category 3
-                    "bg-violet-500 text-black", // Example for category 4
-                    "bg-green-500", // Example for category 5
-                    "bg-blue-500", // Example for category 6
-                    "bg-pink-500", // Fallback
-                  ][index % 7]
-                }`}
-                onClick={() =>
-                  setSelectedCategory(
-                    selectedCategory === category.id ? null : category.id
-                  )
-                }
-              >
-                <div className="text-4xl mb-4">{category.symbol}</div>
-                <h3 className="text-xl font-semibold mb-1">{category.category_name}</h3>
-                <p className="mb-4 text-sm">Discover the best in {category.category_name}</p>
-                <button className="px-4 py-2 bg-white text-sm font-medium rounded-md text-black hover:bg-gray-100 transition">
-                  Browse
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Mode Toggle */}
         <div className="flex justify-center gap-4 mb-8">
           <button
@@ -303,24 +264,15 @@ const ExplorePage = () => {
 
         {/* Suggested Categories and Products */}
 
-        {productData.slice(0, 7).map(({ category_name, product_suggestions, rental_suggestions }) => {
-          const suggestions = mode === "rentals" ? rental_suggestions : product_suggestions;
-
-          return (
-            <div key={category_name} className="mb-8">
-              <h2 className="text-xl font-semibold mb-4">{category_name}</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {suggestions && suggestions.length > 0 ? (
-                  suggestions.map((product) => (
-                    <ProductCard key={product.product_id} product={product} />
-                  ))
-                ) : (
-                  <div className="col-span-4 text-center">No products available</div>
-                )}
-              </div>
-            </div>
-          );
-        })}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredItems.length > 0 ? (
+            filteredItems.map((product) => (
+              <ProductCard key={product.product_id} product={product} />
+            ))
+          ) : (
+            <div className="col-span-4 text-center">No products available</div>
+          )}
+        </div>
 
         {/* Loading */}
         {loading && (
