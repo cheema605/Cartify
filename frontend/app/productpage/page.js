@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -171,9 +171,7 @@ export default function ProductPage() {
   const [product, setProduct] = useState(null)
   const router = useRouter()
   const searchParams = useSearchParams()
-  // const productId = searchParams.get('product_id')
-  const productId = searchParams.get('product_id') || 2 // Default to 1 if not found
-
+  const productId = searchParams.get('product_id')
 
   useEffect(() => {
     const fetchProduct = async () => {

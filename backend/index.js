@@ -18,8 +18,8 @@ import exploreRoute from './routes/explore/explore.js';
 import reviewRoute from './routes/Buyers/reviews.js';
 import chatbot from './routes/chatbot/chatbot.js';
 import products from './routes/Buyers/products.js';
-
-
+import categories from './routes/Buyers/categories.js'; 
+import searchRoute from './routes/Buyers/search.js';
 
 import { poolPromise} from "./db/sql.js"; // ✅ Import both
 
@@ -76,7 +76,8 @@ app.use('/api/explore', exploreRoute);
 app.use('/api/reviews', reviewRoute);
 app.use('/api/chatbot', chatbot);
 app.use('/api/products', products);
-
+app.use('/api/categories', categories);  // Added route registration
+app.use('/api/search', searchRoute);
 
 
 const PORT = process.env.PORT || 5000;
@@ -96,5 +97,3 @@ app._router.stack.forEach((r) => {
     });
   }
 });
-
-

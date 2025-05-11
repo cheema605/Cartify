@@ -4,10 +4,17 @@ import React, { useState, useEffect, useMemo } from "react";
 import Carousel from "../../components/ui/carousel";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { Heart, ShoppingCart, Star, Filter, Search } from "lucide-react";
+import { Heart, ShoppingCart, Star } from "lucide-react";
 import Image from "next/image";
 import Navbar from "../../components/Navbar";
 import CartSlidingPanel from "../../components/CartSlidingPanel";
+
+const carouselImages = [
+  { url: "/images/deal1.jpg", alt: "Deal 1" },
+  { url: "/images/deal2.jpg", alt: "Deal 2" },
+  { url: "/images/deal3.jpg", alt: "Deal 3" },
+  { url: "/images/deal4.jpg", alt: "Deal 4" },
+];
 
 const StarRating = ({ rating }) => {
   return (
@@ -63,13 +70,10 @@ const ProductCard = ({ product }) => {
 const ExplorePage = () => {
   const router = useRouter();
   const [mode, setMode] = useState("products");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortOption, setSortOption] = useState("default");
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [productData, setProductData] = useState([]);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
 
   const toggleCart = () => {
@@ -136,44 +140,14 @@ const ExplorePage = () => {
           rating: 0,
         }))
       );
-    } else if (mode === "rentals") {
-      items = productData.flatMap((category) =>
-        category.rental_suggestions.map((product) => ({
-          ...product,
-          rating: 0,
-        }))
-      );
     }
 
     if (selectedCategory) {
       items = items.filter((item) => item.category_id === selectedCategory);
     }
 
-    if (searchQuery.trim() !== "") {
-      items = items.filter((item) =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    switch (sortOption) {
-      case "price-asc":
-        items = items.slice().sort((a, b) => a.price - b.price);
-        break;
-      case "price-desc":
-        items = items.slice().sort((a, b) => b.price - a.price);
-        break;
-      case "name-asc":
-        items = items.slice().sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case "name-desc":
-        items = items.slice().sort((a, b) => b.name.localeCompare(a.name));
-        break;
-      default:
-        break;
-    }
-
     return items;
-  }, [mode, searchQuery, sortOption, selectedCategory, productData]);
+  }, [mode, selectedCategory, productData]);
 
   return (
     <div className="min-h-screen bg-gray-200">
@@ -200,41 +174,35 @@ const ExplorePage = () => {
           userId={"current"}
           disableOverlay={true}
         />
-        {/* Search and Filter Bar */}
-        <div className="flex flex-col md:flex-row gap-4 mb-8 ">
-          {/* Modern Search Bar */}
-          <div className="relative flex-1">
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 rounded-full bg-white/70 backdrop-blur-md shadow-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-900 placeholder-gray-400 transition"
-              style={{ boxShadow: "0 4px 24px 0 rgba(0,0,0,0.07)" }}
-            />
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-400 pointer-events-none" />
-          </div>
 
-          {/* Sort & Filter Controls */}
-          <div className="flex gap-3 items-center bg-white/70 backdrop-blur-md rounded-full px-4 py-2 shadow-lg border border-gray-200">
-            <select
-              value={sortOption}
-              onChange={(e) => setSortOption(e.target.value)}
-              className="px-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/80 shadow-sm text-gray-700 font-medium transition"
-            >
-              <option value="default">Sort By</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
-              <option value="name-asc">Name: A to Z</option>
-              <option value="name-desc">Name: Z to A</option>
-            </select>
-            <button
-              onClick={() => setIsFilterOpen(!isFilterOpen)}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500 to-teal-400 text-white font-semibold shadow hover:from-blue-600 hover:to-teal-500 transition"
-            >
-              <Filter className="w-5 h-5" />
-              Filters
-            </button>
+        {/* Category Section - Styled Grid */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Explore by Categories</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {productData.map((category, index) => (
+              <div
+                key={category.id}
+                className={`rounded-xl p-6 shadow-md text-white cursor-pointer transition-transform transform hover:scale-105 ${
+                  [
+                    "bg-gradient-to-br from-black to-gray-800", // Example for category 1
+                    "bg-yellow-400 text-black", // Example for category 2
+                    "bg-red-500", // Example for category 3
+                    "bg-violet-500 text-black", // Example for category 4
+                    "bg-green-500", // Example for category 5
+                    "bg-blue-500", // Example for category 6
+                    "bg-pink-500", // Fallback
+                  ][index % 7]
+                }`}
+                onClick={() => router.push(`/search?category=${encodeURIComponent(category.category_name)}`)}
+              >
+                <div className="text-4xl mb-4">{category.symbol}</div>
+                <h3 className="text-xl font-semibold mb-1">{category.category_name}</h3>
+                <p className="mb-4 text-sm">Discover the best in {category.category_name}</p>
+                <button className="px-4 py-2 bg-white text-sm font-medium rounded-md text-black hover:bg-gray-100 transition">
+                  Browse
+                </button>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -264,15 +232,24 @@ const ExplorePage = () => {
 
         {/* Suggested Categories and Products */}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredItems.length > 0 ? (
-            filteredItems.map((product) => (
-              <ProductCard key={product.product_id} product={product} />
-            ))
-          ) : (
-            <div className="col-span-4 text-center">No products available</div>
-          )}
-        </div>
+        {productData.slice(0, 7).map(({ category_name, product_suggestions, rental_suggestions }) => {
+          const suggestions = mode === "rentals" ? rental_suggestions : product_suggestions;
+
+          return (
+            <div key={category_name} className="mb-8">
+              <h2 className="text-xl font-semibold mb-4">{category_name}</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {suggestions && suggestions.length > 0 ? (
+                  suggestions.map((product) => (
+                    <ProductCard key={product.product_id} product={product} />
+                  ))
+                ) : (
+                  <div className="col-span-4 text-center">No products available</div>
+                )}
+              </div>
+            </div>
+          );
+        })}
 
         {/* Loading */}
         {loading && (
