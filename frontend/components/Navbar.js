@@ -23,12 +23,51 @@ function parseJwt(token) {
   }
 }
 
+import { useEffect } from "react";
+
 export default function Navbar({ cartOpen, toggleCart }) {
   const router = useRouter();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [toggleChecked, setToggleChecked] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+  const [cartItems, setCartItems] = useState([]);
+  const [cartDropdownOpen, setCartDropdownOpen] = useState(false);
+
+  // Fetch cart items when cart dropdown is opened
+  useEffect(() => {
+    if (cartDropdownOpen) {
+      const fetchCartItems = async () => {
+        const token = localStorage.getItem("jwt_token");
+        if (!token) {
+          setCartItems([]);
+          return;
+        }
+        try {
+          const response = await fetch("http://localhost:5000/api/shoppping-cart/get-cart", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (response.ok) {
+            const data = await response.json();
+            setCartItems(data);
+          } else {
+            setCartItems([]);
+          }
+        } catch (error) {
+          console.error("Failed to fetch cart items:", error);
+          setCartItems([]);
+        }
+      };
+      fetchCartItems();
+    }
+  }, [cartDropdownOpen]);
+
+  const toggleCartDropdown = () => {
+    setCartDropdownOpen(!cartDropdownOpen);
+  };
 
   const isLoginPage = pathname === "/login";
   const isSignupPage = pathname === "/signup";
@@ -48,6 +87,30 @@ export default function Navbar({ cartOpen, toggleCart }) {
       console.error("Failed to decode JWT token", err);
     }
   }
+
+  const handleSearchInputChange = (e) => {
+    setSearchInput(e.target.value);
+  };
+
+  const handleSearchKeyDown = (e) => {
+    if (e.key === "Enter" && searchInput.trim() !== "") {
+      router.push(`/search?q=${encodeURIComponent(searchInput.trim())}`);
+      setSearchInput("");
+      if (isMobileMenuOpen) {
+        setIsMobileMenuOpen(false);
+      }
+    }
+  };
+
+  const handleSearchIconClick = () => {
+    if (searchInput.trim() !== "") {
+      router.push(`/search?q=${encodeURIComponent(searchInput.trim())}`);
+      setSearchInput("");
+      if (isMobileMenuOpen) {
+        setIsMobileMenuOpen(false);
+      }
+    }
+  };
 
   return (
     <nav className="fixed top-6 left-1/2 z-60 -translate-x-1/2 w-[98vw] max-w-7xl rounded-2xl bg-gradient-to-br from-black/80 to-black/40 backdrop-blur-md shadow-xl border border-white/20 flex items-center justify-between px-8 py-3 transition-all duration-500 animate-fadeInDown">
@@ -69,8 +132,14 @@ export default function Navbar({ cartOpen, toggleCart }) {
             type="text"
             placeholder="Search products..."
             className="w-48 px-4 py-1.5 rounded-full bg-white/20 text-white placeholder-white/70 border border-white/20 focus:outline-none focus:ring-2 focus:ring-teal-400 transition"
+            value={searchInput}
+            onChange={handleSearchInputChange}
+            onKeyDown={handleSearchKeyDown}
           />
-          <Search className="absolute right-3 top-2 h-4 w-4 text-white/70" />
+          <Search
+            className="absolute right-3 top-2 h-4 w-4 text-white/70 cursor-pointer"
+            onClick={handleSearchIconClick}
+          />
         </div>
       </div>
 
@@ -177,12 +246,21 @@ export default function Navbar({ cartOpen, toggleCart }) {
             type="text"
             placeholder="Search products..."
             className="w-full px-4 py-2 rounded-lg bg-white/10 text-white text-base focus:outline-none focus:ring-2 focus:ring-teal-500"
+            value={searchInput}
+            onChange={handleSearchInputChange}
+            onKeyDown={handleSearchKeyDown}
           />
           <button
-            onClick={() => router.push("/login")}
+            onClick={() => {
+              if (searchInput.trim() !== "") {
+                router.push(`/search?q=${encodeURIComponent(searchInput.trim())}`);
+                setSearchInput("");
+                setIsMobileMenuOpen(false);
+              }
+            }}
             className="w-full px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors text-base font-medium mt-2"
           >
-            Login
+            Search
           </button>
         </div>
       )}

@@ -70,9 +70,10 @@ router.get('/', authenticateJWT, async (req, res) => {
             });
 
             const productQuery = `
-                SELECT TOP 15 p.*, pi.image_url
+                SELECT TOP 15 p.product_id, p.name, MAX(CAST(p.description AS NVARCHAR(MAX))) AS description, p.price, p.is_rentable, p.created_at, p.seller_id, pi.image_url, ISNULL(AVG(r.rating), 0) AS average_rating
                 FROM Products p
                 LEFT JOIN ProductImages pi ON p.product_id = pi.product_id
+                LEFT JOIN Reviews r ON p.product_id = r.product_id
                 WHERE p.category_id = @category_id
                     AND p.product_id NOT IN (
                         SELECT oi.product_id FROM Orders o JOIN Order_Items oi ON o.order_id = oi.order_id WHERE o.buyer_id = @user_id
@@ -80,13 +81,15 @@ router.get('/', authenticateJWT, async (req, res) => {
                         SELECT r.product_id FROM Rentals r WHERE r.renter_id = @user_id
                     )
                     AND (${pastNames.map((_, i) => `p.name LIKE @pattern${i}`).join(' OR ')})
+                GROUP BY p.product_id, p.name, p.price, p.is_rentable, p.created_at, pi.image_url, p.seller_id
                 ORDER BY p.created_at DESC
             `;
 
             const rentalQuery = `
-                SELECT TOP 15 p.*, pi.image_url
+                SELECT TOP 15 p.product_id, p.name, MAX(CAST(p.description AS NVARCHAR(MAX))) AS description, p.price, p.is_rentable, p.created_at, p.seller_id, pi.image_url, ISNULL(AVG(r.rating), 0) AS average_rating
                 FROM Products p
                 LEFT JOIN ProductImages pi ON p.product_id = pi.product_id
+                LEFT JOIN Reviews r ON p.product_id = r.product_id
                 WHERE p.category_id = @category_id
                     AND p.is_rentable = 1
                     AND p.product_id NOT IN (
@@ -95,6 +98,7 @@ router.get('/', authenticateJWT, async (req, res) => {
                         SELECT oi.product_id FROM Orders o JOIN Order_Items oi ON o.order_id = oi.order_id WHERE o.buyer_id = @user_id
                     )
                     AND (${pastNames.map((_, i) => `p.name LIKE @pattern_rent${i}`).join(' OR ')})
+                GROUP BY p.product_id, p.name, p.price, p.is_rentable, p.created_at, pi.image_url, p.seller_id
                 ORDER BY p.created_at DESC
             `;
 

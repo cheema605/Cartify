@@ -9,8 +9,12 @@ const router = express.Router();
  * Add an item to the shopping cart
  * POST /api/shopping-cart/add-to-cart
  */
-router.post("/add-to-cart", async (req, res) => {
-    const { user_id, product_id, quantity } = req.body;
+import authenticateJWT from '../../middleware/auth.js';
+
+router.post("/add-to-cart", authenticateJWT, async (req, res) => {
+    console.log("Adding item to cart");
+    const user_id = req.user;
+    const { product_id, quantity } = req.body;
 
     // Validate input
     if (!user_id || !product_id || !quantity) {
@@ -69,9 +73,9 @@ router.post("/add-to-cart", async (req, res) => {
 });
 
 
-
-router.post("/create-from-cart", async (req, res) => {
-    const { buyer_id, payment_method } = req.body;
+router.post("/create-from-cart", authenticateJWT, async (req, res) => {
+    const { payment_method } = req.body;
+    const buyer_id = req.user;
 
     // Validate input
     if (!buyer_id || !payment_method) {
@@ -163,12 +167,15 @@ router.post("/create-from-cart", async (req, res) => {
  * Edit quantity of an item in the cart, or add it if not found
  * PUT /api/shopping-cart/edit-cart
  */
-router.put('/edit-cart', async (req, res) => {
-    const { cart_id, product_id, new_quantity } = req.body;
+
+
+router.put('/edit-cart', authenticateJWT, async (req, res) => {
+    const user_id = req.user;
+    const { product_id, new_quantity } = req.body;
 
     // Validate input
-    if (!cart_id || !product_id || !new_quantity) {
-        return res.status(400).json({ message: "Cart ID, Product ID, and new quantity are required." });
+    if (!user_id || !product_id || !new_quantity) {
+        return res.status(400).json({ message: "User ID, Product ID, and new quantity are required." });
     }
 
     if (new_quantity <= 0) {
@@ -180,35 +187,35 @@ router.put('/edit-cart', async (req, res) => {
 
         // Check if the item exists in the cart
         const cartItem = await pool.request()
-            .input('cart_id', sql.Int, cart_id)
+            .input('user_id', sql.Int, user_id)
             .input('product_id', sql.Int, product_id)
             .query(`
                 SELECT * FROM ShoppingCart
-                WHERE cart_id = @cart_id AND product_id = @product_id
+                WHERE user_id = @user_id AND product_id = @product_id
             `);
 
         if (cartItem.recordset.length === 0) {
             // Item not found, create a new entry in the cart
             await pool.request()
-                .input('cart_id', sql.Int, cart_id)
+                .input('user_id', sql.Int, user_id)
                 .input('product_id', sql.Int, product_id)
                 .input('new_quantity', sql.Int, new_quantity)
                 .query(`
-                    INSERT INTO ShoppingCart (cart_id, product_id, quantity)
-                    VALUES (@cart_id, @product_id, @new_quantity)
+                    INSERT INTO ShoppingCart (user_id, product_id, quantity)
+                    VALUES (@user_id, @product_id, @new_quantity)
                 `);
 
             return res.status(201).json({ message: "Item added to the cart successfully." });
         } else {
             // Item found, update the quantity
             await pool.request()
-                .input('cart_id', sql.Int, cart_id)
+                .input('user_id', sql.Int, user_id)
                 .input('product_id', sql.Int, product_id)
                 .input('new_quantity', sql.Int, new_quantity)
                 .query(`
                     UPDATE ShoppingCart
                     SET quantity = @new_quantity
-                    WHERE cart_id = @cart_id AND product_id = @product_id
+                    WHERE user_id = @user_id AND product_id = @product_id
                 `);
 
             return res.status(200).json({ message: "Cart item quantity updated successfully." });
@@ -225,8 +232,9 @@ router.put('/edit-cart', async (req, res) => {
  * GET /api/shopping-cart/:user_id
  */
 
-router.get('/get-cart/:user_id', async (req, res) => {
-  const userId = req.params.user_id;
+
+router.get('/get-cart', authenticateJWT, async (req, res) => {
+  const userId = req.user;
 
   try {
     const pool = await poolPromise;

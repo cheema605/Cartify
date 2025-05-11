@@ -31,8 +31,18 @@ const StarRating = ({ rating }) => {
   );
 };
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, onAddToCart, onAddToWishlist }) => {
   const router = useRouter();
+
+  const handleAddToCart = (e) => {
+    e.stopPropagation();
+    onAddToCart(product.product_id);
+  };
+
+  const handleAddToWishlist = (e) => {
+    e.stopPropagation();
+    onAddToWishlist(product.product_id);
+  };
 
   return (
     <div
@@ -46,7 +56,11 @@ const ProductCard = ({ product }) => {
           fill
           className="object-cover group-hover:scale-105 transition-transform duration-300"
         />
-        <button className="absolute top-2 right-2 p-2 rounded-full bg-white/80 hover:bg-white transition-colors">
+        <button
+          onClick={handleAddToWishlist}
+          className="absolute top-2 right-2 p-2 rounded-full bg-white/80 hover:bg-white transition-colors"
+          aria-label="Add to wishlist"
+        >
           <Heart className="w-5 h-5 text-gray-600 hover:text-red-500" />
         </button>
       </div>
@@ -56,9 +70,13 @@ const ProductCard = ({ product }) => {
         </h3>
         <div className="mt-2 flex items-center justify-between">
           <p className="text-xl font-bold text-teal-600">Rs. {product.price}</p>
-          <StarRating rating={4} />
+          <StarRating rating={product.rating || 0} />
         </div>
-        <button className="mt-3 w-full py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors flex items-center justify-center gap-2">
+        <button
+          onClick={handleAddToCart}
+          className="mt-3 w-full py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors flex items-center justify-center gap-2"
+          aria-label="Add to cart"
+        >
           <ShoppingCart className="w-5 h-5" />
           Add to Cart
         </button>
@@ -94,6 +112,52 @@ const ExplorePage = () => {
     };
   }, []);
 
+  const addToCart = async (productId) => {
+    const token = localStorage.getItem("jwt_token");
+    if (!token) {
+      alert("Please login to add items to cart.");
+      return;
+    }
+    try {
+      await axios.post(
+        "http://localhost:5000/api/shoppping-cart/add-to-cart",
+        { product_id: productId, quantity: 1 },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      alert("Item added to cart!");
+    } catch (error) {
+      console.error("Failed to add item to cart:", error);
+      alert("Failed to add item to cart.");
+    }
+  };
+
+  const addToWishlist = async (productId) => {
+    const token = localStorage.getItem("jwt_token");
+    if (!token) {
+      alert("Please login to add items to wishlist.");
+      return;
+    }
+    try {
+      await axios.post(
+        "http://localhost:5000/api/wishlist/add-to-wishlist",
+        { product_id: productId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      alert("Item added to wishlist!");
+    } catch (error) {
+      console.error("Failed to add item to wishlist:", error);
+      alert("Failed to add item to wishlist.");
+    }
+  };
+
   useEffect(() => {
     const fetchProductData = async () => {
       setLoading(true);
@@ -112,7 +176,19 @@ const ExplorePage = () => {
           },
         });
 
-        setProductData(response.data);
+        // Map average_rating to rating for each product suggestion and rental suggestion
+        const mappedData = response.data.map((category) => ({
+          ...category,
+          product_suggestions: category.product_suggestions.map((p) => ({
+            ...p,
+            rating: p.average_rating || 0,
+          })),
+          rental_suggestions: category.rental_suggestions.map((p) => ({
+            ...p,
+            rating: p.average_rating || 0,
+          })),
+        }));
+        setProductData(mappedData);
         setLoading(false);
       } catch (error) {
         if (
@@ -241,7 +317,7 @@ const ExplorePage = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {suggestions && suggestions.length > 0 ? (
                   suggestions.map((product) => (
-                    <ProductCard key={product.product_id} product={product} />
+                    <ProductCard key={product.product_id} product={product} onAddToCart={addToCart} onAddToWishlist={addToWishlist} />
                   ))
                 ) : (
                   <div className="col-span-4 text-center">No products available</div>

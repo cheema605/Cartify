@@ -8,16 +8,21 @@ export default function CartSlidingPanel({ isOpen, onClose, userId, disableOverl
   const [cartItems, setCartItems] = useState([]);
 
   useEffect(() => {
-    if (isOpen) {
-      fetch("/api/shopping-cart/" + userId)
-        .then((res) => res.json())
-        .then((data) => {
-          setCartItems(data);
+      if (isOpen) {
+        const token = localStorage.getItem("jwt_token");
+        fetch("http://localhost:5000/api/shoppping-cart/get-cart", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         })
-        .catch((err) => {
-          console.error("Failed to fetch cart items:", err);
-        });
-    }
+          .then((res) => res.json())
+          .then((data) => {
+            setCartItems(data);
+          })
+          .catch((err) => {
+            console.error("Failed to fetch cart items:", err);
+          });
+      }
   }, [isOpen, userId]);
 
   return (

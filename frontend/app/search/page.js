@@ -2,8 +2,60 @@
 
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import Image from "next/image";
 import axios from "axios";
+import Image from "next/image";
+import { Heart, ShoppingCart, Star } from "lucide-react";
+
+const StarRating = ({ rating }) => {
+  return (
+    <div className="flex items-center gap-1">
+      {[...Array(5)].map((_, i) => (
+        <Star
+          key={i}
+          className={`w-4 h-4 ${
+            i < rating ? "text-yellow-400 fill-yellow-400" : "text-gray-300"
+          }`}
+        />
+      ))}
+    </div>
+  );
+};
+
+const ProductCard = ({ product }) => {
+  const router = useRouter();
+
+  return (
+    <div
+      className="group relative bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer"
+      onClick={() => router.push(`/productpage?product_id=${product.product_id}`)}
+    >
+      <div className="relative aspect-square overflow-hidden">
+        <Image
+          src={product.image_url || "/images/default.jpg"}
+          alt={product.name}
+          fill
+          className="object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+        <button className="absolute top-2 right-2 p-2 rounded-full bg-white/80 hover:bg-white transition-colors">
+          <Heart className="w-5 h-5 text-gray-600 hover:text-red-500" />
+        </button>
+      </div>
+      <div className="p-4">
+        <h3 className="text-lg font-semibold text-gray-900 line-clamp-1">
+          {product.name}
+        </h3>
+        <div className="mt-2 flex items-center justify-between">
+          <p className="text-xl font-bold text-teal-600">Rs. {product.price}</p>
+          <StarRating rating={product.rating || 0} />
+        </div>
+        <button className="mt-3 w-full py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors flex items-center justify-center gap-2">
+          <ShoppingCart className="w-5 h-5" />
+          Add to Cart
+        </button>
+      </div>
+    </div>
+  );
+};
 
 export default function SearchResults() {
   const searchParams = useSearchParams();
@@ -68,6 +120,8 @@ export default function SearchResults() {
           page: page,
           pageSize: pageSize,
           type: filters.type,
+          minPrice: filters.minPrice,
+          maxPrice: filters.maxPrice,
         };
         // Add sorting param if needed
         if (filters.sortBy === "price_low") {
@@ -87,10 +141,15 @@ export default function SearchResults() {
           params: params,
         });
 
-        setProducts(response.data.products);
-        // Assuming backend returns total count or total pages, set totalPages accordingly
-        // For now, we assume totalPages = 10 for demonstration
-        setTotalPages(10);
+        // Map average_rating to rating for each product
+        const productsWithRating = response.data.products.map(p => ({
+          ...p,
+          rating: p.average_rating || 0,
+        }));
+        setProducts(productsWithRating);
+        // Use totalCount from backend to calculate totalPages
+        const totalCount = response.data.totalCount || 0;
+        setTotalPages(Math.ceil(totalCount / pageSize));
         setLoading(false);
       } catch (err) {
         setError("Failed to fetch search results. Please try again.");
@@ -100,7 +159,7 @@ export default function SearchResults() {
     };
 
     fetchProducts();
-  }, [query, filters.category, page, filters.sortBy, filters.type]);
+  }, [query, filters.category, page, filters.sortBy, filters.type, filters.minPrice, filters.maxPrice]);
 
   const handleFilterInputChange = (e) => {
     const { name, value } = e.target;
@@ -120,34 +179,6 @@ export default function SearchResults() {
       setPage(newPage);
     }
   };
-
-  const handleProductClick = (productId) => {
-    router.push(`/productpage?product_id=${productId}`);
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#157a94]"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-red-500 text-center">
-          <p className="text-xl font-semibold">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-4 px-4 py-2 bg-[#157a94] text-white rounded-lg hover:opacity-90"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[#f5f5f5]">
@@ -247,7 +278,6 @@ export default function SearchResults() {
                     <option value="relevance">Relevance</option>
                     <option value="price_low">Price: Low to High</option>
                     <option value="price_high">Price: High to Low</option>
-                    <option value="newest">Newest First</option>
                   </select>
                 </div>
               </div>
@@ -275,30 +305,7 @@ export default function SearchResults() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {products.map((product) => (
-                    <div
-                      key={product.product_id}
-                      onClick={() => handleProductClick(product.product_id)}
-                      className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
-                    >
-                      <div className="relative h-48">
-                        <Image
-                          src={product.image_url || "/placeholder.png"}
-                          alt={product.name}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                      <div className="p-4">
-                        <h3 className="text-lg font-semibold text-[#0F1516] mb-2">{product.name}</h3>
-                        <p className="text-gray-600 text-sm mb-2 line-clamp-2">{product.description}</p>
-                        <div className="flex justify-between items-center">
-                          <span className="text-xl font-bold text-[#157a94]">${product.price}</span>
-                          {product.is_rentable && (
-                            <span className="bg-[#157a94] text-white text-xs px-2 py-1 rounded">Rentable</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
+                    <ProductCard key={product.product_id} product={product} />
                   ))}
                 </div>
               )}
