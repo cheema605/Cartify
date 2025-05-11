@@ -18,10 +18,10 @@ const sampleCategories = [
 ];
 
 const carouselImages = [
-  { url: "/images/deal1.jpg", alt: "Deal 1" },
-  { url: "/images/deal2.jpg", alt: "Deal 2" },
-  { url: "/images/deal3.jpg", alt: "Deal 3" },
-  { url: "/images/deal4.jpg", alt: "Deal 4" },
+  { url: "/images/deal-1.png", alt: "Mega Sale - Up to 50% Off!" },
+  { url: "/images/deal-2.png", alt: "Buy 1 Get 1 Free on Select Items" },
+  { url: "/images/summer-sale.jpg", alt: "Summer Sale - Limited Time Only" },
+  { url: "/images/electronics-discount.jpg", alt: "Electronics Discount" },
 ];
 
 const StarRating = ({ rating }) => {
@@ -191,7 +191,7 @@ const ExplorePage = () => {
     <div className="min-h-screen bg-gray-200">
       {/* Hero Section */}
       <div className="relative bg-gradient-to-b from-teal-600 to-teal-800 pt-20 pb-12">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 max-w-7xl">
           <Carousel
             images={carouselImages}
             autoPlay={true}
