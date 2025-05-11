@@ -36,31 +36,32 @@ export default function Carousel({ images, autoPlay = true, autoPlayTime = 3000 
   };
 
   return (
-    <div className="relative w-full overflow-hidden rounded-lg shadow-lg">
+    <div className="relative w-full overflow-hidden rounded-xl shadow-2xl">
       <div
         className="flex transition-transform ease-in-out duration-500"
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >
         {images.map((img, index) => (
-          <div key={index} className="flex-shrink-0 w-full">
+          <div key={index} className="flex-shrink-0 w-full h-[500px] flex items-center justify-center bg-gray-900">
             <img
               src={img.url}
               alt={img.alt || `Slide ${index + 1}`}
-              className="w-full h-64 object-cover rounded-lg"
+              className="w-full h-full object-contain"
+              style={{ maxWidth: "100%", maxHeight: "100%" }}
             />
           </div>
         ))}
       </div>
       <button
         onClick={prevSlide}
-        className="absolute top-1/2 left-2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full p-2 hover:bg-opacity-75 transition"
+        className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-black/50 text-white rounded-full p-3 hover:bg-black/75 transition-all duration-300"
         aria-label="Previous Slide"
       >
         &#10094;
       </button>
       <button
         onClick={nextSlide}
-        className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full p-2 hover:bg-opacity-75 transition"
+        className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-black/50 text-white rounded-full p-3 hover:bg-black/75 transition-all duration-300"
         aria-label="Next Slide"
       >
         &#10095;
