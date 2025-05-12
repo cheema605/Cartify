@@ -181,30 +181,30 @@ export default function ProductPage() {
         return
       }
       try {
-        const res = await fetch(`http://localhost:5000/api/products/products?product_id=${productId}`, {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        if (res.status === 401) {
-          router.push('/login')
-          return
-        }
-        if (!res.ok) {
-          console.error('Failed to fetch product:', res.statusText)
-          return
-        }
-        const data = await res.json()
-        setProduct(data)
-      } catch (err) {
-        console.error('Error fetching product:', err)
+      const res = await fetch(`http://localhost:5000/api/products/products?product_id=${productId}`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      if (res.status === 401 || res.status === 403) {
+        router.push('/login')
+        return
       }
+      if (!res.ok) {
+        console.error('Failed to fetch product:', res.statusText)
+        return
+      }
+      const data = await res.json()
+      setProduct(data)
+    } catch (err) {
+      console.error('Error fetching product:', err)
     }
-    if (productId) {
-      fetchProduct()
-    }
-  }, [productId, router])
+  }
+  if (productId) {
+    fetchProduct()
+  }
+}, [productId, router])
 
   const handleOptionChange = (value) => {
     setSelectedOption(value)

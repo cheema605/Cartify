@@ -45,7 +45,7 @@ export default function Navbar({ cartOpen, toggleCart }) {
           return;
         }
         try {
-          const response = await fetch("http://localhost:5000/api/shoppping-cart/get-cart", {
+          const response = await fetch("http://localhost:5000/api/shopping-cart/get-cart/current", {
             headers: {
               Authorization: `Bearer ${token}`,
             },

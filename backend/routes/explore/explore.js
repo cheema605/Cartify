@@ -26,6 +26,14 @@ router.get('/', authenticateJWT, async (req, res) => {
         const preferences = preferenceResult.recordset;
         const finalResponse = [];
 
+        // Query wishlist product IDs for the user
+        const wishlistResult = await pool.request()
+            .input('user_id', sql.Int, user_id)
+            .query(`
+                SELECT product_id FROM Wishlist WHERE user_id = @user_id
+            `);
+        const wishlistProductIds = new Set(wishlistResult.recordset.map(r => r.product_id));
+
         for (const pref of preferences) {
             const { category_id, category_name, symbol } = pref;
 
@@ -107,12 +115,23 @@ router.get('/', authenticateJWT, async (req, res) => {
                 requestRental.query(rentalQuery),
             ]);
 
+            // Add is_on_wishlist field to products and rentals
+            const productSuggestions = productResult.recordset.map(product => ({
+                ...product,
+                is_on_wishlist: wishlistProductIds.has(product.product_id),
+            }));
+
+            const rentalSuggestions = rentalResult.recordset.map(rental => ({
+                ...rental,
+                is_on_wishlist: wishlistProductIds.has(rental.product_id),
+            }));
+
             finalResponse.push({
                 category_id,
                 category_name,
                 symbol,
-                product_suggestions: productResult.recordset,
-                rental_suggestions: rentalResult.recordset,
+                product_suggestions: productSuggestions,
+                rental_suggestions: rentalSuggestions,
             });
         }
         console.log("Final response:", finalResponse);

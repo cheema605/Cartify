@@ -18,6 +18,11 @@ export default function WishlistPage() {
         },
       });
 
+      if (res.status === 401 || res.status === 403) {
+        router.push("/login");
+        return;
+      }
+
       if (!res.ok) throw new Error("Failed to fetch wishlist");
       const data = await res.json();
       setWishlistItems(data);
@@ -40,6 +45,11 @@ export default function WishlistPage() {
         body: JSON.stringify({ product_id }),
       });
 
+      if (res.status === 401 || res.status === 403) {
+        router.push("/login");
+        return;
+      }
+
       if (!res.ok) throw new Error("Failed to remove item");
 
       // Filter out the removed item
@@ -59,7 +69,7 @@ export default function WishlistPage() {
     <div className="min-h-screen bg-gray-50 pt-32 pb-12 px-6">
       <div
         className="flex items-center justify-center mb-8 gap-4 cursor-pointer"
-        onClick={() => router.push("/explore")}
+        onClick={() => router.back()}
       >
         <ArrowLeft className="h-6 w-6 text-gray-900" />
         <h1 className="text-4xl font-extrabold text-gray-900">

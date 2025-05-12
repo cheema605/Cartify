@@ -1,5 +1,5 @@
 import express from 'express';
-import { poolPromise } from '../../db/sql.js';
+import { sql, poolPromise } from '../../db/sql.js';
 import authenticateJWT from '../../middleware/auth.js';
 
 const router = express.Router();
@@ -28,11 +28,13 @@ router.get('/', authenticateJWT, async (req, res) => {
     // Build base query with filters
     let baseQuery = `
       SELECT p.product_id, p.name, MAX(CAST(p.description AS NVARCHAR(MAX))) AS description, p.price, pi.image_url, p.is_rentable,
-        ISNULL(AVG(r.rating), 0) AS average_rating, p.created_at
+        ISNULL(AVG(r.rating), 0) AS average_rating, p.created_at,
+        CASE WHEN MAX(w.product_id) IS NOT NULL THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END AS is_on_wishlist
       FROM Products p
       LEFT JOIN Reviews r ON p.product_id = r.product_id
       LEFT JOIN Categories c ON p.category_id = c.category_id
       LEFT JOIN ProductImages pi ON p.product_id = pi.product_id
+      LEFT JOIN Wishlist w ON p.product_id = w.product_id AND w.user_id = @userId
       WHERE 1=1
     `;
 
@@ -110,6 +112,7 @@ router.get('/', authenticateJWT, async (req, res) => {
       request.input(param.name, param.value);
     });
 
+    request.input('userId', sql.Int, req.user);
     request.input('offset', parseInt(offset));
     request.input('pageSize', parseInt(pageSize));
 

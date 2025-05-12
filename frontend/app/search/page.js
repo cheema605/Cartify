@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import axios from "axios";
 import Image from "next/image";
 import { Heart, ShoppingCart, Star } from "lucide-react";
+import CartSlidingPanel from "../../components/CartSlidingPanel";
 
 const StarRating = ({ rating }) => {
   return (
@@ -23,15 +24,51 @@ const StarRating = ({ rating }) => {
 
 const ProductCard = ({ product, onAddToCart, onAddToWishlist }) => {
   const router = useRouter();
+  const [isOnWishlist, setIsOnWishlist] = useState(product.is_on_wishlist || false);
 
-  const handleAddToCart = (e) => {
-    e.stopPropagation();
-    onAddToCart(product.product_id);
-  };
+  React.useEffect(() => {
+    setIsOnWishlist(product.is_on_wishlist || false);
+  }, [product.is_on_wishlist]);
 
-  const handleAddToWishlist = (e) => {
+  const handleWishlistToggle = async (e) => {
     e.stopPropagation();
-    onAddToWishlist(product.product_id);
+    const token = localStorage.getItem("jwt_token");
+    if (!token) {
+      // alert("Please login to manage wishlist.");
+      return;
+    }
+    try {
+      if (!isOnWishlist) {
+        console.log("Adding to wishlist product_id:", product.product_id);
+        const response = await fetch("http://localhost:5000/api/wishlist/add-to-wishlist", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ product_id: product.product_id }),
+        });
+        console.log("Add to wishlist response status:", response.status);
+        setIsOnWishlist(true);
+        if (onAddToWishlist) onAddToWishlist(product.product_id);
+      } else {
+        console.log("Removing from wishlist product_id:", product.product_id);
+        const response = await fetch("http://localhost:5000/api/wishlist/remove-from-wishlist", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ product_id: product.product_id }),
+        });
+        console.log("Remove from wishlist response status:", response.status);
+        setIsOnWishlist(false);
+        if (onAddToWishlist) onAddToWishlist(product.product_id);
+      }
+    } catch (error) {
+      console.error("Failed to update wishlist:", error);
+      alert("Failed to update wishlist.");
+    }
   };
 
   return (
@@ -47,11 +84,15 @@ const ProductCard = ({ product, onAddToCart, onAddToWishlist }) => {
           className="object-cover group-hover:scale-105 transition-transform duration-300"
         />
         <button
-          onClick={handleAddToWishlist}
+          onClick={handleWishlistToggle}
           className="absolute top-2 right-2 p-2 rounded-full bg-white/80 hover:bg-white transition-colors"
-          aria-label="Add to wishlist"
+          aria-label={isOnWishlist ? "Remove from wishlist" : "Add to wishlist"}
         >
-          <Heart className="w-5 h-5 text-gray-600 hover:text-red-500" />
+          <Heart
+            className={`w-5 h-5 ${
+              isOnWishlist ? "text-red-500 fill-red-500" : "text-gray-600 hover:text-red-500"
+            }`}
+          />
         </button>
       </div>
       <div className="p-4">
@@ -63,7 +104,10 @@ const ProductCard = ({ product, onAddToCart, onAddToWishlist }) => {
           <StarRating rating={product.rating || 0} />
         </div>
         <button
-          onClick={handleAddToCart}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (onAddToCart) onAddToCart(product.product_id);
+          }}
           className="mt-3 w-full py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors flex items-center justify-center gap-2"
           aria-label="Add to cart"
         >
@@ -108,6 +152,14 @@ export default function SearchResults() {
   const [page, setPage] = useState(parseInt(pageParam));
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 10;
+
+  const [cartOpen, setCartOpen] = useState(false);
+  const [cartRefreshTrigger, setCartRefreshTrigger] = useState(0);
+
+  const handleWishlistChange = (productId) => {
+    // Trigger refresh of products to update wishlist state
+    setCartRefreshTrigger((prev) => prev + 1);
+  };
 
   useEffect(() => {
     // Fetch categories for dropdown
@@ -170,6 +222,14 @@ export default function SearchResults() {
         setTotalPages(Math.ceil(totalCount / pageSize));
         setLoading(false);
       } catch (err) {
+        if (
+          err.response &&
+          (err.response.status === 401 || err.response.status === 403)
+        ) {
+          console.warn("Unauthorized. Redirecting to login...");
+          window.location.href = "/login";
+          return;
+        }
         setError("Failed to fetch search results. Please try again.");
         console.error(err);
         setLoading(false);
@@ -177,7 +237,7 @@ export default function SearchResults() {
     };
 
     fetchProducts();
-  }, [query, filters.category, page, filters.sortBy, filters.type, filters.minPrice, filters.maxPrice]);
+  }, [query, filters.category, page, filters.sortBy, filters.type, filters.minPrice, filters.maxPrice, cartRefreshTrigger]);
 
   const handleFilterInputChange = (e) => {
     const { name, value } = e.target;
@@ -195,6 +255,58 @@ export default function SearchResults() {
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setPage(newPage);
+    }
+  };
+
+  const addToCart = async (productId) => {
+    const token = localStorage.getItem("jwt_token");
+    if (!token) {
+      alert("Please login to add items to cart.");
+      return;
+    }
+    try {
+      await axios.post(
+        "http://localhost:5000/api/shoppping-cart/add-to-cart",
+        { product_id: productId, quantity: 1 },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      // alert("Item added to cart!");
+      if (!cartOpen) {
+        setCartOpen(true);
+      } else {
+        setCartRefreshTrigger((prev) => prev + 1);
+      }
+    } catch (error) {
+      console.error("Failed to add item to cart:", error);
+      // alert("Failed to add item to cart.");
+    }
+  };
+
+  const addToWishlist = async (productId) => {
+    const token = localStorage.getItem("jwt_token");
+    if (!token) {
+      alert("Please login to add items to wishlist.");
+      return;
+    }
+    try {
+      await axios.post(
+        "http://localhost:5000/api/wishlist/add-to-wishlist",
+        { product_id: productId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      // alert("Item added to wishlist!");
+      setCartRefreshTrigger((prev) => prev + 1);
+    } catch (error) {
+      console.error("Failed to add item to wishlist:", error);
+      // alert("Failed to add item to wishlist.");
     }
   };
 
@@ -323,7 +435,12 @@ export default function SearchResults() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {products.map((product) => (
-                    <ProductCard key={product.product_id} product={product} />
+                  <ProductCard
+                    key={product.product_id}
+                    product={product}
+                    onAddToCart={addToCart}
+                    onAddToWishlist={handleWishlistChange}
+                  />
                   ))}
                 </div>
               )}
@@ -352,6 +469,7 @@ export default function SearchResults() {
           </div>
         </div>
       </div>
+      <CartSlidingPanel isOpen={cartOpen} onClose={() => setCartOpen(false)} userId={"current"} disableOverlay={true} />
     </div>
   );
 }

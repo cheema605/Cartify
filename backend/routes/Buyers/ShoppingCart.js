@@ -280,4 +280,44 @@ router.get('/get-cart', authenticateJWT, async (req, res) => {
 });
 
 
+router.delete('/remove-from-cart', authenticateJWT, async (req, res) => {
+    const user_id = req.user;
+    const { product_id } = req.body;
+
+    if (!user_id || !product_id) {
+        return res.status(400).json({ message: "User ID and Product ID are required." });
+    }
+
+    try {
+        const pool = await poolPromise;
+
+        // Check if the item exists in the cart
+        const cartItem = await pool.request()
+            .input('user_id', sql.Int, user_id)
+            .input('product_id', sql.Int, product_id)
+            .query(`
+                SELECT * FROM ShoppingCart
+                WHERE user_id = @user_id AND product_id = @product_id
+            `);
+
+        if (cartItem.recordset.length === 0) {
+            return res.status(404).json({ message: "Item not found in cart." });
+        }
+
+        // Delete the item from the cart
+        await pool.request()
+            .input('user_id', sql.Int, user_id)
+            .input('product_id', sql.Int, product_id)
+            .query(`
+                DELETE FROM ShoppingCart
+                WHERE user_id = @user_id AND product_id = @product_id
+            `);
+
+        res.status(200).json({ message: "Item removed from cart successfully." });
+    } catch (err) {
+        console.error("Error removing item from cart:", err);
+        res.status(500).json({ message: "Internal Server Error", error: err.message });
+    }
+});
+
 export default router;

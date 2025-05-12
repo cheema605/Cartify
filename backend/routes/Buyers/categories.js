@@ -5,7 +5,7 @@ import authenticateJWT from '../../middleware/auth.js';
 const router = express.Router();
 
 // GET /categories - get all product categories
-router.get('/', authenticateJWT, async (req, res) => {
+router.get('/categories', authenticateJWT, async (req, res) => {
   try {
     const pool = await poolPromise;
     const result = await pool.request().query('SELECT category_id, category_name FROM Categories');

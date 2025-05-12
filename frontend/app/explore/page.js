@@ -31,17 +31,58 @@ const StarRating = ({ rating }) => {
   );
 };
 
-const ProductCard = ({ product, onAddToCart, onAddToWishlist }) => {
+
+
+const ProductCard = ({ product, onAddToCart }) => {
   const router = useRouter();
+  console.log("ProductCard product.is_on_wishlist:", product.is_on_wishlist);
+  const [isOnWishlist, setIsOnWishlist] = useState(product.is_on_wishlist || false);
+
+  React.useEffect(() => {
+    console.log("ProductCard useEffect product.is_on_wishlist:", product.is_on_wishlist);
+    setIsOnWishlist(product.is_on_wishlist || false);
+  }, [product.is_on_wishlist]);
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
     onAddToCart(product.product_id);
   };
 
-  const handleAddToWishlist = (e) => {
+  const handleWishlistToggle = async (e) => {
     e.stopPropagation();
-    onAddToWishlist(product.product_id);
+    const token = localStorage.getItem("jwt_token");
+    if (!token) {
+      alert("Please login to manage wishlist.");
+      return;
+    }
+    try {
+      if (!isOnWishlist) {
+        // Add to wishlist
+        await fetch("http://localhost:5000/api/wishlist/add-to-wishlist", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ product_id: product.product_id }),
+        });
+        setIsOnWishlist(true);
+      } else {
+        // Remove from wishlist
+        await fetch("http://localhost:5000/api/wishlist/remove-from-wishlist", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ product_id: product.product_id }),
+        });
+        setIsOnWishlist(false);
+      }
+    } catch (error) {
+      console.error("Failed to update wishlist:", error);
+      alert("Failed to update wishlist.");
+    }
   };
 
   return (
@@ -57,11 +98,15 @@ const ProductCard = ({ product, onAddToCart, onAddToWishlist }) => {
           className="object-cover group-hover:scale-105 transition-transform duration-300"
         />
         <button
-          onClick={handleAddToWishlist}
+          onClick={handleWishlistToggle}
           className="absolute top-2 right-2 p-2 rounded-full bg-white/80 hover:bg-white transition-colors"
-          aria-label="Add to wishlist"
+          aria-label={isOnWishlist ? "Remove from wishlist" : "Add to wishlist"}
         >
-          <Heart className="w-5 h-5 text-gray-600 hover:text-red-500" />
+          <Heart
+            className={`w-5 h-5 ${
+              isOnWishlist ? "text-red-500 fill-red-500" : "text-gray-600 hover:text-red-500"
+            }`}
+          />
         </button>
       </div>
       <div className="p-4">
@@ -93,8 +138,18 @@ const ExplorePage = () => {
   const [error, setError] = useState(null);
   const [productData, setProductData] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
+  const [cartRefreshTrigger, setCartRefreshTrigger] = useState(0);
+  const [cartManuallyClosed, setCartManuallyClosed] = useState(false);
+  const [cartManuallyOpened, setCartManuallyOpened] = useState(false);
 
   const toggleCart = () => {
+    if (cartOpen) {
+      setCartManuallyClosed(true);
+      setCartManuallyOpened(false);
+    } else {
+      setCartManuallyClosed(false);
+      setCartManuallyOpened(true);
+    }
     setCartOpen(!cartOpen);
   };
 
@@ -129,6 +184,12 @@ const ExplorePage = () => {
         }
       );
       alert("Item added to cart!");
+      if (!cartOpen) {
+        setCartOpen(true);
+      } else {
+        // Instead of toggling cartOpen off/on, just trigger cartRefreshTrigger to refresh cart items
+        setCartRefreshTrigger((prev) => prev + 1);
+      }
     } catch (error) {
       console.error("Failed to add item to cart:", error);
       alert("Failed to add item to cart.");

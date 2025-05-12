@@ -11,7 +11,7 @@ const router = express.Router();
  */
 router.post('/add-to-wishlist', authenticateJWT, async (req, res) => {
     const { product_id } = req.body;
-    console.log("product_id", product_id);
+    
     const user_id = req.user;
 
     if (!product_id) {
@@ -56,6 +56,8 @@ router.post("/remove-from-wishlist", authenticateJWT, async (req, res) => {
     }
 
     try {
+        console.log("user_id  rrrrr", user_id);
+        console.log("product_idrrrrrr", product_id);
         const pool = await poolPromise;
 
         const result = await pool.request()
@@ -66,7 +68,8 @@ router.post("/remove-from-wishlist", authenticateJWT, async (req, res) => {
         if (result.rowsAffected[0] === 0) {
             return res.status(404).json({ message: "Product not found in wishlist." });
         }
-
+        console.log("result", result);
+        console.log("result.rowsAffected[0]", result.rowsAffected[0]);
         res.json({ message: "Product removed from wishlist." });
     } catch (err) {
         console.error('Error removing product from wishlist:', err);

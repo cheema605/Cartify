@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { X, Trash2 } from "lucide-react";
 import Link from "next/link";
 
 export default function CartSlidingPanel({ isOpen, onClose, userId, disableOverlay = false }) {
@@ -15,25 +15,67 @@ export default function CartSlidingPanel({ isOpen, onClose, userId, disableOverl
             Authorization: `Bearer ${token}`,
           },
         })
-          .then((res) => res.json())
+          .then((res) => {
+            if (res.status === 401 || res.status === 403) {
+              window.location.href = "/login";
+              return Promise.reject("Unauthorized");
+            }
+            return res.json();
+          })
           .then((data) => {
             setCartItems(data);
           })
           .catch((err) => {
-            console.error("Failed to fetch cart items:", err);
+            if (err !== "Unauthorized") {
+              console.error("Failed to fetch cart items:", err);
+            }
           });
       }
   }, [isOpen, userId]);
+
+  const removeFromCart = (productId) => {
+    const token = localStorage.getItem("jwt_token");
+    fetch("http://localhost:5000/api/shoppping-cart/remove-from-cart", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ product_id: productId }),
+    })
+      .then((res) => {
+        if (res.status === 401 || res.status === 403) {
+          window.location.href = "/login";
+          return Promise.reject("Unauthorized");
+        }
+        if (!res.ok) throw new Error("Failed to remove item from cart");
+        return res.json();
+      })
+      .then(() => {
+        setCartItems((prevItems) => prevItems.filter((item) => item.product_id !== productId));
+      })
+      .catch((err) => {
+        if (err !== "Unauthorized") {
+          console.error("Error removing item from cart:", err);
+          alert("Failed to remove item from cart");
+        }
+      });
+  };
 
   return (
     <>
       {/* Overlay with blur */}
       {!disableOverlay && (
         <div
-          className={`fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm z-40 transition-opacity duration-500 ${
+          className={`fixed inset-0 bg-black bg-opacity-10 backdrop-blur-sm z-40 transition-opacity duration-500 ${
             isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
           }`}
-          onClick={onClose}
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose();
+          }}
+          onMouseDown={(e) => e.stopPropagation()}
+          onMouseUp={(e) => e.stopPropagation()}
         ></div>
       )}
 
@@ -63,7 +105,38 @@ export default function CartSlidingPanel({ isOpen, onClose, userId, disableOverl
                 <div className="flex-1">
                   <h3 className="font-semibold">{item.name}</h3>
                   <p className="text-teal-600 font-bold">Rs. {item.price}</p>
-                  <p className="text-gray-600">Quantity: {item.quantity}</p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => updateQuantity(item.product_id, item.quantity - 1)}
+                      disabled={item.quantity <= 1}
+                      className="px-2 py-1 bg-gray-300 rounded disabled:opacity-50"
+                      aria-label={`Decrease quantity of ${item.name}`}
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      min="1"
+                      value={item.quantity}
+                      onChange={(e) => updateQuantity(item.product_id, parseInt(e.target.value) || 1)}
+                      className="w-12 text-center border rounded"
+                      aria-label={`Quantity of ${item.name}`}
+                    />
+                    <button
+                      onClick={() => updateQuantity(item.product_id, item.quantity + 1)}
+                      className="px-2 py-1 bg-gray-300 rounded"
+                      aria-label={`Increase quantity of ${item.name}`}
+                    >
+                      +
+                    </button>
+                    <button
+                      onClick={() => removeFromCart(item.product_id)}
+                      className="ml-4 p-1 rounded bg-red-100 hover:bg-red-200 transition-colors"
+                      aria-label={`Remove ${item.name} from cart`}
+                    >
+                      <Trash2 className="w-5 h-5 text-red-600" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))
@@ -83,4 +156,38 @@ export default function CartSlidingPanel({ isOpen, onClose, userId, disableOverl
       </div>
     </>
   );
+
+  function updateQuantity(productId, newQuantity) {
+    if (newQuantity < 1) return;
+    const token = localStorage.getItem("jwt_token");
+    fetch("http://localhost:5000/api/shoppping-cart/edit-cart", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ product_id: productId, new_quantity: newQuantity }),
+    })
+      .then((res) => {
+        if (res.status === 401 || res.status === 403) {
+          window.location.href = "/login";
+          return Promise.reject("Unauthorized");
+        }
+        if (!res.ok) throw new Error("Failed to update quantity");
+        return res.json();
+      })
+      .then(() => {
+        setCartItems((prevItems) =>
+          prevItems.map((item) =>
+            item.product_id === productId ? { ...item, quantity: newQuantity } : item
+          )
+        );
+      })
+      .catch((err) => {
+        if (err !== "Unauthorized") {
+          console.error("Error updating quantity:", err);
+          alert("Failed to update quantity");
+        }
+      });
+  }
 }
