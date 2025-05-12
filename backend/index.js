@@ -20,6 +20,7 @@ import chatbot from './routes/chatbot/chatbot.js';
 import products from './routes/Buyers/products.js';
 import search from './routes/Buyers/search.js';
 import categories from './routes/Buyers/categories.js';  // Added import for categories route
+import deleteProducts from './routes/Sellers/deleteProducts.js';
 
 import { poolPromise} from "./db/sql.js"; // ✅ Import both
 
@@ -78,7 +79,7 @@ app.use('/api/chatbot', chatbot);
 app.use('/api/products', products);
 app.use('/api/categories', categories);  // Added route registration
 app.use('/api/search', search);
-
+app.use('/api/seller/delete-product', deleteProducts);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, async () => {
