@@ -66,7 +66,7 @@ app.use('/api/seller/create-store', sellerStoreRoute);
 app.use('/api/seller/create-product', createProduct); 
 app.use('/api/seller/edit-product', editProduct); 
 app.use('/api/wishlist', wishlist);
-app.use('/api/discount', Discount);
+app.use('/api/discounts', Discount);
 app.use('/api/order', Order);
 app.use('/api/shoppping-cart', shoppingCart);
 app.use('/api/preferences', preferences);
@@ -78,6 +78,7 @@ app.use('/api/chatbot', chatbot);
 app.use('/api/products', products);
 app.use('/api/categories', categories);  // Added route registration
 app.use('/api/seller/delete-product', deleteProducts);
+app.use('/api/sellerStore', sellerStoreRoute);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, async () => {

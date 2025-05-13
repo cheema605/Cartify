@@ -92,10 +92,14 @@ router.put("/:product_id", authenticateJWT, upload.array("images", 10), async (r
     const updateDescription = typeof description !== 'undefined' ? description : existingProduct.description;
     const updatePrice = typeof price !== 'undefined' ? parseFloat(price) : parseFloat(existingProduct.price);
     const updateQuantity = typeof quantity !== 'undefined' ? parseInt(quantity) : parseInt(existingProduct.quantity);
-    const updateIsRentable = typeof is_rentable !== 'undefined' ? is_rentable : existingProduct.is_rentable;
+    // Parse is_sellable and is_rentable as booleans
+    const rentable = (is_rentable === true || is_rentable === 'true' || is_rentable === 1 || is_rentable === '1');
+    const sellable = (is_sellable === true || is_sellable === 'true' || is_sellable === 1 || is_sellable === '1');
+
+    const updateIsRentable = typeof is_rentable !== 'undefined' ? rentable : existingProduct.is_rentable;
     const updateIsBiddable = typeof is_biddable !== 'undefined' ? is_biddable : existingProduct.is_biddable;
     const updateStatus = typeof status !== 'undefined' ? status : existingProduct.status;
-    const updateIsSellable = typeof is_sellable !== 'undefined' ? is_sellable : existingProduct.is_sellable;
+    const updateIsSellable = typeof is_sellable !== 'undefined' ? sellable : existingProduct.is_sellable;
     const updateRent = typeof rent !== 'undefined' ? parseFloat(rent) : parseFloat(existingProduct.rent);
 
     // Validate numeric fields if provided
