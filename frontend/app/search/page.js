@@ -22,25 +22,29 @@ const StarRating = ({ rating }) => {
   );
 };
 
-const ProductCard = ({ product, onAddToCart, onAddToWishlist }) => {
+const ProductCard = ({ product, onAddToCart, onAddToWishlist, type }) => {
   const router = useRouter();
   const [isOnWishlist, setIsOnWishlist] = useState(product.is_on_wishlist || false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setIsOnWishlist(product.is_on_wishlist || false);
   }, [product.is_on_wishlist]);
+
+  const handleAddToCart = (e) => {
+    e.stopPropagation();
+    if (onAddToCart) onAddToCart(product.product_id);
+  };
 
   const handleWishlistToggle = async (e) => {
     e.stopPropagation();
     const token = localStorage.getItem("jwt_token");
     if (!token) {
-      // alert("Please login to manage wishlist.");
+      alert("Please login to manage wishlist.");
       return;
     }
     try {
       if (!isOnWishlist) {
-        console.log("Adding to wishlist product_id:", product.product_id);
-        const response = await fetch("http://localhost:5000/api/wishlist/add-to-wishlist", {
+        await fetch("http://localhost:5000/api/wishlist/add-to-wishlist", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -48,12 +52,10 @@ const ProductCard = ({ product, onAddToCart, onAddToWishlist }) => {
           },
           body: JSON.stringify({ product_id: product.product_id }),
         });
-        console.log("Add to wishlist response status:", response.status);
         setIsOnWishlist(true);
         if (onAddToWishlist) onAddToWishlist(product.product_id);
       } else {
-        console.log("Removing from wishlist product_id:", product.product_id);
-        const response = await fetch("http://localhost:5000/api/wishlist/remove-from-wishlist", {
+        await fetch("http://localhost:5000/api/wishlist/remove-from-wishlist", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -61,7 +63,6 @@ const ProductCard = ({ product, onAddToCart, onAddToWishlist }) => {
           },
           body: JSON.stringify({ product_id: product.product_id }),
         });
-        console.log("Remove from wishlist response status:", response.status);
         setIsOnWishlist(false);
         if (onAddToWishlist) onAddToWishlist(product.product_id);
       }
@@ -100,20 +101,38 @@ const ProductCard = ({ product, onAddToCart, onAddToWishlist }) => {
           {product.name}
         </h3>
         <div className="mt-2 flex items-center justify-between">
-          <p className="text-xl font-bold text-teal-600">Rs. {product.price}</p>
+          {product.discount_percent && product.discount_percent > 0 ? (
+            <div className="flex items-center space-x-2">
+              <p className="text-xl font-bold text-gray-500 line-through">Rs. {product.price}</p>
+              <p className="text-xl font-bold text-red-600">Rs. {product.discounted_price.toFixed(2)}</p>
+              <p className="text-sm text-red-500">({product.discount_percent}% off)</p>
+            </div>
+          ) : (
+            <p className="text-xl font-bold text-teal-600">Rs. {product.price}</p>
+          )}
           <StarRating rating={product.rating || 0} />
         </div>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            if (onAddToCart) onAddToCart(product.product_id);
-          }}
-          className="mt-3 w-full py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors flex items-center justify-center gap-2"
-          aria-label="Add to cart"
-        >
-          <ShoppingCart className="w-5 h-5" />
-          Add to Cart
-        </button>
+        {type === "product" && product.is_sellable && (
+          <button
+            onClick={handleAddToCart}
+            className="mt-3 w-full py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors flex items-center justify-center gap-2"
+            aria-label="Add to cart"
+          >
+            <ShoppingCart className="w-5 h-5" />
+            Add to Cart
+          </button>
+        )}
+        {type === "rental" && product.is_rentable && (
+          <button
+            onClick={(e) => e.stopPropagation()}
+            className="mt-3 w-full py-2 border border-teal-600 text-teal-600 rounded-lg hover:bg-teal-100 transition-colors flex items-center justify-center gap-2"
+            aria-label="Rent product"
+            disabled
+          >
+            <Timer className="w-5 h-5" />
+            Rent
+          </button>
+        )}
       </div>
     </div>
   );
@@ -166,7 +185,7 @@ export default function SearchResults() {
     const fetchCategories = async () => {
       try {
         const token = localStorage.getItem("jwt_token");
-        const response = await axios.get("http://localhost:5000/api/categories", {
+        const response = await axios.get("http://localhost:5000/api/categories/categories", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

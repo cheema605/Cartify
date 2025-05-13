@@ -31,15 +31,11 @@ const StarRating = ({ rating }) => {
   );
 };
 
-
-
-const ProductCard = ({ product, onAddToCart }) => {
+const ProductCard = ({ product, onAddToCart, mode }) => {
   const router = useRouter();
-  console.log("ProductCard product.is_on_wishlist:", product.is_on_wishlist);
   const [isOnWishlist, setIsOnWishlist] = useState(product.is_on_wishlist || false);
 
-  React.useEffect(() => {
-    console.log("ProductCard useEffect product.is_on_wishlist:", product.is_on_wishlist);
+  useEffect(() => {
     setIsOnWishlist(product.is_on_wishlist || false);
   }, [product.is_on_wishlist]);
 
@@ -57,7 +53,6 @@ const ProductCard = ({ product, onAddToCart }) => {
     }
     try {
       if (!isOnWishlist) {
-        // Add to wishlist
         await fetch("http://localhost:5000/api/wishlist/add-to-wishlist", {
           method: "POST",
           headers: {
@@ -68,7 +63,6 @@ const ProductCard = ({ product, onAddToCart }) => {
         });
         setIsOnWishlist(true);
       } else {
-        // Remove from wishlist
         await fetch("http://localhost:5000/api/wishlist/remove-from-wishlist", {
           method: "POST",
           headers: {
@@ -114,17 +108,28 @@ const ProductCard = ({ product, onAddToCart }) => {
           {product.name}
         </h3>
         <div className="mt-2 flex items-center justify-between">
-          <p className="text-xl font-bold text-teal-600">Rs. {product.price}</p>
+          {product.discount_percent && product.discount_percent > 0 ? (
+            <div className="flex items-center space-x-2">
+              <p className="text-xl font-bold text-gray-500 line-through">Rs. {product.price}</p>
+              <p className="text-xl font-bold text-red-600">Rs. {product.discounted_price.toFixed(2)}</p>
+              <p className="text-sm text-red-500">({product.discount_percent}% off)</p>
+            </div>
+          ) : (
+            <p className="text-xl font-bold text-teal-600">Rs. {product.price}</p>
+          )}
           <StarRating rating={product.rating || 0} />
         </div>
-        <button
-          onClick={handleAddToCart}
-          className="mt-3 w-full py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors flex items-center justify-center gap-2"
-          aria-label="Add to cart"
-        >
-          <ShoppingCart className="w-5 h-5" />
-          Add to Cart
-        </button>
+        {mode === "products" && product.is_sellable && (
+          <button
+            onClick={handleAddToCart}
+            className="mt-3 w-full py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors flex items-center justify-center gap-2"
+            aria-label="Add to cart"
+          >
+            <ShoppingCart className="w-5 h-5" />
+            Add to Cart
+          </button>
+        )}
+        {/* Rent button removed as per request */}
       </div>
     </div>
   );
@@ -139,17 +144,8 @@ const ExplorePage = () => {
   const [productData, setProductData] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [cartRefreshTrigger, setCartRefreshTrigger] = useState(0);
-  const [cartManuallyClosed, setCartManuallyClosed] = useState(false);
-  const [cartManuallyOpened, setCartManuallyOpened] = useState(false);
 
   const toggleCart = () => {
-    if (cartOpen) {
-      setCartManuallyClosed(true);
-      setCartManuallyOpened(false);
-    } else {
-      setCartManuallyClosed(false);
-      setCartManuallyOpened(true);
-    }
     setCartOpen(!cartOpen);
   };
 
@@ -187,7 +183,6 @@ const ExplorePage = () => {
       if (!cartOpen) {
         setCartOpen(true);
       } else {
-        // Instead of toggling cartOpen off/on, just trigger cartRefreshTrigger to refresh cart items
         setCartRefreshTrigger((prev) => prev + 1);
       }
     } catch (error) {
@@ -237,7 +232,6 @@ const ExplorePage = () => {
           },
         });
 
-        // Map average_rating to rating for each product suggestion and rental suggestion
         const mappedData = response.data.map((category) => ({
           ...category,
           product_suggestions: category.product_suggestions.map((p) => ({
@@ -288,22 +282,14 @@ const ExplorePage = () => {
 
   return (
     <div className="min-h-screen bg-gray-200">
-      {/* Floating Navbar */}
       <div className="fixed -top-4 left-1/2 z-50 -translate-x-1/2 w-[98vw] max-w-7xl">
         <Navbar cartOpen={cartOpen} toggleCart={toggleCart} />
       </div>
-      {/* Hero Section */}
       <div className="relative bg-gradient-to-b from-teal-600 to-teal-800 pt-20 pb-12">
         <div className="container mx-auto px-4 max-w-7xl">
-          <Carousel
-            images={carouselImages}
-            autoPlay={true}
-            autoPlayTime={4000}
-          />
+          <Carousel images={carouselImages} autoPlay={true} autoPlayTime={4000} />
         </div>
       </div>
-
-      {/* Main Content */}
       <div className="container mx-auto px-4 py-8 pt-24">
         <CartSlidingPanel
           isOpen={cartOpen}
@@ -311,8 +297,6 @@ const ExplorePage = () => {
           userId={"current"}
           disableOverlay={true}
         />
-
-        {/* Category Section - Styled Grid */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Explore by Categories</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -321,13 +305,13 @@ const ExplorePage = () => {
                 key={category.id}
                 className={`rounded-xl p-6 shadow-md text-white cursor-pointer transition-transform transform hover:scale-105 ${
                   [
-                    "bg-gradient-to-br from-black to-gray-800", // Example for category 1
-                    "bg-yellow-400 text-black", // Example for category 2
-                    "bg-red-500", // Example for category 3
-                    "bg-violet-500 text-black", // Example for category 4
-                    "bg-green-500", // Example for category 5
-                    "bg-blue-500", // Example for category 6
-                    "bg-pink-500", // Fallback
+                    "bg-gradient-to-br from-black to-gray-800",
+                    "bg-yellow-400 text-black",
+                    "bg-red-500",
+                    "bg-violet-500 text-black",
+                    "bg-green-500",
+                    "bg-blue-500",
+                    "bg-pink-500",
                   ][index % 7]
                 }`}
                 onClick={() => router.push(`/search?category=${encodeURIComponent(category.category_name)}`)}
@@ -342,8 +326,6 @@ const ExplorePage = () => {
             ))}
           </div>
         </div>
-
-        {/* Mode Toggle */}
         <div className="flex justify-center gap-4 mb-8">
           <button
             onClick={() => setMode("products")}
@@ -366,19 +348,15 @@ const ExplorePage = () => {
             Explore Rentals
           </button>
         </div>
-
-        {/* Suggested Categories and Products */}
-
         {productData.slice(0, 7).map(({ category_name, product_suggestions, rental_suggestions }) => {
           const suggestions = mode === "rentals" ? rental_suggestions : product_suggestions;
-
           return (
             <div key={category_name} className="mb-8">
               <h2 className="text-xl font-semibold mb-4">{category_name}</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {suggestions && suggestions.length > 0 ? (
                   suggestions.map((product) => (
-                    <ProductCard key={product.product_id} product={product} onAddToCart={addToCart} onAddToWishlist={addToWishlist} />
+                    <ProductCard key={product.product_id} product={product} onAddToCart={addToCart} mode={mode} />
                   ))
                 ) : (
                   <div className="col-span-4 text-center">No products available</div>
@@ -387,27 +365,19 @@ const ExplorePage = () => {
             </div>
           );
         })}
-
-        {/* Loading */}
         {loading && (
           <div className="flex justify-center items-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
           </div>
         )}
-
-        {/* Error */}
         {error && (
           <div className="text-center py-12">
             <p className="text-red-600">{error}</p>
           </div>
         )}
-
-        {/* Empty */}
         {!loading && !error && filteredItems.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-600">
-              No products found matching your criteria.
-            </p>
+            <p className="text-gray-600">No products found matching your criteria.</p>
           </div>
         )}
       </div>

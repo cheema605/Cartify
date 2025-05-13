@@ -1,193 +1,218 @@
-"use client";
+import React, { useEffect, useState } from 'react'
+import { Dialog, Transition } from '@headlessui/react'
+import { Fragment } from 'react'
+import { useRouter } from 'next/navigation'
 
-import { useEffect, useState } from "react";
-import { X, Trash2 } from "lucide-react";
-import Link from "next/link";
-
-export default function CartSlidingPanel({ isOpen, onClose, userId, disableOverlay = false }) {
-  const [cartItems, setCartItems] = useState([]);
+export default function CartSlidingPanel({ isOpen, onClose, userId, disableOverlay }) {
+  const [cartItems, setCartItems] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const router = useRouter()
 
   useEffect(() => {
-      if (isOpen) {
-        const token = localStorage.getItem("jwt_token");
-        fetch("http://localhost:5000/api/shoppping-cart/get-cart", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-          .then((res) => {
-            if (res.status === 401 || res.status === 403) {
-              window.location.href = "/login";
-              return Promise.reject("Unauthorized");
-            }
-            return res.json();
-          })
-          .then((data) => {
-            setCartItems(data);
-          })
-          .catch((err) => {
-            if (err !== "Unauthorized") {
-              console.error("Failed to fetch cart items:", err);
-            }
-          });
-      }
-  }, [isOpen, userId]);
+    if (isOpen) {
+      fetchCartItems()
+    }
+  }, [isOpen])
 
-  const removeFromCart = (productId) => {
-    const token = localStorage.getItem("jwt_token");
-    fetch("http://localhost:5000/api/shoppping-cart/remove-from-cart", {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ product_id: productId }),
-    })
-      .then((res) => {
-        if (res.status === 401 || res.status === 403) {
-          window.location.href = "/login";
-          return Promise.reject("Unauthorized");
-        }
-        if (!res.ok) throw new Error("Failed to remove item from cart");
-        return res.json();
+  const handleUnauthorized = (status) => {
+    if (status === 401 || status === 403) {
+      router.push('/login')
+      return true
+    }
+    return false
+  }
+
+  const fetchCartItems = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const token = localStorage.getItem('jwt_token')
+      if (!token) {
+        router.push('/login')
+        return
+      }
+      const res = await fetch('http://localhost:5000/api/shoppping-cart/get-cart', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       })
-      .then(() => {
-        setCartItems((prevItems) => prevItems.filter((item) => item.product_id !== productId));
+      if (handleUnauthorized(res.status)) return
+      if (!res.ok) {
+        throw new Error('Failed to fetch cart items')
+      }
+      const data = await res.json()
+      setCartItems(data)
+    } catch (err) {
+      setError(err.message)
+      setCartItems([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const updateQuantity = async (productId, newQuantity) => {
+    if (newQuantity < 1) return
+    try {
+      const token = localStorage.getItem('jwt_token')
+      const res = await fetch('http://localhost:5000/api/shoppping-cart/edit-cart', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ product_id: productId, new_quantity: newQuantity }),
       })
-      .catch((err) => {
-        if (err !== "Unauthorized") {
-          console.error("Error removing item from cart:", err);
-          alert("Failed to remove item from cart");
-        }
-      });
-  };
+      if (handleUnauthorized(res.status)) return
+      if (!res.ok) {
+        throw new Error('Failed to update quantity')
+      }
+      setCartItems((prevItems) =>
+        prevItems.map((item) =>
+          item.product_id === productId ? { ...item, quantity: newQuantity } : item
+        )
+      )
+    } catch (err) {
+      setError('Failed to update quantity')
+    }
+  }
+
+  const removeItem = async (productId) => {
+    try {
+      const token = localStorage.getItem('jwt_token')
+      const res = await fetch('http://localhost:5000/api/shoppping-cart/remove-from-cart', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ product_id: productId }),
+      })
+      if (handleUnauthorized(res.status)) return
+      if (!res.ok) {
+        throw new Error('Failed to remove item')
+      }
+      setCartItems((prevItems) => prevItems.filter((item) => item.product_id !== productId))
+    } catch (err) {
+      setError('Failed to remove item')
+    }
+  }
 
   return (
-    <>
-      {/* Overlay with blur */}
-      {!disableOverlay && (
-        <div
-          className={`fixed inset-0 bg-black bg-opacity-10 backdrop-blur-sm z-40 transition-opacity duration-500 ${
-            isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-          }`}
-          onClick={(e) => {
-            e.stopPropagation();
-            onClose();
-          }}
-          onMouseDown={(e) => e.stopPropagation()}
-          onMouseUp={(e) => e.stopPropagation()}
-        ></div>
-      )}
-
-      {/* Sliding panel */}
-      <div
-        className={`fixed top-0 right-0 h-full w-80 bg-white shadow-lg z-70 flex flex-col transform transition-transform duration-[1500ms] ease-in-out ${
-          isOpen ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
-        <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold text-teal-700">Shopping Cart</h2>
-          <button onClick={onClose} aria-label="Close cart">
-            <X className="w-6 h-6 text-gray-700" />
-          </button>
-        </div>
-        <div className="p-4 overflow-y-auto flex-1">
-          {cartItems.length === 0 ? (
-            <p className="text-gray-500">Your cart is empty.</p>
-          ) : (
-            cartItems.map((item) => (
-              <div key={item.cart_id} className="flex items-center mb-4 border-b pb-2">
-                <img
-                  src={item.images && item.images.length > 0 ? item.images[0] : "/placeholder.jpg"}
-                  alt={item.name}
-                  className="w-16 h-16 object-cover rounded mr-4"
-                />
-                <div className="flex-1">
-                  <h3 className="font-semibold">{item.name}</h3>
-                  <p className="text-teal-600 font-bold">Rs. {item.price}</p>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => updateQuantity(item.product_id, item.quantity - 1)}
-                      disabled={item.quantity <= 1}
-                      className="px-2 py-1 bg-gray-300 rounded disabled:opacity-50"
-                      aria-label={`Decrease quantity of ${item.name}`}
-                    >
-                      -
-                    </button>
-                    <input
-                      type="number"
-                      min="1"
-                      value={item.quantity}
-                      onChange={(e) => updateQuantity(item.product_id, parseInt(e.target.value) || 1)}
-                      className="w-12 text-center border rounded"
-                      aria-label={`Quantity of ${item.name}`}
-                    />
-                    <button
-                      onClick={() => updateQuantity(item.product_id, item.quantity + 1)}
-                      className="px-2 py-1 bg-gray-300 rounded"
-                      aria-label={`Increase quantity of ${item.name}`}
-                    >
-                      +
-                    </button>
-                    <button
-                      onClick={() => removeFromCart(item.product_id)}
-                      className="ml-4 p-1 rounded bg-red-100 hover:bg-red-200 transition-colors"
-                      aria-label={`Remove ${item.name} from cart`}
-                    >
-                      <Trash2 className="w-5 h-5 text-red-600" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-        <div className="p-4 border-t flex justify-between">
-          <button
-            onClick={onClose}
-            className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded"
+    <Transition.Root show={isOpen} as={Fragment}>
+      <Dialog as="div" className="relative z-50" onClose={onClose}>
+        {!disableOverlay && (
+          <Transition.Child
+            as={Fragment}
+            enter="ease-in-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in-out duration-300"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
           >
-            Continue Shopping
-          </button>
-          <Link href="/checkout" className="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded">
-            Proceed to Checkout
-          </Link>
-        </div>
-      </div>
-    </>
-  );
+            <div className="fixed inset-0 bg-black bg-opacity-25 transition-opacity" />
+          </Transition.Child>
+        )}
 
-  function updateQuantity(productId, newQuantity) {
-    if (newQuantity < 1) return;
-    const token = localStorage.getItem("jwt_token");
-    fetch("http://localhost:5000/api/shoppping-cart/edit-cart", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ product_id: productId, new_quantity: newQuantity }),
-    })
-      .then((res) => {
-        if (res.status === 401 || res.status === 403) {
-          window.location.href = "/login";
-          return Promise.reject("Unauthorized");
-        }
-        if (!res.ok) throw new Error("Failed to update quantity");
-        return res.json();
-      })
-      .then(() => {
-        setCartItems((prevItems) =>
-          prevItems.map((item) =>
-            item.product_id === productId ? { ...item, quantity: newQuantity } : item
-          )
-        );
-      })
-      .catch((err) => {
-        if (err !== "Unauthorized") {
-          console.error("Error updating quantity:", err);
-          alert("Failed to update quantity");
-        }
-      });
-  }
+        <div className="fixed inset-0 overflow-hidden">
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
+              <Transition.Child
+                as={Fragment}
+                enter="transform transition ease-in-out duration-300"
+                enterFrom="translate-x-full"
+                enterTo="translate-x-0"
+                leave="transform transition ease-in-out duration-300"
+                leaveFrom="translate-x-0"
+                leaveTo="translate-x-full"
+              >
+                <Dialog.Panel className="pointer-events-auto w-screen max-w-md">
+                  <div className="h-full flex flex-col bg-white shadow-xl">
+                    <div className="flex-1 py-6 overflow-y-auto px-4 sm:px-6">
+                      <div className="flex items-start justify-between">
+                        <Dialog.Title className="text-lg font-medium text-gray-900">Shopping Cart</Dialog.Title>
+                        <div className="ml-3 h-7 flex items-center">
+                          <button
+                            type="button"
+                            className="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none"
+                            onClick={onClose}
+                          >
+                            <span className="sr-only">Close panel</span>
+                            &#x2715;
+                          </button>
+                        </div>
+                      </div>
+                      <div className="mt-8">
+                        {loading && <p>Loading cart items...</p>}
+                        {error && <p className="text-red-600">{error}</p>}
+                        {!loading && !error && cartItems.length === 0 && <p>Your cart is empty.</p>}
+                        {!loading && !error && cartItems.length > 0 && (
+                          <ul className="divide-y divide-gray-200">
+                            {cartItems.map((item) => (
+                              <li key={item.product_id} className="py-4 flex items-center">
+                                <img
+                                  src={item.images && item.images.length > 0 ? item.images[0] : '/placeholder.png'}
+                                  alt={item.name}
+                                  className="w-16 h-16 rounded object-cover"
+                                />
+                                <div className="ml-4 flex flex-col flex-grow">
+                                  <span className="font-medium text-gray-900">{item.name}</span>
+                                  <div className="flex items-center space-x-2 mt-1">
+                                    <button
+                                      onClick={() => updateQuantity(item.product_id, item.quantity - 1)}
+                                      className="px-2 py-1 border rounded"
+                                    >
+                                      -
+                                    </button>
+                                    <input
+                                      type="number"
+                                      min="1"
+                                      value={item.quantity}
+                                      onChange={(e) => {
+                                        const val = parseInt(e.target.value, 10)
+                                        if (val >= 1) updateQuantity(item.product_id, val)
+                                      }}
+                                      className="w-12 text-center border rounded"
+                                    />
+                                    <button
+                                      onClick={() => updateQuantity(item.product_id, item.quantity + 1)}
+                                      className="px-2 py-1 border rounded"
+                                    >
+                                      +
+                                    </button>
+                                  </div>
+                                  <span className="text-sm text-gray-900 font-semibold mt-1">Rs {(item.price * item.quantity).toFixed(2)}</span>
+                                </div>
+                                <button
+                                  onClick={() => removeItem(item.product_id)}
+                                  className="ml-4 text-red-600 hover:text-red-800"
+                                  aria-label="Remove item"
+                                >
+                                  &#x2715;
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    </div>
+                    <div className="border-t border-gray-200 py-6 px-4 sm:px-6">
+                      <button
+                        type="button"
+                        className="w-full bg-teal-600 border border-transparent rounded-md shadow-sm py-3 px-4 text-base font-medium text-white hover:bg-teal-700 focus:outline-none"
+                      >
+                        Checkout
+                      </button>
+                    </div>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </div>
+      </Dialog>
+    </Transition.Root>
+  )
 }

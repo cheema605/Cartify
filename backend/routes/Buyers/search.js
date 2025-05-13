@@ -7,7 +7,6 @@ const router = express.Router();
 // GET /search - search products with filters, pagination, sorted by top rated
 router.get('/', authenticateJWT, async (req, res) => {
   try {
-    console.log('Received minPrice:', req.query.minPrice, 'maxPrice:', req.query.maxPrice);
     const pool = await poolPromise;
     const {
       q = '', // search query
@@ -27,14 +26,21 @@ router.get('/', authenticateJWT, async (req, res) => {
 
     // Build base query with filters
     let baseQuery = `
-      SELECT p.product_id, p.name, MAX(CAST(p.description AS NVARCHAR(MAX))) AS description, p.price, pi.image_url, p.is_rentable,
+      SELECT p.product_id, p.name, MAX(CAST(p.description AS NVARCHAR(MAX))) AS description, p.price, p.rent, p.is_sellable, pi.image_url, p.is_rentable,
         ISNULL(AVG(r.rating), 0) AS average_rating, p.created_at,
-        CASE WHEN MAX(w.product_id) IS NOT NULL THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END AS is_on_wishlist
+        CASE WHEN MAX(w.product_id) IS NOT NULL THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END AS is_on_wishlist,
+        d.discount_percent,
+        CASE 
+          WHEN d.discount_percent IS NOT NULL AND GETDATE() BETWEEN d.start_date AND d.end_date 
+          THEN p.price * (1 - d.discount_percent / 100.0)
+          ELSE p.price
+        END AS discounted_price
       FROM Products p
       LEFT JOIN Reviews r ON p.product_id = r.product_id
       LEFT JOIN Categories c ON p.category_id = c.category_id
       LEFT JOIN ProductImages pi ON p.product_id = pi.product_id
       LEFT JOIN Wishlist w ON p.product_id = w.product_id AND w.user_id = @userId
+      LEFT JOIN Discounts d ON p.product_id = d.product_id AND GETDATE() BETWEEN d.start_date AND d.end_date
       WHERE 1=1
     `;
 
@@ -94,17 +100,10 @@ router.get('/', authenticateJWT, async (req, res) => {
     }
 
     baseQuery += `
-      GROUP BY p.product_id, p.name, p.price, pi.image_url, p.is_rentable, p.created_at
+      GROUP BY p.product_id, p.name, p.price, pi.image_url, p.is_rentable, p.created_at, d.discount_percent, d.start_date, d.end_date
       ${orderByClause}
       OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY
     `;
-
-    // Remove this duplicate block causing SQL syntax error
-    // baseQuery += `
-    //   GROUP BY p.product_id, p.name, p.price, pi.image_url, p.is_rentable
-    //   ORDER BY average_rating DESC
-    //   OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY
-    // `;
 
     const request = pool.request();
 
