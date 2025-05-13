@@ -19,6 +19,7 @@ import reviewRoute from './routes/Buyers/reviews.js';
 import chatbot from './routes/chatbot/chatbot.js';
 import products from './routes/Buyers/products.js';
 import categories from './routes/Buyers/categories.js';  // Added import for categories route
+import deleteProducts from './routes/Sellers/deleteProducts.js';
 
 import { poolPromise} from "./db/sql.js"; // ✅ Import both
 
@@ -76,7 +77,7 @@ app.use('/api/reviews', reviewRoute);
 app.use('/api/chatbot', chatbot);
 app.use('/api/products', products);
 app.use('/api/categories', categories);  // Added route registration
-
+app.use('/api/seller/delete-product', deleteProducts);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, async () => {

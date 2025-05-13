@@ -92,4 +92,70 @@ router.get("/check/:user_id", authenticateJWT, async (req, res) => {
   }
 });
 
+// GET /api/seller/products?user_id=... - fetch all products for a seller
+router.get('/products', authenticateJWT, async (req, res) => {
+  const user_id = parseInt(req.query.user_id);
+  if (!user_id) {
+    return res.status(400).json({ message: 'user_id is required as a query parameter.' });
+  }
+  try {
+    const pool = await poolPromise;
+    // Get seller_id for this user
+    const sellerResult = await pool.request()
+      .input('user_id', sql.Int, user_id)
+      .query('SELECT seller_id FROM Sellers WHERE user_id = @user_id');
+    if (sellerResult.recordset.length === 0) {
+      return res.status(404).json({ message: 'No seller found for this user.' });
+    }
+    const seller_id = sellerResult.recordset[0].seller_id;
+    // Get all products for this seller
+    const productsResult = await pool.request()
+      .input('seller_id', sql.Int, seller_id)
+      .query(`
+        SELECT p.*, c.category_name
+        FROM Products p
+        LEFT JOIN Categories c ON p.category_id = c.category_id
+        WHERE p.seller_id = @seller_id
+        ORDER BY p.created_at DESC
+      `);
+    res.json({ products: productsResult.recordset });
+  } catch (err) {
+    console.error('Error fetching seller products:', err);
+    res.status(500).json({ message: 'Failed to fetch products.', error: err.message });
+  }
+});
+
+// POST /api/sellerStore/products - fetch all products for a seller (user_id in body)
+router.post('/products', authenticateJWT, async (req, res) => {
+  const user_id = parseInt(req.body.user_id);
+  if (!user_id) {
+    return res.status(400).json({ message: 'user_id is required in the request body.' });
+  }
+  try {
+    const pool = await poolPromise;
+    // Get seller_id for this user
+    const sellerResult = await pool.request()
+      .input('user_id', sql.Int, user_id)
+      .query('SELECT seller_id FROM Sellers WHERE user_id = @user_id');
+    if (sellerResult.recordset.length === 0) {
+      return res.status(404).json({ message: 'No seller found for this user.' });
+    }
+    const seller_id = sellerResult.recordset[0].seller_id;
+    // Get all products for this seller
+    const productsResult = await pool.request()
+      .input('seller_id', sql.Int, seller_id)
+      .query(`
+        SELECT p.*, c.category_name
+        FROM Products p
+        LEFT JOIN Categories c ON p.category_id = c.category_id
+        WHERE p.seller_id = @seller_id
+        ORDER BY p.created_at DESC
+      `);
+    res.json({ products: productsResult.recordset });
+  } catch (err) {
+    console.error('Error fetching seller products (POST):', err);
+    res.status(500).json({ message: 'Failed to fetch products.', error: err.message });
+  }
+});
+
 export default router;
