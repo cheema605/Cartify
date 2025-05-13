@@ -100,7 +100,7 @@ router.get('/', authenticateJWT, async (req, res) => {
     }
 
     baseQuery += `
-      GROUP BY p.product_id, p.name, p.price, pi.image_url, p.is_rentable, p.created_at, d.discount_percent, d.start_date, d.end_date
+      GROUP BY p.product_id, p.name, p.price, p.rent, p.is_sellable, pi.image_url, p.is_rentable, p.created_at, d.discount_percent, d.start_date, d.end_date
       ${orderByClause}
       OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY
     `;
