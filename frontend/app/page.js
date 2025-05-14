@@ -2,93 +2,145 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import Carousel from "../components/ui/carousel";
 import AnimatedCounter from "../components/ui/animatedCounter";
+import Navbar from "../components/Navbar";
+import Link from "next/link";
+import { motion } from "framer-motion";
 
-const heroAnimation = (
-  <svg
-    className="w-48 h-48 mx-auto mb-6 animate-spin-slow"
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="white"
-  >
-    <circle
-      className="opacity-25"
-      cx="12"
-      cy="12"
-      r="10"
-      strokeWidth="4"
-      stroke="currentColor"
-    />
-    <path
-      className="opacity-75"
-      fill="currentColor"
-      d="M4 12a8 8 0 018-8v8H4z"
-    />
+const HeroSVG = () => (
+  <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto max-w-md mx-auto">
+    <ellipse cx="200" cy="250" rx="180" ry="30" fill="#0a192f" fillOpacity="0.3" />
+    <rect x="120" y="80" width="160" height="100" rx="20" fill="#1e293b" />
+    <rect x="140" y="100" width="120" height="60" rx="12" fill="#2563eb" />
+    <circle cx="200" cy="130" r="18" fill="#fff" />
+    <rect x="170" y="160" width="60" height="10" rx="5" fill="#fff" fillOpacity="0.7" />
+    <rect x="150" y="180" width="100" height="8" rx="4" fill="#fff" fillOpacity="0.3" />
   </svg>
 );
-
-const trendingDealsImages = [
-  { url: "https://images.unsplash.com/photo-1512499617640-c2f99912a0f1?auto=format&fit=crop&w=800&q=80", alt: "Wireless Headphones" },
-  { url: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80", alt: "Smartwatch Series 7" },
-  { url: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80", alt: "Gaming Laptop" },
-  { url: "https://images.unsplash.com/photo-1496180727794-817822f65950?auto=format&fit=crop&w=800&q=80", alt: "Bluetooth Speaker" },
-];
 
 const sections = [
   {
     id: 1,
-    className: "relative flex flex-col lg:flex-row items-center justify-center text-white h-screen px-8 md:px-16 bg-gradient-to-r from-[#157a94] via-[#0e5a6d] to-[#0a4a56] font-[Inter]",
+    className: "relative min-h-screen bg-gradient-to-br from-[#0a192f] via-[#2563eb] to-black overflow-hidden flex items-center justify-center",
     content: (router) => (
-      <div className="w-full flex flex-col">
-        {/* Main Hero Section */}
-        <div className="flex flex-col lg:flex-row items-center justify-between max-w-7xl mx-auto flex-1 pt-24">
-          {/* Left Content */}
-          <div className="lg:w-1/2 text-center lg:text-left">
-            <h1 className="text-5xl md:text-6xl font-extrabold drop-shadow-md leading-tight">
-              Discover a New Way to Buy and Sell
-            </h1>
-            <p className="text-lg md:text-xl mt-4 drop-shadow-md leading-relaxed">
-              At Cartify, we empower you to easily buy, sell, and rent a variety of items. Join our community and experience seamless transactions that fit your lifestyle.
-            </p>
-            <div className="mt-6 flex gap-4 justify-center lg:justify-start">
-              <button className="px-6 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-800 transition" onClick={() => router.push("/signup")}>
-                Get Started
-              </button>
-              <button className="px-6 py-3 bg-transparent border border-white text-white font-semibold rounded-lg hover:bg-white hover:text-black transition">
-                Learn More
-              </button>
-            </div>
+      <div className="relative w-full h-full flex flex-col lg:flex-row items-center justify-center min-h-screen px-8 md:px-16 pt-24 z-10">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="lg:w-1/2 text-center lg:text-left"
+        >
+          <h1 className="text-5xl md:text-7xl font-extrabold text-white leading-tight">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-white">
+              Welcome to Cartify
+            </span>
+            <br />
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-blue-600">
+              The Modern Marketplace
+            </span>
+          </h1>
+          <p className="text-lg md:text-xl mt-6 text-white/90 leading-relaxed">
+            Buy, sell, and discover amazing products in a seamless, secure, and modern shopping experience.
+          </p>
+          <div className="mt-8 flex gap-4 justify-center lg:justify-start">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-8 py-4 bg-gradient-to-r from-blue-600 to-black text-white font-semibold rounded-full hover:opacity-90 transition shadow-lg"
+              onClick={() => router.push("/signup")}
+            >
+              Get Started
+            </motion.button>
           </div>
-          {/* Right Animated SVG */}
-          <div className="lg:w-1/2 flex justify-center items-center">
-            {heroAnimation}
-          </div>
-        </div>
+        </motion.div>
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="lg:w-1/2 flex justify-center items-center mt-12 lg:mt-0"
+        >
+          <HeroSVG />
+        </motion.div>
       </div>
     ),
   },
   {
     id: 2,
-    className: "min-h-screen bg-white flex flex-col items-center py-12 font-serif",
+    className: "min-h-screen bg-gradient-to-br from-[#0a192f] to-[#1e293b] py-20",
     content: (
-      <div className="w-full max-w-7xl mx-auto mt-12 px-4 sm:px-6 lg:px-8">
-        <h2 className="text-4xl font-extrabold text-gray-900 mb-8 tracking-wide text-center">
-          🔥 Trending Deals
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-white">
+            Featured Products
+          </h2>
+          <p className="mt-4 text-lg text-blue-100">
+            Discover our handpicked selection of trending items
+          </p>
+        </motion.div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {[
-            { id: 1, title: "Wireless Headphones", price: "$59.99", image: "https://images.unsplash.com/photo-1512499617640-c2f99912a0f1?auto=format&fit=crop&w=800&q=80" },
-            { id: 2, title: "Smartwatch Series 7", price: "$199.99", image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80" },
-            { id: 3, title: "Gaming Laptop", price: "$999.99", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80" },
-            { id: 4, title: "Bluetooth Speaker", price: "$39.99", image: "https://images.unsplash.com/photo-1496180727794-817822f65950?auto=format&fit=crop&w=800&q=80" },
-          ].map((deal) => (
-            <div key={deal.id} className="bg-white border border-gray-300 rounded-lg shadow-md p-4 flex flex-col items-center">
-              <img src={deal.image} alt={deal.title} className="w-full h-40 object-cover rounded-md mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900">{deal.title}</h3>
-              <p className="text-md font-medium text-gray-700 mt-2">{deal.price}</p>
-            </div>
+            {
+              id: 1,
+              title: "Premium Headphones",
+              price: "$299.99",
+              image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
+              category: "Electronics"
+            },
+            {
+              id: 2,
+              title: "Smart Watch Pro",
+              price: "$399.99",
+              image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80",
+              category: "Wearables"
+            },
+            {
+              id: 3,
+              title: "Wireless Earbuds",
+              price: "$159.99",
+              image: "https://images.unsplash.com/photo-1512499617640-c2f99912a0f1?auto=format&fit=crop&w=800&q=80",
+              category: "Audio"
+            },
+            {
+              id: 4,
+              title: "Smart Speaker",
+              price: "$129.99",
+              image: "https://images.unsplash.com/photo-1496180727794-817822f65950?auto=format&fit=crop&w=800&q=80",
+              category: "Smart Home"
+            }
+          ].map((product, index) => (
+            <motion.div
+              key={product.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              viewport={{ once: true }}
+              whileHover={{ y: -10 }}
+              className="bg-[#1e293b] rounded-2xl shadow-xl overflow-hidden border border-blue-900"
+            >
+              <div className="relative h-48 overflow-hidden">
+                <img
+                  src={product.image}
+                  alt={product.title}
+                  className="w-full h-full object-cover transform hover:scale-110 transition duration-500"
+                />
+                <div className="absolute top-4 left-4 bg-blue-900/80 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium text-blue-200">
+                  {product.category}
+                </div>
+              </div>
+              <div className="p-6">
+                <h3 className="text-xl font-semibold text-white">{product.title}</h3>
+                <p className="mt-2 text-2xl font-bold text-blue-400">{product.price}</p>
+                <button className="mt-4 w-full bg-gradient-to-r from-blue-600 to-black text-white py-2 rounded-full hover:opacity-90 transition">
+                  Add to Cart
+                </button>
+              </div>
+            </motion.div>
           ))}
         </div>
       </div>
@@ -96,21 +148,67 @@ const sections = [
   },
   {
     id: 3,
-    className: "h-screen bg-gradient-to-r from-[#0a4a56] via-[#0e5a6d] to-[#157a94] text-white flex justify-center items-center font-serif",
+    className: "min-h-screen bg-gradient-to-br from-[#0a192f] via-[#2563eb] to-black py-20",
     content: (
-      <div className="w-full max-w-7xl mx-auto flex flex-col items-center px-4 sm:px-6 lg:px-8">
-        <div className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl md:text-5xl font-bold text-white">
+            Why Choose Cartify?
+          </h2>
+          <p className="mt-4 text-lg text-blue-100">
+            Experience the future of shopping with our innovative features
+          </p>
+        </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {[
+            {
+              icon: "🚀",
+              title: "Lightning Fast",
+              description: "Experience instant checkout and quick delivery"
+            },
+            {
+              icon: "🔒",
+              title: "Secure Shopping",
+              description: "Your data is protected with enterprise-grade security"
+            },
+            {
+              icon: "💎",
+              title: "Premium Quality",
+              description: "Curated products from trusted sellers"
+            }
+          ].map((feature, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              viewport={{ once: true }}
+              className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 text-center border border-blue-900"
+            >
+              <div className="text-5xl mb-4">{feature.icon}</div>
+              <h3 className="text-2xl font-bold text-white mb-2">{feature.title}</h3>
+              <p className="text-blue-100">{feature.description}</p>
+            </motion.div>
+          ))}
+        </div>
+        <div className="mt-20 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
           <div>
             <AnimatedCounter end={1500} suffix="+" />
-            <p className="mt-2 text-lg font-semibold">Products Sold</p>
+            <p className="mt-2 text-xl font-semibold text-white">Products Sold</p>
           </div>
           <div>
             <AnimatedCounter end={1200} suffix="+" />
-            <p className="mt-2 text-lg font-semibold">Happy Customers</p>
+            <p className="mt-2 text-xl font-semibold text-white">Happy Customers</p>
           </div>
           <div>
             <AnimatedCounter end={500} suffix="+" />
-            <p className="mt-2 text-lg font-semibold">Stores Joined</p>
+            <p className="mt-2 text-xl font-semibold text-white">Stores Joined</p>
           </div>
         </div>
       </div>
@@ -118,22 +216,79 @@ const sections = [
   },
   {
     id: 4,
-    className: "min-h-screen flex flex-col items-center font-serif",
+    className: "min-h-screen bg-gradient-to-br from-black to-[#0a192f] py-20",
     content: (
-      <div className="w-full flex flex-col items-center">
-        {/* Upper Half - White Background */}
-        <div className="w-full min-h-[50vh] bg-white"></div>
-        {/* Lower Half - Teal Background */}
-        <div className="w-full bg-[#0e5a6d] text-white py-12 text-center shadow-md">
-          <h2 className="text-3xl font-extrabold tracking-wide">Contact Us</h2>
-          <p className="text-lg mt-2">Have any questions? Reach out to us via email or phone.</p>
-          {/* Contact Details */}
-          <p className="text-xl font-semibold mt-4">✉️ Email: cartifystores@gmail.com</p>
-          <p className="text-xl font-semibold mt-2">📞 Phone: +123 456 7890</p>
-          <p className="text-lg mt-4 italic">Available: Mon - Fri, 9 AM - 6 PM</p>
-          {/* Footer */}
-          <p className="mt-8 text-sm opacity-80">© 2025 Cartify Pvt. Ltd. All Rights Reserved.</p>
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl md:text-5xl font-bold text-white">
+            Get in Touch
+          </h2>
+          <p className="mt-4 text-lg text-blue-100">
+            Have questions? We're here to help!
+          </p>
+        </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-blue-900"
+          >
+            <h3 className="text-2xl font-bold text-white mb-6">Contact Information</h3>
+            <div className="space-y-4">
+              <p className="flex items-center text-blue-100">
+                <span className="text-2xl mr-3">✉️</span>
+                cartifystores@gmail.com
+              </p>
+              <p className="flex items-center text-blue-100">
+                <span className="text-2xl mr-3">📞</span>
+                +123 456 7890
+              </p>
+              <p className="flex items-center text-blue-100">
+                <span className="text-2xl mr-3">🕒</span>
+                Mon - Fri, 9 AM - 6 PM
+              </p>
+            </div>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-blue-900"
+          >
+            <h3 className="text-2xl font-bold text-white mb-6">Newsletter</h3>
+            <p className="text-blue-100 mb-6">
+              Subscribe to our newsletter for the latest updates and exclusive offers.
+            </p>
+            <div className="flex gap-4">
+              <input
+                type="email"
+                placeholder="Enter your email"
+                className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-black text-white rounded-lg hover:opacity-90 transition">
+                Subscribe
+              </button>
+            </div>
+          </motion.div>
         </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="mt-16 text-center text-blue-100"
+        >
+          <p>© 2025 Cartify Pvt. Ltd. All Rights Reserved.</p>
+        </motion.div>
       </div>
     ),
   },
@@ -145,6 +300,11 @@ export default function LandingPage() {
   const isScrolling = useRef(false);
   const touchStartY = useRef(0);
   const touchEndY = useRef(0);
+  const [cartOpen, setCartOpen] = useState(false);
+
+  const toggleCart = () => {
+    setCartOpen(!cartOpen);
+  };
 
   const scrollToSection = (index) => {
     if (index >= 0 && index < sections.length) {
@@ -183,9 +343,9 @@ export default function LandingPage() {
 
     if (Math.abs(swipeDistance) > 50) {
       if (swipeDistance > 0) {
-        scrollToSection(currentSection + 1); // Swipe up → Scroll down
+        scrollToSection(currentSection + 1);
       } else {
-        scrollToSection(currentSection - 1); // Swipe down → Scroll up
+        scrollToSection(currentSection - 1);
       }
     }
   };
@@ -211,6 +371,9 @@ export default function LandingPage() {
 
   return (
     <div className="w-full h-screen overflow-hidden">
+      <div className="fixed top-0 left-0 right-0 z-50">
+        <Navbar cartOpen={cartOpen} toggleCart={toggleCart} />
+      </div>
       {sections.map((section, index) => (
         <div key={section.id} id={`section-${index}`} className={`w-full min-h-screen ${section.className}`}>
           {typeof section.content === "function" ? section.content(router) : section.content}

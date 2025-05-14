@@ -5,6 +5,7 @@ import { useSearchParams, usePathname } from "next/navigation";
 import NavbarComponent from "./Navbar";
 import CartSlidingPanel from "./CartSlidingPanel";
 import ChatWidget from "./ChatWidget";
+import { DashboardModeProvider } from '../context/DashboardModeContext';
 
 export default function LayoutWrapper({ children }) {
   const [cartOpen, setCartOpen] = useState(false);
@@ -48,11 +49,11 @@ export default function LayoutWrapper({ children }) {
   };
 
   return (
-    <>
+    <DashboardModeProvider>
       {!isDashboardRoute && <NavbarComponent cartOpen={cartOpen} toggleCart={toggleCart} />}
       <CartSlidingPanel isOpen={cartOpen} onClose={closeCart} userId={userId} disableOverlay={true} />
       <ChatWidget />
       {children}
-    </>
+    </DashboardModeProvider>
   );
 }

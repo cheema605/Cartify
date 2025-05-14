@@ -113,7 +113,7 @@ export default function Navbar({ cartOpen, toggleCart }) {
   };
 
   return (
-    <nav className="fixed top-6 left-1/2 z-60 -translate-x-1/2 w-[98vw] max-w-7xl rounded-2xl bg-gradient-to-br from-black/80 to-black/40 backdrop-blur-md shadow-xl border border-white/20 flex items-center justify-between px-8 py-3 transition-all duration-500 animate-fadeInDown">
+    <nav className="fixed top-6 inset-x-0 z-60 w-[98vw] max-w-7xl mx-auto rounded-2xl bg-gradient-to-br from-black/80 to-black/40 backdrop-blur-md shadow-xl border border-white/20 flex items-center justify-between px-8 py-3 transition-all duration-500 animate-fadeInDown">
       {/* Logo */}
       <div className="flex-shrink-0 flex items-center gap-2">
         <div onClick={() => router.push("/")} className="cursor-pointer">
