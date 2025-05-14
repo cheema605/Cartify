@@ -5,6 +5,107 @@ import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 
 export default function CartSlidingPanel({ isOpen, onClose, userId, disableOverlay }) {
+  const [cartItems, setCartItems] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const router = useRouter()
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchCartItems()
+    }
+  }, [isOpen])
+
+  const handleUnauthorized = (status) => {
+    if (status === 401 || status === 403) {
+      router.push('/login')
+      return true
+    }
+    return false
+  }
+
+  const fetchCartItems = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const token = localStorage.getItem('jwt_token')
+      if (!token) {
+        router.push('/login')
+        return
+      }
+      const res = await fetch('http://localhost:5000/api/shoppping-cart/get-cart', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      if (handleUnauthorized(res.status)) return
+      if (!res.ok) {
+        throw new Error('Failed to fetch cart items')
+      }
+      const data = await res.json()
+      setCartItems(data)
+    } catch (err) {
+      setError(err.message)
+      setCartItems([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const updateQuantity = async (productId, newQuantity) => {
+    if (newQuantity < 1) return
+    try {
+      const token = localStorage.getItem('jwt_token')
+      const res = await fetch('http://localhost:5000/api/shoppping-cart/edit-cart', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ product_id: productId, new_quantity: newQuantity }),
+      })
+      if (handleUnauthorized(res.status)) return
+      if (!res.ok) {
+        throw new Error('Failed to update quantity')
+      }
+      setCartItems((prevItems) =>
+        prevItems.map((item) =>
+          item.product_id === productId ? { ...item, quantity: newQuantity } : item
+        )
+      )
+    } catch (err) {
+      setError('Failed to update quantity')
+    }
+  }
+
+  const removeItem = async (productId) => {
+    try {
+      const token = localStorage.getItem('jwt_token')
+      const res = await fetch('http://localhost:5000/api/shoppping-cart/remove-from-cart', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ product_id: productId }),
+      })
+      if (handleUnauthorized(res.status)) return
+      if (!res.ok) {
+        throw new Error('Failed to remove item')
+      }
+      setCartItems((prevItems) => prevItems.filter((item) => item.product_id !== productId))
+    } catch (err) {
+      setError('Failed to remove item')
+    }
+  }
+
+  const handleCheckout = () => {
+    console.log("handleCheckout called");
+    onClose()
+    router.push('/checkout')
+  }
+
   return (
     <Transition.Root show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={onClose}>
@@ -71,6 +172,14 @@ export default function CartSlidingPanel({ isOpen, onClose, userId, disableOverl
                           <p className="text-center text-gray-500">Your cart is empty</p>
                         </div>
                       </div>
+                    </div>
+                    <div className="border-t border-gray-200 py-6 px-4 sm:px-6">
+                      <button
+                        type="button"
+                        className="w-full bg-teal-600 border border-transparent rounded-md shadow-sm py-3 px-4 text-base font-medium text-white hover:bg-teal-700 focus:outline-none"
+                      >
+                        Checkout
+                      </button>
                     </div>
                   </div>
                 </Dialog.Panel>

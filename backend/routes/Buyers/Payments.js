@@ -90,12 +90,18 @@ router.get("/user/:user_id", async (req, res) => {
 });
 
 
-export const addPayment = async (order_id, user_id, amount, payment_method) => {
+export const addPayment = async (order_id, user_id, amount, payment_method, transaction = null) => {
     try {
-        const pool = await poolPromise;
+        let request;
+        if (transaction) {
+            request = new sql.Request(transaction);
+        } else {
+            const pool = await poolPromise;
+            request = pool.request();
+        }
 
         // Insert the payment details into the Payments table
-        await pool.request()
+        await request
             .input('order_id', sql.Int, order_id)
             .input('user_id', sql.Int, user_id)
             .input('amount', sql.Decimal(10, 2), amount)
