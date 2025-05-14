@@ -15,5 +15,9 @@ export function DashboardModeProvider({ children }) {
 }
 
 export function useDashboardMode() {
-  return useContext(DashboardModeContext);
+  const context = useContext(DashboardModeContext);
+  if (context === undefined) {
+    throw new Error('useDashboardMode must be used within a DashboardModeProvider');
+  }
+  return context;
 } 

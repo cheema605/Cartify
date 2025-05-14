@@ -151,7 +151,15 @@ router.post('/products', authenticateJWT, async (req, res) => {
         WHERE p.seller_id = @seller_id
         ORDER BY p.created_at DESC
       `);
-    res.json({ products: productsResult.recordset });
+    const products = productsResult.recordset;
+    // For each product, fetch its images
+    for (const product of products) {
+      const imagesResult = await pool.request()
+        .input('product_id', sql.Int, product.product_id)
+        .query('SELECT image_url FROM ProductImages WHERE product_id = @product_id');
+      product.images = imagesResult.recordset.map(row => row.image_url);
+    }
+    res.json({ products });
   } catch (err) {
     console.error('Error fetching seller products (POST):', err);
     res.status(500).json({ message: 'Failed to fetch products.', error: err.message });
@@ -190,6 +198,42 @@ router.post('/orders', async (req, res) => {
   } catch (err) {
     console.error('Error fetching seller orders:', err);
     res.status(500).json({ message: 'Failed to fetch seller orders', error: err.message });
+  }
+});
+
+// POST /api/sellerStore/category-sales - total sales per category for a seller
+router.post('/category-sales', authenticateJWT, async (req, res) => {
+  const { user_id } = req.body;
+  if (!user_id) {
+    return res.status(400).json({ message: 'user_id is required' });
+  }
+  try {
+    const pool = await poolPromise;
+    // Get seller_id from user_id
+    const sellerResult = await pool.request()
+      .input('user_id', sql.Int, user_id)
+      .query('SELECT seller_id FROM Sellers WHERE user_id = @user_id');
+    if (sellerResult.recordset.length === 0) {
+      return res.status(404).json({ message: 'Seller not found for this user_id' });
+    }
+    const seller_id = sellerResult.recordset[0].seller_id;
+    // Get total sales per category
+    const salesResult = await pool.request()
+      .input('seller_id', sql.Int, seller_id)
+      .query(`
+        SELECT c.category_name AS category, SUM(oi.price * oi.quantity) AS total_sales
+        FROM Orders o
+        JOIN Order_Items oi ON o.order_id = oi.order_id
+        JOIN Products p ON oi.product_id = p.product_id
+        JOIN Categories c ON p.category_id = c.category_id
+        WHERE p.seller_id = @seller_id
+        GROUP BY c.category_name
+        ORDER BY total_sales DESC
+      `);
+    res.json(salesResult.recordset);
+  } catch (err) {
+    console.error('Error fetching category sales:', err);
+    res.status(500).json({ message: 'Failed to fetch category sales', error: err.message });
   }
 });
 

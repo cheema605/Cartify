@@ -1,28 +1,163 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 255, 255, 255;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+}
+
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 /* .grid-overlay removed */
+
+/* Dashboard Theme Support */
+.dashboard-container {
+  /* Default light theme variables */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --text-primary: #000000;
+  --text-secondary: #4b5563;
+  --border-color: #e5e7eb;
+  --card-bg: #ffffff;
+  --accent-color: #3B82F6;
+}
+
+.dashboard-container.theme-dark {
+  --bg-primary: #121212;
+  --bg-secondary: #1e1e1e;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --border-color: #333333;
+  --card-bg: #1e1e1e;
+}
+
+/* Apply theme colors to dashboard elements */
+.dashboard-container {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.dashboard-container .card {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.dashboard-container h1, 
+.dashboard-container h2, 
+.dashboard-container h3, 
+.dashboard-container h4, 
+.dashboard-container h5, 
+.dashboard-container h6 {
+  color: var(--text-primary);
+}
+
+.dashboard-container p, 
+.dashboard-container span, 
+.dashboard-container label {
+  color: var(--text-secondary);
+}
+
+.dashboard-container aside {
+  background-color: var(--bg-primary);
+  border-color: var(--border-color);
+}
+
+.dashboard-container input, 
+.dashboard-container select, 
+.dashboard-container textarea {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.dashboard-container table {
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+}
+
+.dashboard-container th {
+  background-color: var(--bg-secondary);
+}
+
+.dashboard-container tr {
+  border-color: var(--border-color);
+}
+
+.dashboard-container button.accent {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+/* Accent color toggle buttons */
+.accent-toggle {
+  cursor: pointer;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.accent-toggle.active {
+  border-color: var(--text-primary);
+  transform: scale(1.1);
+}
+
+/* Dashboard tabs */
+.dashboard-container [data-state='active'] {
+  background-color: var(--accent-color) !important;
+  color: white !important;
+}

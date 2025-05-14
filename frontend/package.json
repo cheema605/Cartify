@@ -1,9 +1,9 @@
 {
-  "name": "frontend",
+  "name": "cartify-frontend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -11,25 +11,24 @@
   "dependencies": {
     "@headlessui/react": "^2.2.3",
     "@radix-ui/react-dialog": "^1.1.13",
+    "@radix-ui/react-slot": "^1.2.2",
     "@radix-ui/react-tabs": "^1.1.11",
     "axios": "^1.9.0",
+    "chart.js": "^4.4.9",
     "clsx": "^2.1.1",
-    "framer-motion": "^12.5.0",
-    "jwt-decode": "^4.0.0",
-    "lucide-react": "^0.484.0",
-    "merge": "^2.1.1",
-    "next": "^15.3.2",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "react-icons": "^5.5.0",
-    "tailwind": "^2.3.1",
-    "tailwind-merge": "^3.2.0"
+    "framer-motion": "^12.11.1",
+    "lucide-react": "^0.510.0",
+    "next": "^14.1.0",
+    "react": "^18.2.0",
+    "react-chartjs-2": "^5.3.0",
+    "react-dom": "^18.2.0",
+    "tailwind-merge": "^3.3.0"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4",
-    "eslint": "^9",
-    "eslint-config-next": "15.2.2",
-    "tailwindcss": "^4"
+    "autoprefixer": "^10.4.17",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "^14.1.0",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1"
   }
 }

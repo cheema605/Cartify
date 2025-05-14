@@ -19,6 +19,7 @@ CREATE TABLE Sellers (
     activated_at DATETIME DEFAULT GETDATE()
 );
 
+
 --done
 CREATE TABLE Products (
     product_id INT PRIMARY KEY IDENTITY,
@@ -76,6 +77,16 @@ CREATE TABLE Order_Items (
     FOREIGN KEY (product_id) REFERENCES Products(product_id)  -- Foreign key to Products table
 );
 
+CREATE TABLE OrderAddresses (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    order_id INT NOT NULL,
+    address VARCHAR(255) NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    zip_code VARCHAR(20) NOT NULL,
+    country VARCHAR(100) NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES Orders(order_id) ON DELETE CASCADE
+);
+
 
 CREATE TABLE Payments (
     payment_id INT PRIMARY KEY IDENTITY,
@@ -104,6 +115,16 @@ CREATE TABLE Rentals (
     is_damaged BIT DEFAULT 0,            -- 1 if returned in damaged condition
     penalty_amount DECIMAL(10, 2) DEFAULT 0,
     status VARCHAR(20) DEFAULT 'ongoing' -- 'returned', 'late', 'damaged'
+);
+
+CREATE TABLE rentalAddresses (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    rental_id INT NOT NULL,
+    address VARCHAR(255) NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    zip_code VARCHAR(20) NOT NULL,
+    country VARCHAR(100) NOT NULL,
+    FOREIGN KEY (rental_id) REFERENCES Rentals(rental_id) ON DELETE CASCADE
 );
 
 CREATE TABLE ReturnPolicies (
