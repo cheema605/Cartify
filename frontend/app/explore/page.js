@@ -4,16 +4,16 @@ import React, { useState, useEffect, useMemo } from "react";
 import Carousel from "../../components/ui/carousel";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { Heart, ShoppingCart, Star } from "lucide-react";
+import { Heart, ShoppingCart, Star, Search, Filter } from "lucide-react";
 import Image from "next/image";
 import Navbar from "../../components/Navbar";
 import CartSlidingPanel from "../../components/CartSlidingPanel";
 
 const carouselImages = [
-  { url: "/images/deal-1.png", alt: "Mega Sale - Up to 50% Off!" },
-  { url: "/images/deal-2.png", alt: "Buy 1 Get 1 Free on Select Items" },
-  { url: "/images/summer-sale.jpg", alt: "Summer Sale - Limited Time Only" },
-  { url: "/images/electronics-discount.jpg", alt: "Electronics Discount" },
+  { url: "/images/deal1.jpg", alt: "Deal 1" },
+  { url: "/images/deal2.jpg", alt: "Deal 2" },
+  { url: "/images/deal3.jpg", alt: "Deal 3" },
+  { url: "/images/deal4.jpg", alt: "Deal 4" },
 ];
 
 const StarRating = ({ rating }) => {
@@ -139,11 +139,14 @@ const ExplorePage = () => {
   const router = useRouter();
   const [mode, setMode] = useState("products");
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [productData, setProductData] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [cartRefreshTrigger, setCartRefreshTrigger] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortOption, setSortOption] = useState("default");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const toggleCart = () => {
     setCartOpen(!cartOpen);
@@ -232,18 +235,7 @@ const ExplorePage = () => {
           },
         });
 
-        const mappedData = response.data.map((category) => ({
-          ...category,
-          product_suggestions: category.product_suggestions.map((p) => ({
-            ...p,
-            rating: p.average_rating || 0,
-          })),
-          rental_suggestions: category.rental_suggestions.map((p) => ({
-            ...p,
-            rating: p.average_rating || 0,
-          })),
-        }));
-        setProductData(mappedData);
+        setProductData(response.data);
         setLoading(false);
       } catch (error) {
         if (
@@ -254,6 +246,8 @@ const ExplorePage = () => {
           router.push("/login");
         }
         setError("Failed to fetch data");
+        setProductData([]);
+      } finally {
         setLoading(false);
       }
     };
@@ -262,23 +256,45 @@ const ExplorePage = () => {
   }, []);
 
   const filteredItems = useMemo(() => {
+    if (!Array.isArray(productData)) return [];
+    
     let items = [];
 
     if (mode === "products") {
-      items = productData.flatMap((category) =>
-        category.product_suggestions.map((product) => ({
+      items = productData.flatMap((category) => {
+        if (!category || !Array.isArray(category.product_suggestions)) return [];
+        return category.product_suggestions.map((product) => ({
           ...product,
           rating: 0,
-        }))
-      );
+        }));
+      });
     }
 
     if (selectedCategory) {
       items = items.filter((item) => item.category_id === selectedCategory);
     }
 
+    // Apply search filter
+    if (searchQuery.trim() !== "") {
+      const lowerQuery = searchQuery.toLowerCase();
+      items = items.filter((item) =>
+        item.name.toLowerCase().includes(lowerQuery)
+      );
+    }
+
+    // Apply sorting
+    if (sortOption === "price-asc") {
+      items.sort((a, b) => a.price - b.price);
+    } else if (sortOption === "price-desc") {
+      items.sort((a, b) => b.price - a.price);
+    } else if (sortOption === "name-asc") {
+      items.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (sortOption === "name-desc") {
+      items.sort((a, b) => b.name.localeCompare(a.name));
+    }
+
     return items;
-  }, [mode, selectedCategory, productData]);
+  }, [mode, selectedCategory, productData, searchQuery, sortOption]);
 
   return (
     <div className="min-h-screen bg-gray-200">
@@ -291,12 +307,46 @@ const ExplorePage = () => {
         </div>
       </div>
       <div className="container mx-auto px-4 py-8 pt-24">
-        <CartSlidingPanel
-          isOpen={cartOpen}
-          onClose={() => setCartOpen(false)}
-          userId={"current"}
-          disableOverlay={true}
-        />
+        <CartSlidingPanel isOpen={cartOpen} onClose={() => setCartOpen(false)} userId={"current"} disableOverlay={true} />
+        {/* Search and Filter Bar */}
+        <div className="flex flex-col md:flex-row gap-4 mb-8 ">
+          {/* Modern Search Bar */}
+          <div className="relative flex-1">
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 rounded-full bg-white/70 backdrop-blur-md shadow-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-900 placeholder-gray-400 transition"
+              style={{ boxShadow: "0 4px 24px 0 rgba(0,0,0,0.07)" }}
+            />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-400 pointer-events-none" />
+          </div>
+
+          {/* Sort & Filter Controls */}
+          <div className="flex gap-3 items-center bg-white/70 backdrop-blur-md rounded-full px-4 py-2 shadow-lg border border-gray-200">
+            <select
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+              className="px-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/80 shadow-sm text-gray-700 font-medium transition"
+            >
+              <option value="default">Sort By</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="name-asc">Name: A to Z</option>
+              <option value="name-desc">Name: Z to A</option>
+            </select>
+            <button
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500 to-teal-400 text-white font-semibold shadow hover:from-blue-600 hover:to-teal-500 transition"
+            >
+              <Filter className="w-5 h-5" />
+              Filters
+            </button>
+          </div>
+        </div>
+
+        {/* Category Section - Styled Grid */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Explore by Categories</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -314,7 +364,11 @@ const ExplorePage = () => {
                     "bg-pink-500",
                   ][index % 7]
                 }`}
-                onClick={() => router.push(`/search?category=${encodeURIComponent(category.category_name)}`)}
+                onClick={() =>
+                  setSelectedCategory(
+                    selectedCategory === category.id ? null : category.id
+                  )
+                }
               >
                 <div className="text-4xl mb-4">{category.symbol}</div>
                 <h3 className="text-xl font-semibold mb-1">{category.category_name}</h3>
@@ -326,6 +380,8 @@ const ExplorePage = () => {
             ))}
           </div>
         </div>
+
+        {/* Mode Toggle */}
         <div className="flex justify-center gap-4 mb-8">
           <button
             onClick={() => setMode("products")}
@@ -348,8 +404,11 @@ const ExplorePage = () => {
             Explore Rentals
           </button>
         </div>
+
+        {/* Suggested Categories and Products */}
         {productData.slice(0, 7).map(({ category_name, product_suggestions, rental_suggestions }) => {
           const suggestions = mode === "rentals" ? rental_suggestions : product_suggestions;
+
           return (
             <div key={category_name} className="mb-8">
               <h2 className="text-xl font-semibold mb-4">{category_name}</h2>
@@ -365,16 +424,22 @@ const ExplorePage = () => {
             </div>
           );
         })}
+
+        {/* Loading */}
         {loading && (
           <div className="flex justify-center items-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
           </div>
         )}
+
+        {/* Error */}
         {error && (
           <div className="text-center py-12">
             <p className="text-red-600">{error}</p>
           </div>
         )}
+
+        {/* Empty */}
         {!loading && !error && filteredItems.length === 0 && (
           <div className="text-center py-12">
             <p className="text-gray-600">No products found matching your criteria.</p>

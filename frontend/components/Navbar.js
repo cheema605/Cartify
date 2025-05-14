@@ -113,7 +113,7 @@ export default function Navbar({ cartOpen, toggleCart }) {
   };
 
   return (
-    <nav className="fixed top-6 left-1/2 z-60 -translate-x-1/2 w-[98vw] max-w-7xl rounded-2xl bg-gradient-to-br from-black/80 to-black/40 backdrop-blur-md shadow-xl border border-white/20 flex items-center justify-between px-8 py-3 transition-all duration-500 animate-fadeInDown">
+    <nav className="fixed top-6 inset-x-0 z-60 w-[98vw] max-w-7xl mx-auto rounded-2xl bg-gradient-to-br from-black/80 to-black/40 backdrop-blur-md shadow-xl border border-white/20 flex items-center justify-between px-8 py-3 transition-all duration-500 animate-fadeInDown">
       {/* Logo */}
       <div className="flex-shrink-0 flex items-center gap-2">
         <div onClick={() => router.push("/")} className="cursor-pointer">
@@ -145,8 +145,18 @@ export default function Navbar({ cartOpen, toggleCart }) {
 
       {/* Action Buttons */}
       <div className="flex items-center space-x-2">
-        {/* Dashboard Toggle: show on dashboard pages too */}
-        <DashboardToggle />
+        {/* Dashboard Toggle: only show on main pages, not on dashboard */}
+        {!isDashboardPage && (
+          <DashboardToggle
+            checked={toggleChecked}
+            onToggle={(checked) => {
+              setToggleChecked(checked);
+              if (checked) {
+                setTimeout(() => router.push("/dashboard"), 350);
+              }
+            }}
+          />
+        )}
         {!isExplorePage && !isWishlistPage && (
           <button
             onClick={() => router.push("/chat")}
@@ -186,7 +196,16 @@ export default function Navbar({ cartOpen, toggleCart }) {
                   {userName[0].toUpperCase()}
                 </button>
                 {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg py-1 z-50">
+                  <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg py-1 z-50">
+                    <button
+                      onClick={() => {
+                        router.push("/myorders");
+                        setDropdownOpen(false);
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      View Orders
+                    </button>
                     <button
                       onClick={() => {
                         localStorage.removeItem("jwt_token");

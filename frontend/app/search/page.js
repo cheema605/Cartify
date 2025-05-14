@@ -129,7 +129,6 @@ const ProductCard = ({ product, onAddToCart, onAddToWishlist, type }) => {
             aria-label="Rent product"
             disabled
           >
-            <Timer className="w-5 h-5" />
             Rent
           </button>
         )}
@@ -150,16 +149,14 @@ export default function SearchResults() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Separate state for filter inputs before applying
   const [filterInputs, setFilterInputs] = useState({
     minPrice: "",
     maxPrice: "",
     sortBy: "relevance",
     category: categoryParam,
-    type: "all", // new filter for rentals or products
+    type: "all",
   });
 
-  // Actual filters used for fetching
   const [filters, setFilters] = useState({
     minPrice: "",
     maxPrice: "",
@@ -176,12 +173,10 @@ export default function SearchResults() {
   const [cartRefreshTrigger, setCartRefreshTrigger] = useState(0);
 
   const handleWishlistChange = (productId) => {
-    // Trigger refresh of products to update wishlist state
     setCartRefreshTrigger((prev) => prev + 1);
   };
 
   useEffect(() => {
-    // Fetch categories for dropdown
     const fetchCategories = async () => {
       try {
         const token = localStorage.getItem("jwt_token");
@@ -190,9 +185,15 @@ export default function SearchResults() {
             Authorization: `Bearer ${token}`,
           },
         });
-        setCategories(response.data);
+        if (response.data && Array.isArray(response.data.categories)) {
+          setCategories(response.data.categories);
+        } else {
+          console.error("Categories response is not an array:", response.data);
+          setCategories([]);
+        }
       } catch (err) {
         console.error("Failed to fetch categories", err);
+        setCategories([]);
       }
     };
     fetchCategories();
@@ -212,7 +213,6 @@ export default function SearchResults() {
           minPrice: filters.minPrice,
           maxPrice: filters.maxPrice,
         };
-        // Add sorting param if needed
         if (filters.sortBy === "price_low") {
           params.sort = "price_asc";
         } else if (filters.sortBy === "price_high") {
@@ -220,7 +220,7 @@ export default function SearchResults() {
         } else if (filters.sortBy === "newest") {
           params.sort = "newest";
         } else {
-          params.sort = "rating_desc"; // default to top rated
+          params.sort = "rating_desc";
         }
 
         const response = await axios.get("http://localhost:5000/api/search", {
@@ -230,13 +230,11 @@ export default function SearchResults() {
           params: params,
         });
 
-        // Map average_rating to rating for each product
         const productsWithRating = response.data.products.map(p => ({
           ...p,
           rating: p.average_rating || 0,
         }));
         setProducts(productsWithRating);
-        // Use totalCount from backend to calculate totalPages
         const totalCount = response.data.totalCount || 0;
         setTotalPages(Math.ceil(totalCount / pageSize));
         setLoading(false);
@@ -268,7 +266,7 @@ export default function SearchResults() {
 
   const applyFilters = () => {
     setFilters(filterInputs);
-    setPage(1); // reset to first page on filter apply
+    setPage(1);
   };
 
   const handlePageChange = (newPage) => {
@@ -293,7 +291,6 @@ export default function SearchResults() {
           },
         }
       );
-      // alert("Item added to cart!");
       if (!cartOpen) {
         setCartOpen(true);
       } else {
@@ -301,7 +298,6 @@ export default function SearchResults() {
       }
     } catch (error) {
       console.error("Failed to add item to cart:", error);
-      // alert("Failed to add item to cart.");
     }
   };
 
@@ -321,11 +317,9 @@ export default function SearchResults() {
           },
         }
       );
-      // alert("Item added to wishlist!");
       setCartRefreshTrigger((prev) => prev + 1);
     } catch (error) {
       console.error("Failed to add item to wishlist:", error);
-      // alert("Failed to add item to wishlist.");
     }
   };
 
@@ -334,7 +328,6 @@ export default function SearchResults() {
       <div className="h-16 bg-white"></div>
       <div className="py-8">
         <div className="container mx-auto px-4">
-          {/* Search Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-[#0F1516] mb-2">
               Search Results for "{query}" {filters.category && `in ${filters.category}`}
@@ -343,12 +336,10 @@ export default function SearchResults() {
           </div>
 
           <div className="flex flex-col md:flex-row gap-8">
-            {/* Filters Sidebar */}
             <div className="w-full md:w-64 bg-white rounded-xl shadow-lg p-6 h-fit">
               <h2 className="text-xl font-semibold text-[#0F1516] mb-4">Filters</h2>
 
               <div className="space-y-4">
-                {/* Category Filter */}
                 <div>
                   <label htmlFor="category" className="block text-sm font-medium text-[#157a94] mb-2">
                     Category
@@ -370,7 +361,6 @@ export default function SearchResults() {
                   </datalist>
                 </div>
 
-                {/* Type Filter */}
                 <div>
                   <label htmlFor="type" className="block text-sm font-medium text-[#157a94] mb-2">
                     Type
@@ -388,7 +378,6 @@ export default function SearchResults() {
                   </select>
                 </div>
 
-                {/* Price Range */}
                 <div>
                   <label className="block text-sm font-medium text-[#157a94] mb-2">
                     Price Range
@@ -413,7 +402,6 @@ export default function SearchResults() {
                   </div>
                 </div>
 
-                {/* Sort By */}
                 <div>
                   <label className="block text-sm font-medium text-[#157a94] mb-2">
                     Sort By
@@ -431,7 +419,6 @@ export default function SearchResults() {
                 </div>
               </div>
 
-              {/* Apply Filters Button */}
               <div className="mt-6">
                 <button
                   onClick={applyFilters}
@@ -442,7 +429,6 @@ export default function SearchResults() {
               </div>
             </div>
 
-            {/* Search Results Grid */}
             <div className="flex-1">
               {products.length === 0 ? (
                 <div className="bg-white rounded-xl shadow-lg p-8 text-center">
@@ -454,17 +440,16 @@ export default function SearchResults() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {products.map((product) => (
-                  <ProductCard
-                    key={product.product_id}
-                    product={product}
-                    onAddToCart={addToCart}
-                    onAddToWishlist={handleWishlistChange}
-                  />
+                    <ProductCard
+                      key={product.product_id}
+                      product={product}
+                      onAddToCart={addToCart}
+                      onAddToWishlist={handleWishlistChange}
+                    />
                   ))}
                 </div>
               )}
 
-              {/* Pagination Controls */}
               <div className="flex justify-center mt-8 gap-4">
                 <button
                   onClick={() => handlePageChange(page - 1)}

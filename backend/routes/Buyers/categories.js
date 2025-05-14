@@ -5,7 +5,7 @@ import { sql, poolPromise } from '../../db/sql.js';
 const router = express.Router();
 
 // GET / - get all product categories (public)
-router.get('/', async (req, res) => {
+router.get('/categories', async (req, res) => {
   try {
     const pool = await poolPromise;
     const result = await pool.request().query('SELECT category_id, category_name FROM Categories');

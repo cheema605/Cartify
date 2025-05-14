@@ -20,10 +20,11 @@ import exploreRoute from './routes/explore/explore.js';
 import reviewRoute from './routes/Buyers/reviews.js';
 import chatbot from './routes/chatbot/chatbot.js';
 import products from './routes/Buyers/products.js';
-import categories from './routes/Buyers/categories.js';  // Added import for categories route
 import searchRoute from './routes/Buyers/search.js';
-import accountInfoRoute from './routes/Sellers/accountInfo.js'; // Import the new account info route
+import categories from './routes/Buyers/categories.js';  // Added import for categories route
+import rentalOrderRoute from './routes/Buyers/RentalOrder.js';
 
+//const app = express();
 app.use(express.json());
 app.use(cors());
 
@@ -77,8 +78,7 @@ app.use('/api/chatbot', chatbot);
 app.use('/api/products', products);
 app.use('/api/categories', categories);  // Added route registration
 app.use('/api/search', searchRoute);
-app.use('/api/seller', accountInfoRoute); // Register the account info route
-
+app.use('/api/rental-order', rentalOrderRoute);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, async () => {

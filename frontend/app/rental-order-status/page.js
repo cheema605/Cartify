@@ -4,23 +4,23 @@ import React, { useState, useEffect } from "react";
 import { CheckCircle, Clock, Truck, Package, Home } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 
-export default function OrderStatusPage() {
+export default function RentalOrderStatusPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const orderId = searchParams.get("order_id");
+  const rentalOrderId = searchParams.get("rental_order_id");
 
-  const [order, setOrder] = useState(null);
+  const [rentalOrder, setRentalOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!orderId) {
-      setError("Order ID is missing");
+    if (!rentalOrderId) {
+      setError("Rental Order ID is missing");
       setLoading(false);
       return;
     }
 
-    const fetchOrder = async () => {
+    const fetchRentalOrder = async () => {
       const token = localStorage.getItem("jwt_token");
       if (!token) {
         setError("User not authenticated");
@@ -28,18 +28,18 @@ export default function OrderStatusPage() {
         return;
       }
       try {
-        const response = await fetch(`http://localhost:5000/api/order/get-order/${orderId}`, {
+        const response = await fetch(`http://localhost:5000/api/rental-order/get-rental-order/${rentalOrderId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
         if (!response.ok) {
-          throw new Error("Failed to fetch order details");
+          throw new Error("Failed to fetch rental order details");
         }
         const data = await response.json();
-        const orderData = data.order || data;
+        const rentalOrderData = data.rentalOrder || data;
         const itemsData = data.items || [];
-        setOrder({ ...orderData, items: itemsData });
+        setRentalOrder({ ...rentalOrderData, items: itemsData });
       } catch (err) {
         setError(err.message);
       } finally {
@@ -47,38 +47,39 @@ export default function OrderStatusPage() {
       }
     };
 
-    fetchOrder();
-  }, [orderId]);
+    fetchRentalOrder();
+  }, [rentalOrderId]);
 
   if (loading) {
-    return <div className="p-6 text-center text-lg font-semibold">Loading order status...</div>;
+    return <div className="p-6 text-center text-lg font-semibold">Loading rental order status...</div>;
   }
 
   if (error) {
     return <div className="p-6 text-center text-lg font-semibold text-red-600">{error}</div>;
   }
 
-  if (!order) {
-    return <div className="p-6 text-center text-lg font-semibold">Order not found.</div>;
+  if (!rentalOrder) {
+    return <div className="p-6 text-center text-lg font-semibold">Rental order not found.</div>;
   }
 
-  // Calculate estimated delivery as order_date + 15 days
-  const estimatedDeliveryDate = order.order_date
-    ? new Date(new Date(order.order_date).getTime() + 15 * 24 * 60 * 60 * 1000)
+  // Calculate estimated return date as rental_start_date + rental_period_days
+  const estimatedReturnDate = rentalOrder.rental_start_date && rentalOrder.rental_period_days
+    ? new Date(new Date(rentalOrder.rental_start_date).getTime() + rentalOrder.rental_period_days * 24 * 60 * 60 * 1000)
     : null;
 
-  // Define the steps in order
+  // Define the steps in rental order status
   const steps = [
     { step: "Order Placed", icon: Home },
     { step: "Processing", icon: Clock },
     { step: "Shipped", icon: Truck },
     { step: "Out for Delivery", icon: Package },
     { step: "Delivered", icon: CheckCircle },
+    { step: "Returned", icon: CheckCircle },
   ];
 
-  // Determine completed steps based on order.status safely
-  const currentStepIndex = order.status
-    ? steps.findIndex(s => s.step.toLowerCase() === order.status.toLowerCase())
+  // Determine completed steps based on rentalOrder.status safely
+  const currentStepIndex = rentalOrder.status
+    ? steps.findIndex(s => s.step.toLowerCase() === rentalOrder.status.toLowerCase())
     : -1;
 
   const handleProductClick = (productId) => {
@@ -88,21 +89,21 @@ export default function OrderStatusPage() {
   return (
     <div className="p-8 max-w-3xl mx-auto bg-white rounded-lg shadow-lg relative z-50 mt-32">
       <h1 className="text-3xl font-extrabold mb-6 text-gray-900 border-b-2 border-indigo-600 pb-2">
-        Order Status
+        Rental Order Status
       </h1>
       <div className="mb-4 space-y-2 text-gray-700 text-lg">
-        <p><span className="font-semibold">Order ID:</span> {order.order_id || order.id}</p>
-        <p><span className="font-semibold">Current Status:</span> {order.status || "N/A"}</p>
-        <p><span className="font-semibold">Order Date:</span> {order.order_date ? new Date(order.order_date).toLocaleDateString() : "N/A"}</p>
-        <p><span className="font-semibold">Estimated Delivery:</span> {estimatedDeliveryDate ? estimatedDeliveryDate.toLocaleDateString() : "N/A"}</p>
+        <p><span className="font-semibold">Rental Order ID:</span> {rentalOrder.rental_order_id || rentalOrder.id}</p>
+        <p><span className="font-semibold">Current Status:</span> {rentalOrder.status || "N/A"}</p>
+        <p><span className="font-semibold">Rental Start Date:</span> {rentalOrder.rental_start_date ? new Date(rentalOrder.rental_start_date).toLocaleDateString() : "N/A"}</p>
+        <p><span className="font-semibold">Estimated Return Date:</span> {estimatedReturnDate ? estimatedReturnDate.toLocaleDateString() : "N/A"}</p>
       </div>
 
-      {/* Order details below estimated delivery */}
+      {/* Rental order details below estimated return date */}
       <div className="mb-8 space-y-2 text-gray-700 text-lg border-t pt-4">
-        <h2 className="text-xl font-semibold mb-2">Order Details</h2>
-        {order.items && order.items.length > 0 ? (
+        <h2 className="text-xl font-semibold mb-2">Rental Order Details</h2>
+        {rentalOrder.items && rentalOrder.items.length > 0 ? (
           <ul className="space-y-2">
-            {order.items.map((product) => (
+            {rentalOrder.items.map((product) => (
               <li
                 key={product.product_id}
                 className="flex items-center justify-between border-b pb-1 cursor-pointer hover:bg-gray-100"
@@ -130,7 +131,7 @@ export default function OrderStatusPage() {
             ))}
           </ul>
         ) : (
-          <p>No products found for this order.</p>
+          <p>No rental products found for this order.</p>
         )}
       </div>
 
@@ -143,7 +144,7 @@ export default function OrderStatusPage() {
           const Icon = step.icon;
           const completed = index <= currentStepIndex;
           return (
-            <div key={index} className="flex flex-col items-center w-1/5 relative z-10">
+            <div key={index} className="flex flex-col items-center w-1/6 relative z-10">
               <div
                 className={`p-4 rounded-full shadow-md transition-colors duration-500 ease-in-out ${
                   completed
@@ -160,8 +161,8 @@ export default function OrderStatusPage() {
               >
                 {step.step}
               </p>
-              {completed && order.status_dates && order.status_dates[step.step.toLowerCase()] && (
-                <p className="text-xs text-gray-500 mt-1">{new Date(order.status_dates[step.step.toLowerCase()]).toLocaleDateString()}</p>
+              {completed && rentalOrder.status_dates && rentalOrder.status_dates[step.step.toLowerCase()] && (
+                <p className="text-xs text-gray-500 mt-1">{new Date(rentalOrder.status_dates[step.step.toLowerCase()]).toLocaleDateString()}</p>
               )}
             </div>
           );
