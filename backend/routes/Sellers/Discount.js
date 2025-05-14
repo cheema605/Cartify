@@ -88,4 +88,43 @@ router.get("/get-discount/:product_id", async (req, res) => {
     }
 });
 
+/**
+ * Edit an existing discount.
+ * POST /api/discounts/edit-discount
+ */
+router.post("/edit-discount", async (req, res) => {
+    const { discount_id, product_id, discount_percent, start_date, end_date } = req.body;
+
+    if (!discount_id || !product_id || !discount_percent) {
+        return res.status(400).json({ message: "Discount ID, product ID, and discount percent are required." });
+    }
+
+    try {
+        const pool = await poolPromise;
+
+        const result = await pool.request()
+            .input('discount_id', sql.Int, discount_id)
+            .input('product_id', sql.Int, product_id)
+            .input('discount_percent', sql.Int, discount_percent)
+            .input('start_date', sql.Date, start_date || null)
+            .input('end_date', sql.Date, end_date || null)
+            .query(`
+                UPDATE Discounts 
+                SET discount_percent = @discount_percent,
+                    start_date = @start_date,
+                    end_date = @end_date
+                WHERE discount_id = @discount_id AND product_id = @product_id
+            `);
+
+        if (result.rowsAffected[0] === 0) {
+            return res.status(404).json({ message: "Discount not found." });
+        }
+
+        res.json({ message: "Discount updated successfully." });
+    } catch (err) {
+        console.error("Error updating discount:", err);
+        res.status(500).json({ message: "Internal Server Error", error: err.message });
+    }
+});
+
 export default router;

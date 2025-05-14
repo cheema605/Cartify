@@ -19,11 +19,6 @@ import reviewRoute from './routes/Buyers/reviews.js';
 import chatbot from './routes/chatbot/chatbot.js';
 import products from './routes/Buyers/products.js';
 import categories from './routes/Buyers/categories.js';  // Added import for categories route
-import searchRoute from './routes/Buyers/search.js';
-
-import { poolPromise} from "./db/sql.js"; // ✅ Import both
-
-const app = express();
 
 app.use(express.json());
 app.use(cors());
@@ -66,7 +61,7 @@ app.use('/api/seller/create-store', sellerStoreRoute);
 app.use('/api/seller/create-product', createProduct); 
 app.use('/api/seller/edit-product', editProduct); 
 app.use('/api/wishlist', wishlist);
-app.use('/api/discount', Discount);
+app.use('/api/discounts', Discount);
 app.use('/api/order', Order);
 app.use('/api/shoppping-cart', shoppingCart);
 app.use('/api/preferences', preferences);
