@@ -18,8 +18,9 @@ import exploreRoute from './routes/explore/explore.js';
 import reviewRoute from './routes/Buyers/reviews.js';
 import chatbot from './routes/chatbot/chatbot.js';
 import products from './routes/Buyers/products.js';
+import searchRoute from './routes/Buyers/search.js';
 import categories from './routes/Buyers/categories.js';  // Added import for categories route
-
+const app = express();
 app.use(express.json());
 app.use(cors());
 
