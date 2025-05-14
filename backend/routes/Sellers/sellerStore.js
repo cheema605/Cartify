@@ -151,7 +151,15 @@ router.post('/products', authenticateJWT, async (req, res) => {
         WHERE p.seller_id = @seller_id
         ORDER BY p.created_at DESC
       `);
-    res.json({ products: productsResult.recordset });
+    const products = productsResult.recordset;
+    // For each product, fetch its images
+    for (const product of products) {
+      const imagesResult = await pool.request()
+        .input('product_id', sql.Int, product.product_id)
+        .query('SELECT image_url FROM ProductImages WHERE product_id = @product_id');
+      product.images = imagesResult.recordset.map(row => row.image_url);
+    }
+    res.json({ products });
   } catch (err) {
     console.error('Error fetching seller products (POST):', err);
     res.status(500).json({ message: 'Failed to fetch products.', error: err.message });

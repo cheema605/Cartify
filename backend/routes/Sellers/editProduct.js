@@ -23,6 +23,14 @@ router.put("/:product_id", authenticateJWT, upload.array("images", 10), async (r
     damage_fee
   } = req.body;
   const images = req.files;
+  let imagesToDelete = [];
+  if (req.body.imagesToDelete) {
+    try {
+      imagesToDelete = JSON.parse(req.body.imagesToDelete);
+    } catch (e) {
+      return res.status(400).json({ message: "Invalid imagesToDelete format." });
+    }
+  }
 
   if (!product_id) {
     return res.status(400).json({ message: "Product ID is required." });
@@ -176,18 +184,12 @@ router.put("/:product_id", authenticateJWT, upload.array("images", 10), async (r
 
     // Handle images if provided
     if (images && images.length > 0) {
-      // Delete existing images
-      await pool.request()
-        .input("product_id", sql.Int, product_id)
-        .query("DELETE FROM ProductImages WHERE product_id = @product_id");
-
-      // Insert new images
+      // Insert new images only (do not delete existing ones)
       for (const file of images) {
         const cloudinaryURL = file.path;
         if (!cloudinaryURL) {
           return res.status(500).json({ message: "Failed to upload image to Cloudinary." });
         }
-
         await pool.request()
           .input("product_id", sql.Int, product_id)
           .input("image_url", sql.VarChar, cloudinaryURL)
@@ -195,6 +197,16 @@ router.put("/:product_id", authenticateJWT, upload.array("images", 10), async (r
             INSERT INTO ProductImages (product_id, image_url)
             VALUES (@product_id, @image_url)
           `);
+      }
+    }
+
+    // Handle deleting specific images if requested
+    if (Array.isArray(imagesToDelete) && imagesToDelete.length > 0) {
+      for (const imageUrl of imagesToDelete) {
+        await pool.request()
+          .input("product_id", sql.Int, product_id)
+          .input("image_url", sql.VarChar, imageUrl)
+          .query("DELETE FROM ProductImages WHERE product_id = @product_id AND image_url = @image_url");
       }
     }
 

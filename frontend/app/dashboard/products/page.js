@@ -27,7 +27,7 @@ export default function ProductsPage() {
   const [filter, setFilter] = useState({ name: '', category: '' })
   const [products, setProducts] = useState([])
   const [selectedProduct, setSelectedProduct] = useState(null)
-  const [productImage, setProductImage] = useState(null)
+  const [productImage, setProductImage] = useState([])
   const [error, setError] = useState('')
   const [productForm, setProductForm] = useState({
     name: '',
@@ -49,6 +49,7 @@ export default function ProductsPage() {
   const [discountPercentInput, setDiscountPercentInput] = useState('')
   const [discountStartDateInput, setDiscountStartDateInput] = useState('')
   const [discountEndDateInput, setDiscountEndDateInput] = useState('')
+  const [imagesToDelete, setImagesToDelete] = useState([])
 
   // Fetch discounts for a product and update discountsMap
   const fetchDiscounts = async (product_id) => {
@@ -129,7 +130,7 @@ export default function ProductsPage() {
     // Fetch categories from backend
     const fetchCategories = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/categories')
+        const response = await fetch('http://localhost:5000/api/categories/categories')
         if (response.ok) {
           const data = await response.json()
           setCategories(data.categories || [])
@@ -193,6 +194,7 @@ export default function ProductsPage() {
       if (selectedProduct.newImage) {
         formData.append('images', selectedProduct.newImage)
       }
+      formData.append('imagesToDelete', JSON.stringify(imagesToDelete))
 
       const response = await fetch(`http://localhost:5000/api/seller/edit-product/${selectedProduct.product_id}`, {
         method: 'PUT',
@@ -215,11 +217,10 @@ export default function ProductsPage() {
       alert('Failed to update product')
     }
   }
-const handleImageChange = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      setProductImage(file)
-    }
+
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files)
+    setProductImage(files)
   }
 
   const handleFormChange = (e) => {
@@ -245,7 +246,7 @@ const handleImageChange = (e) => {
       setError('Category is required')
       return
     }
-    if (!productImage) {
+    if (!productImage.length) {
       setError('Product image is required')
       return
     }
@@ -294,9 +295,7 @@ const handleImageChange = (e) => {
       formData.append('is_sellable', productForm.is_sellable)
       formData.append('is_rentable', productForm.is_rentable)
       if (productForm.is_rentable) formData.append('rent', parseFloat(productForm.rent) || 0)
-      if (productImage) {
-        formData.append('images', productImage)
-      }
+      productImage.forEach(img => formData.append('images', img))
 
       const response = await fetch('http://localhost:5000/api/seller/create-product', {
         method: 'POST',
@@ -328,7 +327,7 @@ const handleImageChange = (e) => {
           rent: '',
           discount_percent: '',
         })
-        setProductImage(null)
+        setProductImage([])
         setIsAddProductOpen(false)
       } else {
         const errorData = await response.json()
@@ -509,12 +508,13 @@ const handleImageChange = (e) => {
                   <Input
                     type="file"
                     accept="image/*"
+                    multiple
                     onChange={handleImageChange}
                     className="bg-gray-100 text-black focus:outline-none focus:ring-1 focus:ring-gray-200 focus:border-gray-200"
                     required
                   />
-                  {productImage && (
-                    <span className="text-sm text-gray-500">{productImage.name}</span>
+                  {productImage.length > 0 && (
+                    <span className="text-sm text-gray-500">{productImage.map(img => img.name).join(', ')}</span>
                   )}
                 </div>
               </div>
@@ -555,17 +555,28 @@ const handleImageChange = (e) => {
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-black">Product Image</label>
-                  {selectedProduct.images && selectedProduct.images.length > 0 ? (
-                    <div className="flex gap-2 mb-2">
-                      {selectedProduct.images.map((img, idx) => (
-                        <img key={idx} src={img} alt={`Current ${idx + 1}`} className="h-24 w-24 object-cover rounded" />
+                  {selectedProduct.images && selectedProduct.images.length > 0 && (
+                    <div className="flex gap-2 mb-2 flex-wrap">
+                      {selectedProduct.images.filter(img => !imagesToDelete.includes(img)).map((img, idx) => (
+                        <div key={idx} className="relative group">
+                          <img src={img} alt={`Current ${idx + 1}`} className="h-24 w-24 object-cover rounded" />
+                          <button
+                            type="button"
+                            className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 text-xs opacity-80 group-hover:opacity-100"
+                            onClick={() => {
+                              setImagesToDelete(prev => [...prev, img])
+                              setSelectedProduct(prev => ({
+                                ...prev,
+                                images: prev.images.filter(i => i !== img)
+                              }))
+                            }}
+                          >
+                            ✕
+                          </button>
+                        </div>
                       ))}
                     </div>
-                  ) : selectedProduct.image_url ? (
-                    <div className="mb-2">
-                      <img src={selectedProduct.image_url} alt="Current" className="h-24 w-24 object-cover rounded" />
-                    </div>
-                  ) : null}
+                  )}
                   <Input
                     type="file"
                     accept="image/*"
@@ -628,8 +639,12 @@ const handleImageChange = (e) => {
                   <label className="text-sm font-medium text-black">Stock</label>
                   <Input
                     type="number"
-                    value={selectedProduct.stock}
-                    onChange={(e) => setSelectedProduct((prev) => ({ ...prev, stock: e.target.value }))}
+                    value={selectedProduct.stock || selectedProduct.quantity || ''}
+                    onChange={e => setSelectedProduct(prev => ({
+                      ...prev,
+                      stock: e.target.value,
+                      quantity: e.target.value
+                    }))}
                     className="bg-gray-100 text-black"
                   />
                 </div>
