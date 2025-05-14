@@ -159,7 +159,7 @@ export default function Navbar({ cartOpen, toggleCart }) {
         )}
         {!isExplorePage && !isWishlistPage && (
           <button
-            onClick={() => router.push("/chat")}
+            onClick={() => router.push("/help")}
             className="px-3 py-1.5 rounded-lg text-base font-medium text-white hover:bg-teal-500/30 transition-colors duration-200"
           >
             Help

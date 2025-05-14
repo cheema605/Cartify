@@ -23,6 +23,7 @@ import products from './routes/Buyers/products.js';
 import searchRoute from './routes/Buyers/search.js';
 import categories from './routes/Buyers/categories.js';  // Added import for categories route
 import rentalOrderRoute from './routes/Buyers/RentalOrder.js';
+import accountInfoRoute from './routes/Sellers/accountInfo.js';
 
 //const app = express();
 app.use(express.json());
@@ -79,6 +80,7 @@ app.use('/api/products', products);
 app.use('/api/categories', categories);  // Added route registration
 app.use('/api/search', searchRoute);
 app.use('/api/rental-order', rentalOrderRoute);
+app.use('/api/seller', accountInfoRoute);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, async () => {

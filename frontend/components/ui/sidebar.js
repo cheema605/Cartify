@@ -26,8 +26,8 @@ export function Sidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="w-64 h-full border-r px-4 py-6" style={{ 
-      backgroundColor: 'var(--bg-primary)', 
+    <aside className="fixed top-7 left-0 w-64 h-[calc(100vh-4rem)] border-r px-4 py-6 z-30" style={{
+      backgroundColor: 'var(--bg-primary)',
       borderColor: 'var(--border-color)'
     }}>
       <h2 className="text-xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
