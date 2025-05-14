@@ -1,158 +1,196 @@
-"use client"; // Enables client-side rendering
-import React, { useState } from "react";
-import Link from "next/link";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function CheckoutPage() {
-  const [shippingInfo, setShippingInfo] = useState({
-    name: "",
+  const router = useRouter();
+
+  const [formData, setFormData] = useState({
+    fullName: "",
     address: "",
     city: "",
-    zip: "",
+    postalCode: "",
     country: "",
+    phone: "",
+    paymentMethod: "credit_card",
   });
-  const [paymentMethod, setPaymentMethod] = useState("credit-card");
-  const [error, setError] = useState("");
 
-  const handleInputChange = (e) => {
-    setShippingInfo({ ...shippingInfo, [e.target.name]: e.target.value });
+  const [cartItems, setCartItems] = useState([]);
+  const [loadingCart, setLoadingCart] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchCart = async () => {
+      try {
+        const token = localStorage.getItem("jwt_token");
+        if (!token) {
+          router.push("/login");
+          return;
+        }
+        const res = await fetch("http://localhost:5000/api/shoppping-cart/get-cart", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!res.ok) {
+          throw new Error("Failed to fetch cart items");
+        }
+        const data = await res.json();
+        setCartItems(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoadingCart(false);
+      }
+    };
+    fetchCart();
+  }, [router]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (
-      !shippingInfo.name ||
-      !shippingInfo.address ||
-      !shippingInfo.city ||
-      !shippingInfo.zip ||
-      !shippingInfo.country
-    ) {
-      setError("Please fill in all fields");
-      return;
-    }
-    setError("");
-    alert("Order placed successfully!");
+  const handleConfirm = () => {
+    // Pass formData as JSON string in query parameter
+    const encodedFormData = encodeURIComponent(JSON.stringify(formData));
+    router.push(`/confirm?formData=${encodedFormData}`);
   };
+
+  if (loadingCart) {
+    return <div className="p-6 text-center">Loading cart...</div>;
+  }
+
+  if (error) {
+    return <div className="p-6 text-center text-red-600">Error: {error}</div>;
+  }
+
+  if (cartItems.length === 0) {
+    return <div className="p-6 text-center">Your cart is empty.</div>;
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-start pt-24 px-4 sm:px-6 lg:px-8">
-      <div className="bg-white p-8 rounded-xl shadow-md border border-gray-200 w-full max-w-xl">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-6 text-center font-serif tracking-normal">
-          Checkout
-        </h1>
-        {error && (
-          <p className="text-red-600 text-center mb-4 font-medium">{error}</p>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Shipping Information */}
-          <div className="space-y-4">
-            <div>
-              <label className="block text-gray-700 font-medium mb-1 font-serif">
-                Full Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={shippingInfo.name}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400 text-gray-900 font-serif transition duration-200"
-                placeholder="John Doe"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-1 font-serif">
-                Address
-              </label>
-              <input
-                type="text"
-                name="address"
-                value={shippingInfo.address}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400 text-gray-900 font-serif transition duration-200"
-                placeholder="123 Main St"
-                required
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-gray-700 font-medium mb-1 font-serif">
-                  City
-                </label>
-                <input
-                  type="text"
-                  name="city"
-                  value={shippingInfo.city}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400 text-gray-900 font-serif transition duration-200"
-                  placeholder="New York"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 font-medium mb-1 font-serif">
-                  Zip Code
-                </label>
-                <input
-                  type="text"
-                  name="zip"
-                  value={shippingInfo.zip}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400 text-gray-900 font-serif transition duration-200"
-                  placeholder="10001"
-                  required
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-1 font-serif">
-                Country
-              </label>
-              <input
-                type="text"
-                name="country"
-                value={shippingInfo.country}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400 text-gray-900 font-serif transition duration-200"
-                placeholder="USA"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Payment Method */}
+    <div className="max-w-3xl mx-auto p-6 mt-20 bg-white rounded shadow">
+      <h1 className="text-2xl font-bold mb-6">Checkout</h1>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleConfirm();
+        }}
+      >
+        <div className="mb-4">
+          <label className="block font-semibold mb-1" htmlFor="fullName">
+            Full Name
+          </label>
+          <input
+            id="fullName"
+            name="fullName"
+            type="text"
+            required
+            value={formData.fullName}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2"
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block font-semibold mb-1" htmlFor="address">
+            Address
+          </label>
+          <input
+            id="address"
+            name="address"
+            type="text"
+            required
+            value={formData.address}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2"
+          />
+        </div>
+        <div className="mb-4 grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-gray-700 font-medium mb-3 font-serif">
-              Payment Method
+            <label className="block font-semibold mb-1" htmlFor="city">
+              City
             </label>
-            <select
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400 text-gray-900 font-serif transition duration-200"
-              value={paymentMethod}
-              onChange={(e) => setPaymentMethod(e.target.value)}
-            >
-              <option value="credit-card">Credit Card</option>
-              <option value="paypal">PayPal</option>
-              <option value="cash">Cash on Delivery</option>
-            </select>
+            <input
+              id="city"
+              name="city"
+              type="text"
+              required
+              value={formData.city}
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-2"
+            />
           </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition-transform transform hover:scale-105 font-serif font-semibold text-base shadow-md"
+          <div>
+            <label className="block font-semibold mb-1" htmlFor="postalCode">
+              Postal Code
+            </label>
+            <input
+              id="postalCode"
+              name="postalCode"
+              type="text"
+              required
+              value={formData.postalCode}
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-2"
+            />
+          </div>
+        </div>
+        <div className="mb-4">
+          <label className="block font-semibold mb-1" htmlFor="country">
+            Country
+          </label>
+          <input
+            id="country"
+            name="country"
+            type="text"
+            required
+            value={formData.country}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2"
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block font-semibold mb-1" htmlFor="phone">
+            Phone Number
+          </label>
+          <input
+            id="phone"
+            name="phone"
+            type="tel"
+            required
+            value={formData.phone}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2"
+          />
+        </div>
+        <div className="mb-6">
+          <label className="block font-semibold mb-1" htmlFor="paymentMethod">
+            Payment Method
+          </label>
+          <select
+            id="paymentMethod"
+            name="paymentMethod"
+            value={formData.paymentMethod}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2"
           >
-            Place Order
-          </button>
-        </form>
-
-        {/* Return to Explore with Cart Open */}
-        <p className="mt-6 text-center text-sm font-serif text-gray-600">
-          <Link href="/explore?cartOpen=true" className="text-indigo-600 underline hover:text-indigo-800">
-            Back to Cart
-          </Link>
-        </p>
-      </div>
+            <option value="credit_card">Credit Card</option>
+            <option value="paypal">PayPal</option>
+            <option value="cash_on_delivery">Cash on Delivery</option>
+          </select>
+        </div>
+        <button
+          type="submit"
+          className="w-full bg-teal-600 text-white py-3 rounded hover:bg-teal-700 transition"
+        >
+          Confirm
+        </button>
+      </form>
     </div>
   );
 }

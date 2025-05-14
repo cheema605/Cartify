@@ -99,6 +99,12 @@ export default function CartSlidingPanel({ isOpen, onClose, userId, disableOverl
     }
   }
 
+  const handleCheckout = () => {
+    console.log("handleCheckout called");
+    onClose()
+    router.push('/checkout')
+  }
+
   return (
     <Transition.Root show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={onClose}>
@@ -201,6 +207,7 @@ export default function CartSlidingPanel({ isOpen, onClose, userId, disableOverl
                     <div className="border-t border-gray-200 py-6 px-4 sm:px-6">
                       <button
                         type="button"
+                        onClick={handleCheckout}
                         className="w-full bg-teal-600 border border-transparent rounded-md shadow-sm py-3 px-4 text-base font-medium text-white hover:bg-teal-700 focus:outline-none"
                       >
                         Checkout

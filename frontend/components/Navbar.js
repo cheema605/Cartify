@@ -145,18 +145,7 @@ export default function Navbar({ cartOpen, toggleCart }) {
 
       {/* Action Buttons */}
       <div className="flex items-center space-x-2">
-        {/* Dashboard Toggle: show on dashboard pages too */}
-        {isDashboardPage && (
-          <DashboardToggle
-            checked={toggleChecked}
-            onToggle={(checked) => {
-              setToggleChecked(checked);
-              if (!checked) {
-                setTimeout(() => router.push("/"), 350);
-              }
-            }}
-          />
-        )}
+        {/* Dashboard Toggle: only show on main pages, not on dashboard */}
         {!isDashboardPage && (
           <DashboardToggle
             checked={toggleChecked}
