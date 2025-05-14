@@ -16,6 +16,8 @@ import {
 import { cn } from '@/lib/utils';
 import DashboardToggle from '@/components/DashboardToggle';
 import Navbar from '@/components/Navbar';
+import { Sidebar } from "@/components/ui/sidebar";
+import { ThemeProvider } from "@/context/ThemeContext";
 
 const sidebarItems = [
   { icon: Store, label: 'Overview', href: '/dashboard' },
@@ -25,106 +27,44 @@ const sidebarItems = [
   { icon: Users, label: 'Customers', href: '/dashboard/customers' },
   { icon: BarChart3, label: 'Analytics', href: '/dashboard/analytics' },
   { icon: Settings, label: 'Settings', href: '/dashboard/settings' },
- 
 ];
 
 export default function DashboardLayout({ children }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
-  const [toggleChecked, setToggleChecked] = useState(true);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b z-40 flex items-center justify-between px-4">
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 rounded-md text-gray-600 hover:bg-gray-100"
-        >
-          {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
-        <h1 className="text-xl font-semibold text-gray-900">Dashboard</h1>
-      </div>
-      {/* Sidebar */}
-      <aside
-        className={cn(
-          'fixed top-0 left-0 z-30 h-screen bg-white border-r transition-all duration-300',
-          'lg:translate-x-0',
-          mobileMenuOpen ? 'translate-x-0' : '-translate-x-full',
-          collapsed ? 'w-20' : 'w-64',
-          'pt-24'
-        )}
-      >
-        <div className="flex h-16 items-center justify-between border-b px-4">
-          <h1
-            className={cn(
-              'font-semibold text-xl text-gray-900',
-              collapsed ? 'hidden' : 'block'
-            )}
-          >
-            Dashboard
-          </h1>
+    <ThemeProvider>
+      <div className="dashboard-container min-h-screen">
+        <Navbar />
+        {/* Mobile Header */}
+        <div className="lg:hidden fixed top-0 left-0 right-0 h-16 border-b z-40 flex items-center justify-between px-4" 
+          style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)' }}>
           <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="hidden lg:block p-2 rounded-md text-gray-600 hover:bg-gray-100"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2 rounded-md hover:bg-opacity-80"
+            style={{ color: 'var(--text-primary)' }}
           >
-            {collapsed ? '→' : '←'}
+            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
+          <h1 className="text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>Dashboard</h1>
         </div>
-
-        <nav className="space-y-1 p-4">
-          {sidebarItems.map((item) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  'flex items-center space-x-3 rounded-lg px-3 py-2.5 transition-colors',
-                  isActive
-                    ? 'bg-teal-50 text-teal-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                )}
-              >
-                <span className="flex items-center space-x-3">
-                  <item.icon
-                    className={cn(
-                      'h-5 w-5',
-                      isActive ? 'text-teal-600' : 'text-gray-400'
-                    )}
-                  />
-                  <span
-                    className={cn('text-sm font-medium', collapsed ? 'hidden' : 'block')}
-                  >
-                    {item.label}
-                  </span>
-                </span>
-              </Link>
-            );
-          })}
-        </nav>
-      </aside>
-      {/* Main Content */}
-      <main
-        className={cn(
-          'min-h-screen transition-all duration-300',
-          collapsed ? 'lg:ml-20' : 'lg:ml-64',
-          'pt-16 lg:pt-0'
-        )}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
-          {children}
+        
+        {/* Sidebar for mobile and desktop (always fixed below navbar) */}
+        <div className={`fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 z-40 transition-transform duration-300 transform
+  ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+  lg:translate-x-0 lg:top-16 lg:left-0 lg:h-[calc(100vh-4rem)] lg:w-64 lg:fixed`}>
+          <Sidebar />
         </div>
-      </main>
-      {/* Mobile Menu Overlay */}
-      {mobileMenuOpen && (
-        <div
-          className="fixed inset-0 bg-gray-900/50 z-20 lg:hidden"
-          onClick={() => setMobileMenuOpen(false)}
-        />
-      )}
-    </div>
+        
+        {/* Main content - aligned with sidebar and navbar */}
+        <main className="pt-24 lg:ml-64">
+          <div className="px-4 sm:px-6 lg:px-8 py-4">
+            {children}
+          </div>
+        </main>
+      </div>
+    </ThemeProvider>
   );
 }

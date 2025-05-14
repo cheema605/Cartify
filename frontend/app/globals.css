@@ -26,3 +26,101 @@ body {
 }
 
 /* .grid-overlay removed */
+
+/* Dashboard Theme Support */
+.dashboard-container {
+  /* Default light theme variables */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --text-primary: #000000;
+  --text-secondary: #4b5563;
+  --border-color: #e5e7eb;
+  --card-bg: #ffffff;
+  --accent-color: #3B82F6;
+}
+
+.dashboard-container.theme-dark {
+  --bg-primary: #121212;
+  --bg-secondary: #1e1e1e;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --border-color: #333333;
+  --card-bg: #1e1e1e;
+}
+
+/* Apply theme colors to dashboard elements */
+.dashboard-container {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.dashboard-container .card {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.dashboard-container h1, 
+.dashboard-container h2, 
+.dashboard-container h3, 
+.dashboard-container h4, 
+.dashboard-container h5, 
+.dashboard-container h6 {
+  color: var(--text-primary);
+}
+
+.dashboard-container p, 
+.dashboard-container span, 
+.dashboard-container label {
+  color: var(--text-secondary);
+}
+
+.dashboard-container aside {
+  background-color: var(--bg-primary);
+  border-color: var(--border-color);
+}
+
+.dashboard-container input, 
+.dashboard-container select, 
+.dashboard-container textarea {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.dashboard-container table {
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+}
+
+.dashboard-container th {
+  background-color: var(--bg-secondary);
+}
+
+.dashboard-container tr {
+  border-color: var(--border-color);
+}
+
+.dashboard-container button.accent {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+/* Accent color toggle buttons */
+.accent-toggle {
+  cursor: pointer;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.accent-toggle.active {
+  border-color: var(--text-primary);
+  transform: scale(1.1);
+}
+
+/* Dashboard tabs */
+.dashboard-container [data-state='active'] {
+  background-color: var(--accent-color) !important;
+  color: white !important;
+}

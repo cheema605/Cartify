@@ -33,7 +33,7 @@ export default function OrdersPage() {
         }
         const payload = JSON.parse(atob(token.split('.')[1]));
         const user_id = payload.id;
-        const response = await fetch('http://localhost:5000/api/sellerStore/orders', {
+        const response = await fetch('http://localhost:5000/api/seller/create-store/orders', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -78,12 +78,37 @@ export default function OrdersPage() {
     setDetailsLoading(false);
   };
 
+  const updateOrderStatus = async (order_id, newStatus) => {
+    try {
+      const token = localStorage.getItem('jwt_token');
+      const response = await fetch(`http://localhost:5000/api/order/update-order/${order_id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (response.ok) {
+        setOrders(orders =>
+          orders.map(order =>
+            order.order_id === order_id ? { ...order, status: newStatus } : order
+          )
+        );
+      } else {
+        alert('Failed to update order status');
+      }
+    } catch (err) {
+      alert('Error updating order status');
+    }
+  };
+
   const totalOrders = orders.length;
   const processingOrders = orders.filter(order => order.status?.toLowerCase() === 'processing').length;
   const deliveredOrders = orders.filter(order => order.status?.toLowerCase() === 'delivered').length;
 
   return (
-    <div className="space-y-6 pt-24">
+    <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="bg-white">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -152,7 +177,17 @@ export default function OrdersPage() {
                       <TableCell className="font-medium text-black">{order.order_id}</TableCell>
                       <TableCell className="text-black">{order.buyer_name}</TableCell>
                       <TableCell className="text-black">{order.total_price}</TableCell>
-                      <TableCell className="text-black">{order.status}</TableCell>
+                      <TableCell className="text-black">
+                        <select
+                          value={order.status}
+                          onChange={e => updateOrderStatus(order.order_id, e.target.value)}
+                          className="border rounded px-2 py-1"
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="dispatched">Dispatched</option>
+                          <option value="delivered">Delivered</option>
+                        </select>
+                      </TableCell>
                       <TableCell className="text-black">{order.order_date ? new Date(order.order_date).toLocaleDateString() : ''}</TableCell>
                       <TableCell>
                         <button

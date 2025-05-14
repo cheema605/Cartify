@@ -1,5 +1,7 @@
 import 'dotenv/config'; // ✅ Load env vars at the top
 import express from "express";
+
+const app = express();
 import cors from "cors";
 import purchaseRoute from './routes/purchase.js';
 import signupRoute from "./routes/signup.js";
@@ -19,6 +21,8 @@ import reviewRoute from './routes/Buyers/reviews.js';
 import chatbot from './routes/chatbot/chatbot.js';
 import products from './routes/Buyers/products.js';
 import categories from './routes/Buyers/categories.js';  // Added import for categories route
+import searchRoute from './routes/Buyers/search.js';
+import accountInfoRoute from './routes/Sellers/accountInfo.js'; // Import the new account info route
 
 app.use(express.json());
 app.use(cors());
@@ -73,6 +77,7 @@ app.use('/api/chatbot', chatbot);
 app.use('/api/products', products);
 app.use('/api/categories', categories);  // Added route registration
 app.use('/api/search', searchRoute);
+app.use('/api/seller', accountInfoRoute); // Register the account info route
 
 
 const PORT = process.env.PORT || 5000;

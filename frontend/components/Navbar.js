@@ -146,28 +146,7 @@ export default function Navbar({ cartOpen, toggleCart }) {
       {/* Action Buttons */}
       <div className="flex items-center space-x-2">
         {/* Dashboard Toggle: show on dashboard pages too */}
-        {isDashboardPage && (
-          <DashboardToggle
-            checked={toggleChecked}
-            onToggle={(checked) => {
-              setToggleChecked(checked);
-              if (!checked) {
-                setTimeout(() => router.push("/"), 350);
-              }
-            }}
-          />
-        )}
-        {!isDashboardPage && (
-          <DashboardToggle
-            checked={toggleChecked}
-            onToggle={(checked) => {
-              setToggleChecked(checked);
-              if (checked) {
-                setTimeout(() => router.push("/dashboard"), 350);
-              }
-            }}
-          />
-        )}
+        <DashboardToggle />
         {!isExplorePage && !isWishlistPage && (
           <button
             onClick={() => router.push("/chat")}

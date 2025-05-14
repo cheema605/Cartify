@@ -367,7 +367,7 @@ const handleImageChange = (e) => {
   }
 
   return (
-    <div className="space-y-6 pt-24">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-black">Products</h1>
@@ -682,7 +682,7 @@ const handleImageChange = (e) => {
                 />
               </div>
               <Button
-                className="w-full bg-black text-white hover:bg-black/90"
+                className="w-full bg-black text-white hover:bg-gray-900"
                 onClick={() => setIsFilterDialogOpen(false)}
               >
                 Apply Filters
@@ -703,7 +703,7 @@ const handleImageChange = (e) => {
             onChange={e => setSearchTerm(e.target.value)}
           />
         </div>
-        <Button variant="outline" onClick={() => setIsFilterDialogOpen(true)}>
+        <Button className="bg-black text-white hover:bg-gray-900" onClick={() => setIsFilterDialogOpen(true)}>
           Filter
         </Button>
       </div>
@@ -735,8 +735,8 @@ const handleImageChange = (e) => {
                   <span className={`rounded-full px-3 py-1 text-xs font-medium ${product.status === 'In Stock' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{product.status}</span>
                 </TableCell>
                 <TableCell className="px-4 py-2 whitespace-nowrap flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => handleEditClick(product)}>Edit</Button>
-                  <Button size="sm" variant="destructive" onClick={() => handleDeleteProduct(product.product_id)}>Delete</Button>
+                  <Button size="sm" className="bg-black text-white hover:bg-gray-800" onClick={() => handleEditClick(product)}>Edit</Button>
+                  <Button size="sm" className="bg-red-600 text-white hover:bg-red-700" onClick={() => handleDeleteProduct(product.product_id)}>Delete</Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -769,8 +769,8 @@ const handleImageChange = (e) => {
                   <span className={`rounded-full px-3 py-1 text-xs font-medium ${product.status === 'In Stock' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{product.status}</span>
                 </TableCell>
                 <TableCell className="px-4 py-2 whitespace-nowrap flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => handleEditClick(product)}>Edit</Button>
-                  <Button size="sm" variant="destructive" onClick={() => handleDeleteProduct(product.product_id)}>Delete</Button>
+                  <Button size="sm" className="bg-black text-white hover:bg-gray-800" onClick={() => handleEditClick(product)}>Edit</Button>
+                  <Button size="sm" className="bg-red-600 text-white hover:bg-red-700" onClick={() => handleDeleteProduct(product.product_id)}>Delete</Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -805,8 +805,8 @@ const handleImageChange = (e) => {
                   <span className={`rounded-full px-3 py-1 text-xs font-medium ${product.status === 'In Stock' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{product.status}</span>
                 </TableCell>
                 <TableCell className="px-4 py-2 whitespace-nowrap flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => handleEditClick(product)}>Edit</Button>
-                  <Button size="sm" variant="destructive" onClick={() => handleDeleteProduct(product.product_id)}>Delete</Button>
+                  <Button size="sm" className="bg-black text-white hover:bg-gray-800" onClick={() => handleEditClick(product)}>Edit</Button>
+                  <Button size="sm" className="bg-red-600 text-white hover:bg-red-700" onClick={() => handleDeleteProduct(product.product_id)}>Delete</Button>
                 </TableCell>
               </TableRow>
             ))}
