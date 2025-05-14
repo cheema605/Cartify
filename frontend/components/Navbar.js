@@ -131,13 +131,13 @@ export default function Navbar({ cartOpen, toggleCart }) {
           <input
             type="text"
             placeholder="Search products..."
-            className="w-48 px-4 py-1.5 rounded-full bg-white/20 text-white placeholder-white/70 border border-white/20 focus:outline-none focus:ring-2 focus:ring-teal-400 transition"
+            className="w-48 px-4 py-1.5 rounded-full bg-white text-black placeholder-gray-500 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 transition"
             value={searchInput}
             onChange={handleSearchInputChange}
             onKeyDown={handleSearchKeyDown}
           />
           <Search
-            className="absolute right-3 top-2 h-4 w-4 text-white/70 cursor-pointer"
+            className="absolute right-3 top-2 h-4 w-4 text-gray-500 cursor-pointer"
             onClick={handleSearchIconClick}
           />
         </div>
@@ -145,18 +145,15 @@ export default function Navbar({ cartOpen, toggleCart }) {
 
       {/* Action Buttons */}
       <div className="flex items-center space-x-2">
-        {/* Dashboard Toggle: only show on main pages, not on dashboard */}
-        {!isDashboardPage && (
-          <DashboardToggle
-            checked={toggleChecked}
-            onToggle={(checked) => {
-              setToggleChecked(checked);
-              if (checked) {
-                setTimeout(() => router.push("/dashboard"), 350);
-              }
-            }}
-          />
-        )}
+        <DashboardToggle
+          checked={toggleChecked}
+          onToggle={(checked) => {
+            setToggleChecked(checked);
+            if (checked) {
+              setTimeout(() => router.push("/dashboard"), 350);
+            }
+          }}
+        />
         {!isExplorePage && !isWishlistPage && (
           <button
             onClick={() => router.push("/help")}
