@@ -198,6 +198,7 @@ export default function ProductPage() {
           return
         }
         const data = await res.json()
+        console.log('Product data:', data)
         setProduct(data)
       } catch (err) {
         console.error('Error fetching product:', err)
@@ -387,6 +388,14 @@ export default function ProductPage() {
                         className="mt-2 md:mt-4 w-full md:w-auto border-[#234C58] text-[#1a3a43] hover:bg-[#f5f9fa] hover:text-[#234C58]"
                         variant="outline"
                         disabled={!product.is_rentable}
+                        onClick={() => {
+                          const token = localStorage.getItem("jwt_token");
+                          if (!token) {
+                            router.push("/login");
+                            return;
+                          }
+                          router.push(`/rentout?product_id=${product.product_id}`);
+                        }}
                       >
                         <Timer className="mr-2 h-5 w-5" />
                         Rent Now
