@@ -15,14 +15,17 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import DashboardToggle from '@/components/DashboardToggle';
+import Navbar from '@/components/Navbar';
 
 const sidebarItems = [
   { icon: Store, label: 'Overview', href: '/dashboard' },
   { icon: Package, label: 'Products', href: '/dashboard/products' },
+  { icon: BarChart3, label: 'Discounts', href: '/dashboard/discounts' },
   { icon: ShoppingCart, label: 'Orders', href: '/dashboard/orders' },
   { icon: Users, label: 'Customers', href: '/dashboard/customers' },
   { icon: BarChart3, label: 'Analytics', href: '/dashboard/analytics' },
   { icon: Settings, label: 'Settings', href: '/dashboard/settings' },
+ 
 ];
 
 export default function DashboardLayout({ children }) {
@@ -33,6 +36,7 @@ export default function DashboardLayout({ children }) {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Navbar />
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b z-40 flex items-center justify-between px-4">
         <button
@@ -42,11 +46,6 @@ export default function DashboardLayout({ children }) {
           {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
         <h1 className="text-xl font-semibold text-gray-900">Dashboard</h1>
-        <div>
-          <div className="mt-4">
-            <DashboardToggle size="sm" />
-          </div>
-        </div>
       </div>
       {/* Sidebar */}
       <aside
@@ -54,7 +53,8 @@ export default function DashboardLayout({ children }) {
           'fixed top-0 left-0 z-30 h-screen bg-white border-r transition-all duration-300',
           'lg:translate-x-0',
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full',
-          collapsed ? 'w-20' : 'w-64'
+          collapsed ? 'w-20' : 'w-64',
+          'pt-24'
         )}
       >
         <div className="flex h-16 items-center justify-between border-b px-4">

@@ -11,17 +11,38 @@ router.post("/", upload.array("images", 10), async (req, res) => {
     description,
     price,
     quantity,
-    category_id,
+    category,
     is_rentable,
     is_biddable,
+    status,
+    is_sellable,
+    rent,
     daily_late_fee,
     damage_fee
   } = req.body;
 
   const images = req.files;
 
-  if (!user_id || !name || !price || !quantity)
+  // Parse is_sellable and is_rentable as booleans
+  const sellable = (is_sellable === true || is_sellable === 'true' || is_sellable === 1 || is_sellable === '1');
+  const rentable = (is_rentable === true || is_rentable === 'true' || is_rentable === 1 || is_rentable === '1');
+
+  // Parse price and rent as numbers, fallback to 0
+  const parsedPrice = parseFloat(price) || 0;
+  const parsedRent = parseFloat(rent) || 0;
+
+  if (!user_id || !name || !quantity) {
     return res.status(400).json({ message: "Required fields missing." });
+  }
+  if (!sellable && !rentable) {
+    return res.status(400).json({ message: "Product must be either sellable, rentable, or both." });
+  }
+  if (sellable && !parsedPrice) {
+    return res.status(400).json({ message: "Price is required for sellable products." });
+  }
+  if (rentable && !parsedRent) {
+    return res.status(400).json({ message: "Rent is required for rentable products." });
+  }
 
   try {
     const pool = await poolPromise;
@@ -36,20 +57,46 @@ router.post("/", upload.array("images", 10), async (req, res) => {
 
     const seller_id = sellerQuery.recordset[0].seller_id;
 
+    // Debug log trimmed category
+    let category_id = null;
+    if (category) {
+      const trimmedCategory = category.trim();
+      console.log("[DEBUG] Category input from frontend:", trimmedCategory);
+
+      // Only use category_name for lookup
+      const categoryResult = await pool.request()
+        .input("category_name", sql.NVarChar, trimmedCategory)
+        .query("SELECT category_id, category_name FROM Categories WHERE LOWER(category_name) = LOWER(@category_name)");
+      console.log("[DEBUG] Category query result:", categoryResult.recordset);
+
+      if (categoryResult.recordset.length === 1) {
+        category_id = categoryResult.recordset[0].category_id;
+      } else if (categoryResult.recordset.length === 0) {
+        return res.status(400).json({ message: `Category not found. Please use an existing category_name as shown in your Categories table. Received: '${trimmedCategory}'` });
+      } else {
+        return res.status(400).json({ message: `Multiple categories found with the name '${trimmedCategory}'. Please ensure category names are unique.` });
+      }
+    } else {
+      return res.status(400).json({ message: "Category is required." });
+    }
+
     // Insert product
     const productResult = await pool.request()
       .input("seller_id", sql.Int, seller_id)
       .input("name", sql.NVarChar, name)
       .input("description", sql.NVarChar, description || null)
-      .input("price", sql.Decimal(10, 2), price)
-      .input("category_id", sql.Int, category_id || null)
+      .input("price", sql.Decimal(10, 2), parsedPrice)
+      .input("category_id", sql.Int, category_id)
       .input("quantity", sql.Int, quantity)
-      .input("is_rentable", sql.Bit, is_rentable || 0)
+      .input("is_rentable", sql.Bit, rentable ? 1 : 0)
       .input("is_biddable", sql.Bit, is_biddable || 0)
+      .input("status", sql.NVarChar, status || 'active')
+      .input("is_sellable", sql.Bit, sellable ? 1 : 0)
+      .input("rent", sql.Decimal(10, 2), parsedRent)
       .query(`
-        INSERT INTO Products (seller_id, name, description, price, category_id, quantity, is_rentable, is_biddable, created_at)
+        INSERT INTO Products (seller_id, name, description, price, category_id, quantity, is_rentable, is_biddable, status, is_sellable, rent, created_at)
         OUTPUT INSERTED.product_id
-        VALUES (@seller_id, @name, @description, @price, @category_id, @quantity, @is_rentable, @is_biddable, GETDATE())
+        VALUES (@seller_id, @name, @description, @price, @category_id, @quantity, @is_rentable, @is_biddable, @status, @is_sellable, @rent, GETDATE())
       `);
 
     const product_id = productResult.recordset[0].product_id;

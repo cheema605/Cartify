@@ -18,13 +18,11 @@ import exploreRoute from './routes/explore/explore.js';
 import reviewRoute from './routes/Buyers/reviews.js';
 import chatbot from './routes/chatbot/chatbot.js';
 import products from './routes/Buyers/products.js';
-import categories from './routes/Buyers/categories.js';  // Added import for categories route
 import searchRoute from './routes/Buyers/search.js';
-
-import { poolPromise} from "./db/sql.js"; // ✅ Import both
+import categories from './routes/Buyers/categories.js';  // Added import for categories route
+import rentalOrderRoute from './routes/Buyers/RentalOrder.js';
 
 const app = express();
-
 app.use(express.json());
 app.use(cors());
 
@@ -66,7 +64,7 @@ app.use('/api/seller/create-store', sellerStoreRoute);
 app.use('/api/seller/create-product', createProduct); 
 app.use('/api/seller/edit-product', editProduct); 
 app.use('/api/wishlist', wishlist);
-app.use('/api/discount', Discount);
+app.use('/api/discounts', Discount);
 app.use('/api/order', Order);
 app.use('/api/shoppping-cart', shoppingCart);
 app.use('/api/preferences', preferences);
@@ -78,7 +76,7 @@ app.use('/api/chatbot', chatbot);
 app.use('/api/products', products);
 app.use('/api/categories', categories);  // Added route registration
 app.use('/api/search', searchRoute);
-
+app.use('/api/rental-order', rentalOrderRoute);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, async () => {

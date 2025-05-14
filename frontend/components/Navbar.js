@@ -145,7 +145,18 @@ export default function Navbar({ cartOpen, toggleCart }) {
 
       {/* Action Buttons */}
       <div className="flex items-center space-x-2">
-        {/* Dashboard Toggle: only show on main pages, not on dashboard */}
+        {/* Dashboard Toggle: show on dashboard pages too */}
+        {isDashboardPage && (
+          <DashboardToggle
+            checked={toggleChecked}
+            onToggle={(checked) => {
+              setToggleChecked(checked);
+              if (!checked) {
+                setTimeout(() => router.push("/"), 350);
+              }
+            }}
+          />
+        )}
         {!isDashboardPage && (
           <DashboardToggle
             checked={toggleChecked}
@@ -196,7 +207,16 @@ export default function Navbar({ cartOpen, toggleCart }) {
                   {userName[0].toUpperCase()}
                 </button>
                 {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg py-1 z-50">
+                  <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg py-1 z-50">
+                    <button
+                      onClick={() => {
+                        router.push("/myorders");
+                        setDropdownOpen(false);
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      View Orders
+                    </button>
                     <button
                       onClick={() => {
                         localStorage.removeItem("jwt_token");

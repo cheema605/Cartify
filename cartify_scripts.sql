@@ -29,6 +29,8 @@ CREATE TABLE Products (
     price DECIMAL(10, 2),
     category_id INT FOREIGN KEY REFERENCES Categories(category_id),
     is_rentable BIT DEFAULT 0,
+    rent INT DEFAULT 0,
+    is_sellable INT DEFAULT 1,
     is_biddable BIT DEFAULT 0,
     status VARCHAR(20) DEFAULT 'available', -- available, sold, rented
     created_at DATETIME DEFAULT GETDATE()
