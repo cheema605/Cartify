@@ -204,6 +204,12 @@ export default function Navbar({ cartOpen, toggleCart }) {
                       View Orders
                     </button>
                     <button
+                      onClick={() => router.push("/rental-orders")}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      View Rental Orders
+                    </button>
+                    <button
                       onClick={() => {
                         localStorage.removeItem("jwt_token");
                         router.push("/login");

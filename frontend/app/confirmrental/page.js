@@ -132,8 +132,8 @@ export default function CheckoutConfirmPage() {
         throw new Error("Failed to create rental");
       }
 
-      // Navigate to rental confirmation page
-      router.push("/myrentals");
+      // Navigate to rental orders page
+      router.push("/rental-orders");
     } catch (err) {
       console.error("Error in handleLooksGood:", err);
       setError(err.message);

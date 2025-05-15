@@ -11,11 +11,8 @@
   "dependencies": {
     "@headlessui/react": "^2.2.3",
     "@radix-ui/react-dialog": "^1.1.13",
-<<<<<<< HEAD
     "@radix-ui/react-dropdown-menu": "^2.1.14",
     "@radix-ui/react-popover": "^1.1.13",
-=======
->>>>>>> 40407129e9a0460ff8b7fdbfa3407baac28697db
     "@radix-ui/react-slot": "^1.2.2",
     "@radix-ui/react-tabs": "^1.1.11",
     "axios": "^1.9.0",

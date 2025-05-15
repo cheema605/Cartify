@@ -74,10 +74,11 @@ export default function RentoutPage() {
 
   const handleConfirm = () => {
     const rentalDetails = {
+      product_id: new URLSearchParams(window.location.search).get("product_id"), // Include product_id
       quantity,
       rentDays,
       totalRent,
-      price: product.price, // Ensure price is included
+      price: productRentPrice, // Use productRentPrice
     };
     const encodedFormData = encodeURIComponent(JSON.stringify(formData));
     const encodedRentalDetails = encodeURIComponent(JSON.stringify(rentalDetails));

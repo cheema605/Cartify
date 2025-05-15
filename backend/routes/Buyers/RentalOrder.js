@@ -8,13 +8,19 @@ const router = express.Router();
 router.get("/get-rental-order/:rental_order_id", authenticateJWT, async (req, res) => {
     const { rental_order_id } = req.params;
 
+    // Log and validate rental_order_id
+    if (!rental_order_id || isNaN(rental_order_id)) {
+        console.error("Invalid rental_order_id:", rental_order_id);
+        return res.status(400).json({ message: "Invalid rental_order_id." });
+    }
+
     try {
         const pool = await poolPromise;
 
         // Query rental order details
         const rentalOrderResult = await pool.request()
             .input('rental_order_id', sql.Int, rental_order_id)
-            .query('SELECT * FROM RentalOrders WHERE rental_order_id = @rental_order_id');
+            .query('SELECT * FROM Rentals WHERE rental_id = @rental_order_id');
 
         if (rentalOrderResult.recordset.length === 0) {
             return res.status(404).json({ message: 'Rental order not found.' });
@@ -26,15 +32,15 @@ router.get("/get-rental-order/:rental_order_id", authenticateJWT, async (req, re
         const itemsResult = await pool.request()
             .input('rental_order_id', sql.Int, rental_order_id)
             .query(`
-                SELECT roi.*, p.name, pi.image_url
-                FROM RentalOrder_Items roi
-                JOIN Products p ON roi.product_id = p.product_id
+                SELECT r.*, p.name, p.price, pi.image_url
+                FROM Rentals r
+                JOIN Products p ON r.product_id = p.product_id
                 LEFT JOIN (
                     SELECT product_id, MIN(image_url) AS image_url
                     FROM ProductImages
                     GROUP BY product_id
-                ) pi ON p.product_id = pi.product_id
-                WHERE roi.rental_order_id = @rental_order_id
+                ) pi ON r.product_id = pi.product_id
+                WHERE r.rental_id = @rental_order_id
             `);
 
         const rentalOrderItems = itemsResult.recordset;
@@ -64,7 +70,7 @@ router.post("/create-rental-order", authenticateJWT, async (req, res) => {
             .input("user_id", sql.Int, user_id)
             .input("total_rent", sql.Decimal(10, 2), total_rent)
             .query(`
-                INSERT INTO RentalOrders (user_id, total_rent, created_at)
+                INSERT INTO Rentals (renter_id, total_rent, rental_start_date)
                 OUTPUT INSERTED.rental_order_id
                 VALUES (@user_id, @total_rent, GETDATE())
             `);
@@ -78,8 +84,8 @@ router.post("/create-rental-order", authenticateJWT, async (req, res) => {
             .input("quantity", sql.Int, quantity)
             .input("rent_days", sql.Int, rent_days)
             .query(`
-                INSERT INTO RentalOrder_Items (rental_order_id, product_id, quantity, rent_days)
-                VALUES (@rental_order_id, @product_id, @quantity, @rent_days)
+                INSERT INTO Rentals (rental_id, product_id, renter_id, rental_start_date, rental_end_date, status)
+                VALUES (@rental_order_id, @product_id, @quantity, GETDATE(), DATEADD(day, @rent_days, GETDATE()), 'ongoing')
             `);
 
         res.status(201).json({ message: "Rental order created successfully.", rental_order_id });
@@ -164,7 +170,7 @@ router.get("/my-rental-orders", authenticateJWT, async (req, res) => {
 
         const result = await pool.request()
             .input('buyer_id', sql.Int, userId)
-            .query('SELECT rental_order_id, rental_start_date, rental_period_days, status FROM RentalOrders WHERE buyer_id = @buyer_id ORDER BY rental_start_date DESC');
+            .query('SELECT rental_id, rental_start_date, rental_end_date, status FROM Rentals WHERE renter_id = @buyer_id ORDER BY rental_start_date DESC');
 
         res.json(result.recordset);
     } catch (err) {
@@ -191,7 +197,7 @@ router.get("/get-rental/:rental_id", authenticateJWT, async (req, res) => {
                     SELECT product_id, MIN(image_url) AS image_url
                     FROM ProductImages
                     GROUP BY product_id
-                ) pi ON p.product_id = pi.product_id
+                ) pi ON r.product_id = pi.product_id
                 WHERE r.rental_id = @rental_id
             `);
 

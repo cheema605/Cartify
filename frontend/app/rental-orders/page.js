@@ -27,6 +27,7 @@ export default function RentalOrdersPage() {
           throw new Error("Failed to fetch rental orders");
         }
         const data = await response.json();
+        console.log("Rental Orders Data:", data);
         setRentalOrders(data);
       } catch (err) {
         setError(err.message);
@@ -39,6 +40,8 @@ export default function RentalOrdersPage() {
   }, []);
 
   const handleRentalOrderClick = (rentalOrderId) => {
+    console.log("Rental Order ID:", rentalOrderId);
+    
     router.push(`/rental-order-status?rental_order_id=${rentalOrderId}`);
   };
 
@@ -64,7 +67,7 @@ export default function RentalOrdersPage() {
           <li
             key={order.rental_order_id}
             className="cursor-pointer border rounded p-4 hover:bg-gray-100"
-            onClick={() => handleRentalOrderClick(order.rental_order_id)}
+            onClick={() => handleRentalOrderClick(order.rental_id)}
           >
             <p><span className="font-semibold">Rental Order ID:</span> {order.rental_order_id}</p>
             <p><span className="font-semibold">Rental Start Date:</span> {order.rental_start_date ? new Date(order.rental_start_date).toLocaleDateString() : "N/A"}</p>
