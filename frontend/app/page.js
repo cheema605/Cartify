@@ -88,28 +88,28 @@ const sections = [
             {
               id: 1,
               title: "Premium Headphones",
-              price: "$299.99",
+              price: "Rs2999.99",
               image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
               category: "Electronics"
             },
             {
               id: 2,
               title: "Smart Watch Pro",
-              price: "$399.99",
+              price: "Rs3999.99",
               image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80",
               category: "Wearables"
             },
             {
               id: 3,
               title: "Wireless Earbuds",
-              price: "$159.99",
-              image: "https://images.unsplash.com/photo-1512499617640-c2f99912a0f1?auto=format&fit=crop&w=800&q=80",
+              price: "Rs1598.99",
+              image: "/images/OIP.jpeg",
               category: "Audio"
             },
             {
               id: 4,
               title: "Smart Speaker",
-              price: "$129.99",
+              price: "Rs1299.99",
               image: "https://images.unsplash.com/photo-1496180727794-817822f65950?auto=format&fit=crop&w=800&q=80",
               category: "Smart Home"
             }

@@ -113,7 +113,7 @@ export default function Navbar({ cartOpen, toggleCart }) {
   };
 
   return (
-    <nav className="fixed top-6 inset-x-0 z-60 w-[98vw] max-w-7xl mx-auto rounded-2xl bg-gradient-to-br from-black/80 to-black/40 backdrop-blur-md shadow-xl border border-white/20 flex items-center justify-between px-8 py-3 transition-all duration-500 animate-fadeInDown">
+    <nav className="fixed top-6 left-1/2 z-60 -translate-x-1/2 w-[98vw] max-w-7xl rounded-2xl bg-gradient-to-br from-black/80 to-black/40 backdrop-blur-md shadow-xl border border-white/20 flex items-center justify-between px-8 py-3 transition-all duration-500 animate-fadeInDown">
       {/* Logo */}
       <div className="flex-shrink-0 flex items-center gap-2">
         <div onClick={() => router.push("/")} className="cursor-pointer">
@@ -131,13 +131,13 @@ export default function Navbar({ cartOpen, toggleCart }) {
           <input
             type="text"
             placeholder="Search products..."
-            className="w-48 px-4 py-1.5 rounded-full bg-white text-black placeholder-gray-500 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-400 transition"
+            className="w-48 px-4 py-1.5 rounded-full bg-white/20 text-white placeholder-white/70 border border-white/20 focus:outline-none focus:ring-2 focus:ring-teal-400 transition"
             value={searchInput}
             onChange={handleSearchInputChange}
             onKeyDown={handleSearchKeyDown}
           />
           <Search
-            className="absolute right-3 top-2 h-4 w-4 text-gray-500 cursor-pointer"
+            className="absolute right-3 top-2 h-4 w-4 text-white/70 cursor-pointer"
             onClick={handleSearchIconClick}
           />
         </div>
@@ -145,18 +145,21 @@ export default function Navbar({ cartOpen, toggleCart }) {
 
       {/* Action Buttons */}
       <div className="flex items-center space-x-2">
-        <DashboardToggle
-          checked={toggleChecked}
-          onToggle={(checked) => {
-            setToggleChecked(checked);
-            if (checked) {
-              setTimeout(() => router.push("/dashboard"), 350);
-            }
-          }}
-        />
+        {/* Dashboard Toggle: only show on main pages, not on dashboard */}
+        {!isDashboardPage && (
+          <DashboardToggle
+            checked={toggleChecked}
+            onToggle={(checked) => {
+              setToggleChecked(checked);
+              if (checked) {
+                setTimeout(() => router.push("/dashboard"), 350);
+              }
+            }}
+          />
+        )}
         {!isExplorePage && !isWishlistPage && (
           <button
-            onClick={() => router.push("/help")}
+            onClick={() => router.push("/chat")}
             className="px-3 py-1.5 rounded-lg text-base font-medium text-white hover:bg-teal-500/30 transition-colors duration-200"
           >
             Help
@@ -193,26 +196,23 @@ export default function Navbar({ cartOpen, toggleCart }) {
                   {userName[0].toUpperCase()}
                 </button>
                 {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg py-1 z-50">
+                  <div className="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg py-1 z-50">
                     <button
-                      onClick={() => {
-                        router.push("/myorders");
-                        setDropdownOpen(false);
-                      }}
+                      onClick={() => router.push('/myorders')}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
                       View Orders
                     </button>
                     <button
-                      onClick={() => router.push("/rental-orders")}
+                      onClick={() => router.push('/rental-orders')}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
                       View Rental Orders
                     </button>
                     <button
                       onClick={() => {
-                        localStorage.removeItem("jwt_token");
-                        router.push("/login");
+                        localStorage.removeItem('jwt_token');
+                        router.push('/login');
                       }}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >

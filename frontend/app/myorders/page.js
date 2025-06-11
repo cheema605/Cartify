@@ -67,25 +67,27 @@ export default function MyOrdersPage() {
   }
 
   return (
-    <div className="min-h-screen max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">My Orders</h1>
-      <ul className="space-y-4">
-        {orders.map((order) => (
-          <li
-            key={order.order_id}
-            className="cursor-pointer border rounded-lg p-4 shadow hover:bg-gray-100 transition"
-            onClick={() => handleOrderClick(order.order_id)}
-          >
-            <div className="flex justify-between">
-              <span className="font-semibold">Order ID: {order.order_id}</span>
-              <span className="text-gray-600">{new Date(order.order_date).toLocaleDateString()}</span>
-            </div>
-            <div className="mt-1 text-gray-700">
-              Total: Rs. {order.total_price !== undefined && order.total_price !== null ? order.total_price.toFixed(2) : "0.00"}
-            </div>
-          </li>
-        ))}
-      </ul>
+    <div className="pt-16"> {/* Added padding to prevent content from hiding below the navbar */}
+      <div className="min-h-screen max-w-4xl mx-auto p-6">
+        <h1 className="text-3xl font-bold mb-6">My Orders</h1>
+        <ul className="space-y-4">
+          {orders.map((order) => (
+            <li
+              key={order.order_id}
+              className="cursor-pointer border rounded-lg p-4 shadow hover:bg-gray-100 transition"
+              onClick={() => handleOrderClick(order.order_id)}
+            >
+              <div className="flex justify-between">
+                <span className="font-semibold">Order ID: {order.order_id}</span>
+                <span className="text-gray-600">{new Date(order.order_date).toLocaleDateString()}</span>
+              </div>
+              <div className="mt-1 text-gray-700">
+                Total: Rs. {order.total_price !== undefined && order.total_price !== null ? order.total_price.toFixed(2) : "0.00"}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }

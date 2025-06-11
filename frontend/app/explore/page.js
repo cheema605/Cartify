@@ -4,16 +4,16 @@ import React, { useState, useEffect, useMemo } from "react";
 import Carousel from "../../components/ui/carousel";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { Heart, ShoppingCart, Star, Search, Filter } from "lucide-react";
+import { Heart, ShoppingCart, Star } from "lucide-react";
 import Image from "next/image";
 import Navbar from "../../components/Navbar";
 import CartSlidingPanel from "../../components/CartSlidingPanel";
 
 const carouselImages = [
-  { url: "/images/deal1.jpg", alt: "Deal 1" },
-  { url: "/images/deal2.jpg", alt: "Deal 2" },
-  { url: "/images/deal3.jpg", alt: "Deal 3" },
-  { url: "/images/deal4.jpg", alt: "Deal 4" },
+  { url: "/images/deal-1.png", alt: "Mega Sale - Up to 50% Off!" },
+  { url: "/images/deal-2.png", alt: "Buy 1 Get 1 Free on Select Items" },
+  { url: "/images/summer-sale.jpg", alt: "Summer Sale - Limited Time Only" },
+  { url: "/images/electronics-discount.jpg", alt: "Electronics Discount" },
 ];
 
 const StarRating = ({ rating }) => {
@@ -31,11 +31,15 @@ const StarRating = ({ rating }) => {
   );
 };
 
-const ProductCard = ({ product, onAddToCart, mode }) => {
+
+
+const ProductCard = ({ product, onAddToCart }) => {
   const router = useRouter();
+  console.log("ProductCard product.is_on_wishlist:", product.is_on_wishlist);
   const [isOnWishlist, setIsOnWishlist] = useState(product.is_on_wishlist || false);
 
-  useEffect(() => {
+  React.useEffect(() => {
+    console.log("ProductCard useEffect product.is_on_wishlist:", product.is_on_wishlist);
     setIsOnWishlist(product.is_on_wishlist || false);
   }, [product.is_on_wishlist]);
 
@@ -53,6 +57,7 @@ const ProductCard = ({ product, onAddToCart, mode }) => {
     }
     try {
       if (!isOnWishlist) {
+        // Add to wishlist
         await fetch("http://localhost:5000/api/wishlist/add-to-wishlist", {
           method: "POST",
           headers: {
@@ -63,6 +68,7 @@ const ProductCard = ({ product, onAddToCart, mode }) => {
         });
         setIsOnWishlist(true);
       } else {
+        // Remove from wishlist
         await fetch("http://localhost:5000/api/wishlist/remove-from-wishlist", {
           method: "POST",
           headers: {
@@ -108,28 +114,17 @@ const ProductCard = ({ product, onAddToCart, mode }) => {
           {product.name}
         </h3>
         <div className="mt-2 flex items-center justify-between">
-          {product.discount_percent && product.discount_percent > 0 ? (
-            <div className="flex items-center space-x-2">
-              <p className="text-xl font-bold text-gray-500 line-through">Rs. {product.price}</p>
-              <p className="text-xl font-bold text-red-600">Rs. {product.discounted_price.toFixed(2)}</p>
-              <p className="text-sm text-red-500">({product.discount_percent}% off)</p>
-            </div>
-          ) : (
-            <p className="text-xl font-bold text-teal-600">Rs. {product.price}</p>
-          )}
+          <p className="text-xl font-bold text-teal-600">Rs. {product.price}</p>
           <StarRating rating={product.rating || 0} />
         </div>
-        {mode === "products" && product.is_sellable && (
-          <button
-            onClick={handleAddToCart}
-            className="mt-3 w-full py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors flex items-center justify-center gap-2"
-            aria-label="Add to cart"
-          >
-            <ShoppingCart className="w-5 h-5" />
-            Add to Cart
-          </button>
-        )}
-        {/* Rent button removed as per request */}
+        <button
+          onClick={handleAddToCart}
+          className="mt-3 w-full py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors flex items-center justify-center gap-2"
+          aria-label="Add to cart"
+        >
+          <ShoppingCart className="w-5 h-5" />
+          Add to Cart
+        </button>
       </div>
     </div>
   );
@@ -139,16 +134,22 @@ const ExplorePage = () => {
   const router = useRouter();
   const [mode, setMode] = useState("products");
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [productData, setProductData] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [cartRefreshTrigger, setCartRefreshTrigger] = useState(0);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortOption, setSortOption] = useState("default");
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [cartManuallyClosed, setCartManuallyClosed] = useState(false);
+  const [cartManuallyOpened, setCartManuallyOpened] = useState(false);
 
   const toggleCart = () => {
+    if (cartOpen) {
+      setCartManuallyClosed(true);
+      setCartManuallyOpened(false);
+    } else {
+      setCartManuallyClosed(false);
+      setCartManuallyOpened(true);
+    }
     setCartOpen(!cartOpen);
   };
 
@@ -186,6 +187,7 @@ const ExplorePage = () => {
       if (!cartOpen) {
         setCartOpen(true);
       } else {
+        // Instead of toggling cartOpen off/on, just trigger cartRefreshTrigger to refresh cart items
         setCartRefreshTrigger((prev) => prev + 1);
       }
     } catch (error) {
@@ -235,7 +237,19 @@ const ExplorePage = () => {
           },
         });
 
-        setProductData(response.data);
+        // Map average_rating to rating for each product suggestion and rental suggestion
+        const mappedData = response.data.map((category) => ({
+          ...category,
+          product_suggestions: category.product_suggestions.map((p) => ({
+            ...p,
+            rating: p.average_rating || 0,
+          })),
+          rental_suggestions: category.rental_suggestions.map((p) => ({
+            ...p,
+            rating: p.average_rating || 0,
+          })),
+        }));
+        setProductData(mappedData);
         setLoading(false);
       } catch (error) {
         if (
@@ -246,8 +260,6 @@ const ExplorePage = () => {
           router.push("/login");
         }
         setError("Failed to fetch data");
-        setProductData([]);
-      } finally {
         setLoading(false);
       }
     };
@@ -256,95 +268,49 @@ const ExplorePage = () => {
   }, []);
 
   const filteredItems = useMemo(() => {
-    if (!Array.isArray(productData)) return [];
-    
     let items = [];
 
     if (mode === "products") {
-      items = productData.flatMap((category) => {
-        if (!category || !Array.isArray(category.product_suggestions)) return [];
-        return category.product_suggestions.map((product) => ({
+      items = productData.flatMap((category) =>
+        category.product_suggestions.map((product) => ({
           ...product,
           rating: 0,
-        }));
-      });
+        }))
+      );
     }
 
     if (selectedCategory) {
       items = items.filter((item) => item.category_id === selectedCategory);
     }
 
-    // Apply search filter
-    if (searchQuery.trim() !== "") {
-      const lowerQuery = searchQuery.toLowerCase();
-      items = items.filter((item) =>
-        item.name.toLowerCase().includes(lowerQuery)
-      );
-    }
-
-    // Apply sorting
-    if (sortOption === "price-asc") {
-      items.sort((a, b) => a.price - b.price);
-    } else if (sortOption === "price-desc") {
-      items.sort((a, b) => b.price - a.price);
-    } else if (sortOption === "name-asc") {
-      items.sort((a, b) => a.name.localeCompare(b.name));
-    } else if (sortOption === "name-desc") {
-      items.sort((a, b) => b.name.localeCompare(a.name));
-    }
-
     return items;
-  }, [mode, selectedCategory, productData, searchQuery, sortOption]);
+  }, [mode, selectedCategory, productData]);
 
   return (
     <div className="min-h-screen bg-gray-200">
+      {/* Floating Navbar */}
       <div className="fixed -top-4 left-1/2 z-50 -translate-x-1/2 w-[98vw] max-w-7xl">
         <Navbar cartOpen={cartOpen} toggleCart={toggleCart} />
       </div>
+      {/* Hero Section */}
       <div className="relative bg-gradient-to-b from-teal-600 to-teal-800 pt-20 pb-12">
         <div className="container mx-auto px-4 max-w-7xl">
-          <Carousel images={carouselImages} autoPlay={true} autoPlayTime={4000} />
+          <Carousel
+            images={carouselImages}
+            autoPlay={true}
+            autoPlayTime={4000}
+          />
         </div>
       </div>
-      <div className="container mx-auto px-4 py-8 pt-24">
-        <CartSlidingPanel isOpen={cartOpen} onClose={() => setCartOpen(false)} userId={"current"} disableOverlay={true} />
-        {/* Search and Filter Bar */}
-        <div className="flex flex-col md:flex-row gap-4 mb-8 ">
-          {/* Modern Search Bar */}
-          <div className="relative flex-1">
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 rounded-full bg-white/70 backdrop-blur-md shadow-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-900 placeholder-gray-400 transition"
-              style={{ boxShadow: "0 4px 24px 0 rgba(0,0,0,0.07)" }}
-            />
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-400 pointer-events-none" />
-          </div>
 
-          {/* Sort & Filter Controls */}
-          <div className="flex gap-3 items-center bg-white/70 backdrop-blur-md rounded-full px-4 py-2 shadow-lg border border-gray-200">
-            <select
-              value={sortOption}
-              onChange={(e) => setSortOption(e.target.value)}
-              className="px-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/80 shadow-sm text-gray-700 font-medium transition"
-            >
-              <option value="default">Sort By</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
-              <option value="name-asc">Name: A to Z</option>
-              <option value="name-desc">Name: Z to A</option>
-            </select>
-            <button
-              onClick={() => setIsFilterOpen(!isFilterOpen)}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500 to-teal-400 text-white font-semibold shadow hover:from-blue-600 hover:to-teal-500 transition"
-            >
-              <Filter className="w-5 h-5" />
-              Filters
-            </button>
-          </div>
-        </div>
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-8 pt-24">
+        <CartSlidingPanel
+          isOpen={cartOpen}
+          onClose={() => setCartOpen(false)}
+          userId={"current"}
+          disableOverlay={true}
+        />
 
         {/* Category Section - Styled Grid */}
         <div className="mb-8">
@@ -355,20 +321,16 @@ const ExplorePage = () => {
                 key={category.id}
                 className={`rounded-xl p-6 shadow-md text-white cursor-pointer transition-transform transform hover:scale-105 ${
                   [
-                    "bg-gradient-to-br from-black to-gray-800",
-                    "bg-yellow-400 text-black",
-                    "bg-red-500",
-                    "bg-violet-500 text-black",
-                    "bg-green-500",
-                    "bg-blue-500",
-                    "bg-pink-500",
+                    "bg-gradient-to-br from-black to-gray-800", // Example for category 1
+                    "bg-yellow-400 text-black", // Example for category 2
+                    "bg-red-500", // Example for category 3
+                    "bg-violet-500 text-black", // Example for category 4
+                    "bg-green-500", // Example for category 5
+                    "bg-blue-500", // Example for category 6
+                    "bg-pink-500", // Fallback
                   ][index % 7]
                 }`}
-                onClick={() =>
-                  setSelectedCategory(
-                    selectedCategory === category.id ? null : category.id
-                  )
-                }
+                onClick={() => router.push(`/search?category=${encodeURIComponent(category.category_name)}`)}
               >
                 <div className="text-4xl mb-4">{category.symbol}</div>
                 <h3 className="text-xl font-semibold mb-1">{category.category_name}</h3>
@@ -406,6 +368,7 @@ const ExplorePage = () => {
         </div>
 
         {/* Suggested Categories and Products */}
+
         {productData.slice(0, 7).map(({ category_name, product_suggestions, rental_suggestions }) => {
           const suggestions = mode === "rentals" ? rental_suggestions : product_suggestions;
 
@@ -415,7 +378,7 @@ const ExplorePage = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {suggestions && suggestions.length > 0 ? (
                   suggestions.map((product) => (
-                    <ProductCard key={product.product_id} product={product} onAddToCart={addToCart} mode={mode} />
+                    <ProductCard key={product.product_id} product={product} onAddToCart={addToCart} onAddToWishlist={addToWishlist} />
                   ))
                 ) : (
                   <div className="col-span-4 text-center">No products available</div>
@@ -442,7 +405,9 @@ const ExplorePage = () => {
         {/* Empty */}
         {!loading && !error && filteredItems.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-600">No products found matching your criteria.</p>
+            <p className="text-gray-600">
+              No products found matching your criteria.
+            </p>
           </div>
         )}
       </div>
