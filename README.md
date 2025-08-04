@@ -1406,9 +1406,30 @@ npm test
 
 ## Roadmap
 
-- [X] **`Task 1`**: <strike>Implement feature one.</strike>
-- [ ] **`Task 2`**: Implement feature two.
-- [ ] **`Task 3`**: Implement feature three.
+<h2>✅ Completed Tasks</h2>
+<ul>
+  <li>✅ <strong>Task 1</strong>: Basic Login with JWT Authentication</li>
+  <li>✅ <strong>Task 2</strong>: Database Schema & Setup</li>
+  <li>✅ <strong>Task 3</strong>: Implement Explore Page with Recommendations</li>
+  <li>✅ <strong>Task 4</strong>: Search Bar with Filtering</li>
+  <li>✅ <strong>Task 5</strong>: Rent & Buy Options</li>
+  <li>✅ <strong>Task 6</strong>: Wishlist Functionality</li>
+  <li>✅ <strong>Task 7</strong>: Cart & Checkout Integration</li>
+  <li>✅ <strong>Task 8</strong>: Seller Store with Product Listings, Analytics & Sales Dashboard</li>
+</ul>
+
+<h2>🔧 Upcoming Tasks</h2>
+<ul>
+  <li>🕐 <strong>Task 9</strong>: Implement Product Bidding System</li>
+  <li>🕐 <strong>Task 10</strong>: Real-time Bid Updates using WebSockets or Polling</li>
+  <li>🕐 <strong>Task 11</strong>: Winning Bid Assignment and Notification</li>
+  <li>🕐 <strong>Task 12</strong>: Delivery Management Module</li>
+  <li>🕐 <strong>Task 13</strong>: Order Tracking System for Buyers</li>
+  <li>🕐 <strong>Task 14</strong>: Delivery Status Update Panel for Sellers</li>
+  <li>🕐 <strong>Task 15</strong>: UI/UX Enhancements & Animations</li>
+  <li>🕐 <strong>Task 16</strong>: Final Testing, Optimization, and Deployment</li>
+</ul>
+
 
 ---
 
