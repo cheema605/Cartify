@@ -1482,9 +1482,17 @@ Cartify is protected under the [LICENSE](https://choosealicense.com/licenses) Li
 
 ---
 
-## Acknowledgments
+## 🙌 Acknowledgments
 
-- Credit `contributors`, `inspiration`, `references`, etc.
+Grateful to the following individuals for their valuable contributions and support throughout the project:
+
+- **Hamza Akmal** – Core Development & Architecture  
+- **Maziah Hasan** – UI/UX Design & Frontend Implementation  
+- **Anooshay Khan** – Testing & Feature Validation  
+- **Ammar Bin Mudassar** – Project Lead, Full Stack Development & Deployment  
+
+Special thanks to all contributors, mentors, and reference materials that inspired this project.
+
 
 <div align="right">
 
