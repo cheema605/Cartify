@@ -64,7 +64,26 @@
 
 ## Features
 
-<code>❯ REPLACE-ME</code>
+<ul>
+  <li><strong>🔐 Authentication & User Management:</strong> Secure login and signup using JWT-based authentication.</li>
+  <li><strong>🧠 Personalized Explore Page:</strong> Product recommendations powered by a dynamic recommendation algorithm based on user preferences and past activity.</li>
+  <li><strong>🔍 Smart Search:</strong> Search bar with category and filter functionality for easy product discovery.</li>
+  <li><strong>🛒 Shopping Features:</strong>
+    <ul>
+      <li>Support for both <strong>Rent</strong> and <strong>Buy</strong> options</li>
+      <li><strong>Wishlist</strong> to save favorite items</li>
+      <li><strong>Shopping Cart</strong> with quantity and price handling</li>
+      <li><strong>Secure Checkout</strong> flow</li>
+    </ul>
+  </li>
+  <li><strong>🏬 Seller Store Dashboard:</strong>
+    <ul>
+      <li>Create and manage a seller store</li>
+      <li>List products, set pricing, manage availability</li>
+      <li>View sales analytics and performance metrics</li>
+    </ul>
+  </li>
+</ul>
 
 ---
 
