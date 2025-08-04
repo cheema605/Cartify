@@ -222,9 +222,9 @@ npm test
 
 ## Contributing
 
-- **💬 [Join the Discussions](https://LOCAL//Cartify/discussions)**: Share your insights, provide feedback, or ask questions.
-- **🐛 [Report Issues](https://LOCAL//Cartify/issues)**: Submit bugs found or log feature requests for the `Cartify` project.
-- **💡 [Submit Pull Requests](https://LOCAL//Cartify/blob/main/CONTRIBUTING.md)**: Review open PRs, and submit your own PRs.
+- **💬 [Join the Discussions](../../discussions)**: Share your insights, provide feedback, or ask questions.
+- **🐛 [Report Issues](../../issues/new)**: Submit bugs found or log feature requests for the `Cartify` project.
+- **💡 [Submit Pull Requests](../../compare)**: Review open PRs, and submit your own PRs.
 
 <details closed>
 <summary>Contributing Guidelines</summary>
